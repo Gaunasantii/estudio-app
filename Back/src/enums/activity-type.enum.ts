@@ -1,0 +1,6 @@
+export enum ActivityType {
+  THEORY = 'THEORY',
+  PRACTICE = 'PRACTICE',
+  ASSIGNMENT = 'ASSIGNMENT',
+  EXAM_PREP = 'EXAM_PREP',
+}
