@@ -3,6 +3,7 @@ import cors from 'cors';
 import { MikroORM, RequestContext } from '@mikro-orm/core';
 import mikroOrmConfig from '../mikro-orm.config';
 import 'reflect-metadata';
+import authRoutes from './routes/auth.routes';
 
 export const app = express();
 export let orm: MikroORM;
@@ -21,6 +22,8 @@ const main = async () => {
   app.get('/health', (req, res) => {
     res.json({ status: 'ok', message: 'EstudioApp API is running' });
   });
+
+  app.use('/api/auth', authRoutes);
 
   const PORT = process.env.PORT || 4000;
   app.listen(PORT, () => {
