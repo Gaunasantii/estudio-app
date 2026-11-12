@@ -53,3 +53,6 @@ export const authMiddleware = (
   }
 };
 
+export const authenticateToken = authMiddleware;
+
+
