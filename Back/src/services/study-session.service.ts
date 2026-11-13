@@ -47,6 +47,9 @@ export interface StudyHeatmapStatsResponse {
   totalSeconds: number;
   totalHours: number;
   totalSessions: number;
+  currentStreak: number;
+  bestStreak: number;
+  restDaysUsed: number;
 }
 
 export class StudySessionError extends Error {
@@ -70,6 +73,103 @@ export class StudySessionService {
     const month = String(date.getMonth() + 1).padStart(2, '0');
     const day = String(date.getDate()).padStart(2, '0');
     return `${year}-${month}-${day}`;
+  }
+
+  private parseDateKeyToNoon(dateKey: string): Date {
+    const [year, month, day] = dateKey.split('-').map(Number);
+    return new Date(year, month - 1, day, 12, 0, 0, 0);
+  }
+
+  private addDays(date: Date, days: number): Date {
+    const result = new Date(date.getTime());
+    result.setDate(result.getDate() + days);
+    return result;
+  }
+
+  private calculateStreakStats(studiedDates: Set<string>): {
+    currentStreak: number;
+    bestStreak: number;
+    restDaysUsed: number;
+  } {
+    if (studiedDates.size === 0) {
+      return { currentStreak: 0, bestStreak: 0, restDaysUsed: 0 };
+    }
+
+    const sortedDates = Array.from(studiedDates).sort((a, b) => a.localeCompare(b));
+    const firstDate = this.parseDateKeyToNoon(sortedDates[0]);
+    const lastStudiedDate = this.parseDateKeyToNoon(sortedDates[sortedDates.length - 1]);
+    const todayKey = this.formatDateKey(new Date());
+    const todayDate = this.parseDateKeyToNoon(todayKey);
+    const endDate = todayDate > lastStudiedDate ? todayDate : lastStudiedDate;
+
+    let activeStreak = 0;
+    let bestStreak = 0;
+    let consecutiveMisses = 0;
+    let streakStartDate: Date | null = null;
+
+    let currentStreak = 0;
+    let restDaysUsed = 0;
+
+    for (
+      let cursor = new Date(firstDate.getTime());
+      cursor <= endDate;
+      cursor = this.addDays(cursor, 1)
+    ) {
+      const cursorKey = this.formatDateKey(cursor);
+      const studiedToday = studiedDates.has(cursorKey);
+
+      if (studiedToday) {
+        if (activeStreak === 0) {
+          activeStreak = 1;
+          streakStartDate = new Date(cursor.getTime());
+        } else {
+          activeStreak += 1;
+        }
+        consecutiveMisses = 0;
+        if (activeStreak > bestStreak) {
+          bestStreak = activeStreak;
+        }
+      } else if (activeStreak > 0 && streakStartDate) {
+        consecutiveMisses += 1;
+
+        const windowStartCandidate = this.addDays(cursor, -6);
+        const windowStart =
+          windowStartCandidate > streakStartDate ? windowStartCandidate : streakStartDate;
+
+        let missesInWindow = 0;
+        for (
+          let d = new Date(windowStart.getTime());
+          d <= cursor;
+          d = this.addDays(d, 1)
+        ) {
+          if (!studiedDates.has(this.formatDateKey(d))) {
+            missesInWindow += 1;
+          }
+        }
+
+        if (consecutiveMisses >= 3 || missesInWindow >= 3) {
+          activeStreak = 0;
+          consecutiveMisses = 0;
+          streakStartDate = null;
+        }
+      }
+
+      if (cursorKey === todayKey) {
+        currentStreak = activeStreak;
+        restDaysUsed = activeStreak > 0 ? Math.min(2, consecutiveMisses) : 0;
+      }
+    }
+
+    if (todayDate < firstDate) {
+      currentStreak = 0;
+      restDaysUsed = 0;
+    }
+
+    return {
+      currentStreak,
+      bestStreak,
+      restDaysUsed,
+    };
   }
 
   async create(userId: string, data: CreateStudySessionDTO): Promise<StudySession> {
@@ -278,6 +378,9 @@ export class StudySessionService {
     }
 
     const heatmap = Object.values(byDate).sort((a, b) => a.date.localeCompare(b.date));
+    const { currentStreak, bestStreak, restDaysUsed } = this.calculateStreakStats(
+      new Set(Object.keys(byDate))
+    );
 
     return {
       heatmap,
@@ -285,6 +388,9 @@ export class StudySessionService {
       totalSeconds,
       totalHours: Number((totalSeconds / 3600).toFixed(2)),
       totalSessions: sessions.length,
+      currentStreak,
+      bestStreak,
+      restDaysUsed,
     };
   }
 }
