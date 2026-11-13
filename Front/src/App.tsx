@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import type { ReactNode, FormEvent } from 'react';
 import {
   BrowserRouter,
@@ -6,9 +6,7 @@ import {
   Route,
   Navigate,
   Link,
-  useOutletContext,
 } from 'react-router-dom';
-import axios from 'axios';
 import {
   ArrowLeft,
   User,
@@ -17,39 +15,27 @@ import {
   Bell,
   Clock,
   Palette,
-  BookOpen,
   CalendarCheck,
-  Plus,
-  Trash2,
-  Loader2,
-  AlertCircle,
+  Lock,
+  Save,
   CheckCircle2,
+  AlertCircle,
 } from 'lucide-react';
-import { AuthProvider, useAuth } from './context/AuthContext';
 import api from './api/axios';
+import { AuthProvider, useAuth } from './context/AuthContext';
+import type { User as AuthUser } from './context/AuthContext';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import DashboardLayout from './pages/DashboardLayout';
 import Dashboard from './pages/Dashboard';
-import type { DashboardOutletContext, Exam, Subject } from './types/academic';
+import SubjectsPage from './pages/SubjectsPage';
+import ExamsPage from './pages/ExamsPage';
 
-const PRESET_COLORS = [
-  '#4F46E5',
-  '#10B981',
-  '#F59E0B',
-  '#F43F5E',
-  '#06B6D4',
-  '#8B5CF6',
-];
+const POMODORO_DURATION_OPTIONS = [15, 25, 30, 45, 50, 60];
 
-function formatDuration(totalSeconds: number): string {
-  if (!totalSeconds || totalSeconds <= 0) return '0 min estudiados';
-  const hours = Math.floor(totalSeconds / 3600);
-  const mins = Math.floor((totalSeconds % 3600) / 60);
-  if (hours > 0 && mins > 0) return `${hours}h ${mins}m acumulados`;
-  if (hours > 0) return `${hours}h acumuladas`;
-  if (mins > 0) return `${mins} min acumulados`;
-  return `${totalSeconds}s acumulados`;
+function getInitialPomodoroMinutes(): number {
+  const stored = Number(localStorage.getItem('pomodoroMinutes'));
+  return Number.isFinite(stored) && stored > 0 ? stored : 25;
 }
 
 function PrivateRoute({ children }: { children: ReactNode }) {
@@ -80,419 +66,73 @@ function PublicRoute({ children }: { children: ReactNode }) {
   return isAuthenticated ? <Navigate to="/" replace /> : <>{children}</>;
 }
 
-function MateriasView() {
-  const {
-    subjects,
-    subjectSecondsMap,
-    loadingSubjects,
-    refreshAcademicData,
-  } = useOutletContext<DashboardOutletContext>();
-
-  const [name, setName] = useState('');
-  const [color, setColor] = useState(PRESET_COLORS[0]);
-  const [submitting, setSubmitting] = useState(false);
-  const [deletingId, setDeletingId] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
-
-  const handleCreate = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (!name.trim()) return;
-
-    setError(null);
-    setSubmitting(true);
-    try {
-      await api.post<Subject>('/subjects', {
-        name: name.trim(),
-        color,
-        isCurrentlyTaking: true,
-      });
-      setName('');
-      await refreshAcademicData();
-    } catch (err: unknown) {
-      if (axios.isAxiosError<{ message?: string }>(err)) {
-        setError(err.response?.data?.message || 'No se pudo crear la materia.');
-      } else {
-        setError('Error al crear la materia.');
-      }
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  const handleDelete = async (id: string) => {
-    setError(null);
-    setDeletingId(id);
-    try {
-      await api.delete(`/subjects/${id}`);
-      await refreshAcademicData();
-    } catch (err: unknown) {
-      if (axios.isAxiosError<{ message?: string }>(err)) {
-        setError(err.response?.data?.message || 'No se pudo eliminar la materia.');
-      } else {
-        setError('Error al eliminar la materia.');
-      }
-    } finally {
-      setDeletingId(null);
-    }
-  };
-
-  return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-slate-900">Materias</h1>
-        <p className="text-sm text-slate-500 mt-0.5">
-          Administrá tus asignaturas y consultá el tiempo total de estudio acumulado.
-        </p>
-      </div>
-
-      {/* Formulario rápido para crear materia */}
-      <form
-        onSubmit={handleCreate}
-        className="bg-white rounded-3xl border border-slate-200/80 p-6 shadow-xs space-y-4"
-      >
-        <h2 className="text-sm font-bold text-slate-800 uppercase tracking-wider">
-          Agregar Nueva Materia
-        </h2>
-
-        {error && (
-          <div className="flex items-center gap-2 p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs">
-            <AlertCircle className="w-4 h-4 shrink-0" />
-            <span>{error}</span>
-          </div>
-        )}
-
-        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-4">
-          <input
-            type="text"
-            required
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            placeholder="Nombre de la materia (ej. Análisis Matemático II)"
-            className="flex-1 px-4 py-2.5 rounded-xl border border-slate-200 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          />
-
-          <div className="flex items-center justify-between sm:justify-start gap-3">
-            <div className="flex items-center gap-1.5">
-              {PRESET_COLORS.map((c) => (
-                <button
-                  key={c}
-                  type="button"
-                  onClick={() => setColor(c)}
-                  aria-label={`Color ${c}`}
-                  className={`w-6 h-6 rounded-full transition cursor-pointer ${
-                    color === c
-                      ? 'ring-2 ring-offset-2 ring-indigo-600 scale-110'
-                      : 'opacity-80 hover:opacity-100'
-                  }`}
-                  style={{ backgroundColor: c }}
-                />
-              ))}
-            </div>
-
-            <button
-              type="submit"
-              disabled={submitting || !name.trim()}
-              className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-300 text-white text-sm font-semibold transition cursor-pointer"
-            >
-              {submitting ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
-              ) : (
-                <Plus className="w-4 h-4" />
-              )}
-              <span>Crear</span>
-            </button>
-          </div>
-        </div>
-      </form>
-
-      {/* Lista de materias */}
-      <div className="bg-white rounded-3xl border border-slate-200/80 p-6 shadow-xs">
-        {loadingSubjects ? (
-          <div className="py-12 flex items-center justify-center text-slate-400 text-sm gap-2">
-            <Loader2 className="w-5 h-5 animate-spin text-indigo-600" />
-            <span>Cargando materias...</span>
-          </div>
-        ) : subjects.length === 0 ? (
-          <div className="py-12 text-center space-y-2">
-            <BookOpen className="w-8 h-8 text-slate-300 mx-auto" />
-            <p className="text-sm font-semibold text-slate-700">
-              Todavía no tenés materias registradas
-            </p>
-            <p className="text-xs text-slate-500">
-              Creá tu primera materia con el formulario superior.
-            </p>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            {subjects.map((subj) => {
-              const secs = subjectSecondsMap[subj.id] ?? subj.totalSeconds ?? 0;
-              return (
-                <div
-                  key={subj.id}
-                  className="flex items-center justify-between gap-3 p-4 rounded-2xl border border-slate-100 bg-slate-50/70 hover:bg-slate-50 transition"
-                >
-                  <div className="flex items-center gap-3 min-w-0">
-                    <span
-                      className="w-4 h-10 rounded-full shrink-0"
-                      style={{ backgroundColor: subj.color || '#4F46E5' }}
-                    />
-                    <div className="min-w-0">
-                      <h3 className="text-sm font-bold text-slate-900 truncate">
-                        {subj.name}
-                      </h3>
-                      <p className="text-xs text-slate-500 mt-0.5">
-                        {formatDuration(secs)}
-                      </p>
-                    </div>
-                  </div>
-
-                  <button
-                    type="button"
-                    onClick={() => void handleDelete(subj.id)}
-                    disabled={deletingId === subj.id}
-                    aria-label={`Eliminar ${subj.name}`}
-                    className="p-2 rounded-xl text-slate-400 hover:text-red-600 hover:bg-red-50 transition cursor-pointer disabled:opacity-50"
-                  >
-                    {deletingId === subj.id ? (
-                      <Loader2 className="w-4 h-4 animate-spin" />
-                    ) : (
-                      <Trash2 className="w-4 h-4" />
-                    )}
-                  </button>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
-function ExamenesView() {
-  const { subjects } = useOutletContext<DashboardOutletContext>();
-
-  const [exams, setExams] = useState<Exam[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [subjectId, setSubjectId] = useState('');
-  const [title, setTitle] = useState('');
-  const [examDate, setExamDate] = useState('');
-  const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-
-  const fetchExams = useCallback(async () => {
-    setLoading(true);
-    try {
-      const res = await api.get<Exam[]>('/exams');
-      setExams(Array.isArray(res.data) ? res.data : []);
-    } catch {
-      setExams([]);
-    } finally {
-      setLoading(false);
-    }
-  }, []);
-
-  useEffect(() => {
-    void fetchExams();
-  }, [fetchExams]);
-
-  useEffect(() => {
-    if (subjects.length > 0 && (!subjectId || !subjects.some((s) => s.id === subjectId))) {
-      setSubjectId(subjects[0].id);
-    }
-  }, [subjects, subjectId]);
-
-  const handleCreate = async (e: FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    if (!subjectId || !title.trim() || !examDate) return;
-
-    setError(null);
-    setSubmitting(true);
-    try {
-      await api.post('/exams', {
-        subjectId,
-        title: title.trim(),
-        examDate: new Date(`${examDate}T12:00:00`).toISOString(),
-      });
-      setTitle('');
-      setExamDate('');
-      await fetchExams();
-    } catch (err: unknown) {
-      if (axios.isAxiosError<{ message?: string }>(err)) {
-        setError(err.response?.data?.message || 'No se pudo agendar el examen.');
-      } else {
-        setError('Error al agendar el examen.');
-      }
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  const handleDelete = async (id: string) => {
-    try {
-      await api.delete(`/exams/${id}`);
-      await fetchExams();
-    } catch {
-      // Ignorar si falla borrado
-    }
-  };
-
-  return (
-    <div className="max-w-4xl mx-auto space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-slate-900">Exámenes</h1>
-        <p className="text-sm text-slate-500 mt-0.5">
-          Planificá tus fechas de parciales, finales y entregas académicas.
-        </p>
-      </div>
-
-      {/* Formulario para agendar examen */}
-      <form
-        onSubmit={handleCreate}
-        className="bg-white rounded-3xl border border-slate-200/80 p-6 shadow-xs space-y-4"
-      >
-        <h2 className="text-sm font-bold text-slate-800 uppercase tracking-wider">
-          Agendar Nuevo Examen
-        </h2>
-
-        {error && (
-          <div className="flex items-center gap-2 p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs">
-            <AlertCircle className="w-4 h-4 shrink-0" />
-            <span>{error}</span>
-          </div>
-        )}
-
-        {subjects.length === 0 ? (
-          <p className="text-xs text-slate-500">
-            Primero creá al menos una materia en la pestaña{' '}
-            <Link to="/materias" className="text-indigo-600 font-semibold underline">
-              Materias
-            </Link>{' '}
-            para poder agendar exámenes.
-          </p>
-        ) : (
-          <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
-            <select
-              required
-              value={subjectId}
-              onChange={(e) => setSubjectId(e.target.value)}
-              className="px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            >
-              {subjects.map((s) => (
-                <option key={s.id} value={s.id}>
-                  {s.name}
-                </option>
-              ))}
-            </select>
-
-            <input
-              type="text"
-              required
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
-              placeholder="Ej. 1° Parcial"
-              className="sm:col-span-2 px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            />
-
-            <div className="flex gap-2">
-              <input
-                type="date"
-                required
-                value={examDate}
-                onChange={(e) => setExamDate(e.target.value)}
-                className="flex-1 px-3 py-2.5 rounded-xl border border-slate-200 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              />
-              <button
-                type="submit"
-                disabled={submitting}
-                className="inline-flex items-center justify-center px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-300 text-white text-sm font-semibold transition cursor-pointer shrink-0"
-              >
-                {submitting ? (
-                  <Loader2 className="w-4 h-4 animate-spin" />
-                ) : (
-                  <Plus className="w-4 h-4" />
-                )}
-              </button>
-            </div>
-          </div>
-        )}
-      </form>
-
-      {/* Listado de exámenes */}
-      <div className="bg-white rounded-3xl border border-slate-200/80 p-6 shadow-xs">
-        {loading ? (
-          <div className="py-12 flex items-center justify-center text-slate-400 text-sm gap-2">
-            <Loader2 className="w-5 h-5 animate-spin text-indigo-600" />
-            <span>Cargando exámenes...</span>
-          </div>
-        ) : exams.length === 0 ? (
-          <div className="py-12 text-center space-y-2">
-            <CalendarCheck className="w-8 h-8 text-slate-300 mx-auto" />
-            <p className="text-sm font-semibold text-slate-700">Sin exámenes agendados</p>
-            <p className="text-xs text-slate-500">
-              Tus próximas fechas de evaluación aparecerán acá.
-            </p>
-          </div>
-        ) : (
-          <div className="space-y-3">
-            {exams.map((exam) => {
-              const subj =
-                typeof exam.subject === 'object' && exam.subject !== null
-                  ? exam.subject
-                  : subjects.find((s) => s.id === exam.subject);
-              const formattedDate = new Date(exam.examDate).toLocaleDateString('es-AR', {
-                day: '2-digit',
-                month: 'short',
-                year: 'numeric',
-              });
-
-              return (
-                <div
-                  key={exam.id}
-                  className="flex items-center justify-between gap-3 p-4 rounded-2xl border border-slate-100 hover:border-slate-200 transition"
-                >
-                  <div className="min-w-0">
-                    <div className="flex items-center gap-2">
-                      <span
-                        className="w-2.5 h-2.5 rounded-full shrink-0"
-                        style={{ backgroundColor: subj?.color || '#4F46E5' }}
-                      />
-                      <span className="text-xs font-medium text-slate-500">
-                        {subj?.name || 'Materia'}
-                      </span>
-                      <span className="text-xs text-slate-400">• {formattedDate}</span>
-                    </div>
-                    <h3 className="text-sm font-bold text-slate-900 mt-1 truncate">
-                      {exam.title}
-                    </h3>
-                  </div>
-
-                  <div className="flex items-center gap-2 shrink-0">
-                    <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-xs font-semibold bg-indigo-50 text-indigo-700">
-                      <CheckCircle2 className="w-3.5 h-3.5" />
-                      Agendado
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => void handleDelete(exam.id)}
-                      aria-label="Eliminar examen"
-                      className="p-2 rounded-xl text-slate-400 hover:text-red-600 hover:bg-red-50 transition cursor-pointer"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-}
-
 function ProfileView() {
-  const { user } = useAuth();
+  const { user, updateUser } = useAuth();
+  const [name, setName] = useState<string>(user?.name || '');
+  const [currentPassword, setCurrentPassword] = useState<string>('');
+  const [newPassword, setNewPassword] = useState<string>('');
+  const [submitting, setSubmitting] = useState<boolean>(false);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (user?.name) {
+      setName(user.name);
+    }
+  }, [user?.name]);
+
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setSuccessMessage(null);
+    setErrorMessage(null);
+
+    const trimmedName = name.trim();
+    if (!trimmedName) {
+      setErrorMessage('El nombre no puede estar vacío.');
+      return;
+    }
+
+    if (newPassword && !currentPassword) {
+      setErrorMessage('Debés ingresar tu contraseña actual para definir una nueva contraseña.');
+      return;
+    }
+
+    if (newPassword && newPassword.length < 6) {
+      setErrorMessage('La nueva contraseña debe tener al menos 6 caracteres.');
+      return;
+    }
+
+    try {
+      setSubmitting(true);
+      const payload: {
+        name: string;
+        currentPassword?: string;
+        newPassword?: string;
+      } = { name: trimmedName };
+
+      if (newPassword) {
+        payload.currentPassword = currentPassword;
+        payload.newPassword = newPassword;
+      }
+
+      const response = await api.put<{ user: AuthUser; message?: string }>(
+        '/auth/profile',
+        payload
+      );
+
+      updateUser(response.data.user);
+      setCurrentPassword('');
+      setNewPassword('');
+      setSuccessMessage(response.data.message || 'Perfil actualizado correctamente.');
+    } catch (err: unknown) {
+      const maybeAxiosError = err as { response?: { data?: { message?: string } } };
+      setErrorMessage(
+        maybeAxiosError.response?.data?.message || 'No se pudo actualizar el perfil.'
+      );
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   return (
     <div className="max-w-2xl mx-auto space-y-6">
@@ -511,32 +151,125 @@ function ProfileView() {
           </div>
           <div>
             <h1 className="text-xl font-bold text-slate-900">Mi Perfil</h1>
-            <p className="text-sm text-slate-500">Información personal de tu cuenta académica</p>
+            <p className="text-sm text-slate-500">Información personal y seguridad de tu cuenta académica</p>
           </div>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-slate-100">
-          <div className="p-4 rounded-2xl bg-slate-50">
-            <p className="text-xs font-medium text-slate-400 uppercase">Nombre</p>
-            <p className="text-sm font-semibold text-slate-900 mt-1">
-              {user?.name || 'Estudiante'}
-            </p>
-          </div>
-          <div className="p-4 rounded-2xl bg-slate-50">
-            <div className="flex items-center gap-1.5 text-xs font-medium text-slate-400 uppercase">
-              <Mail className="w-3.5 h-3.5" />
-              <span>Correo electrónico</span>
+        <form onSubmit={handleSubmit} className="space-y-5 pt-4 border-t border-slate-100">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label
+                htmlFor="profile-name"
+                className="block text-xs font-semibold text-slate-500 uppercase mb-1.5"
+              >
+                Nombre
+              </label>
+              <input
+                id="profile-name"
+                type="text"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                required
+                className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                placeholder="Tu nombre"
+              />
             </div>
-            <p className="text-sm font-semibold text-slate-900 mt-1">
-              {user?.email || 'Sin correo'}
-            </p>
-          </div>
-        </div>
 
-        <div className="flex items-center gap-2 text-xs text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3">
-          <ShieldCheck className="w-4 h-4 shrink-0" />
-          <span>Sesión activa y sincronizada con tu cuenta de EstudioApp.</span>
-        </div>
+            <div>
+              <label
+                htmlFor="profile-email"
+                className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 uppercase mb-1.5"
+              >
+                <Mail className="w-3.5 h-3.5" />
+                <span>Correo electrónico</span>
+              </label>
+              <input
+                id="profile-email"
+                type="email"
+                value={user?.email || ''}
+                disabled
+                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm font-medium text-slate-500 cursor-not-allowed"
+              />
+            </div>
+          </div>
+
+          <div className="pt-4 border-t border-slate-100 space-y-4">
+            <div className="flex items-center gap-2">
+              <Lock className="w-4 h-4 text-indigo-600" />
+              <h2 className="text-sm font-bold text-slate-900">
+                Cambiar contraseña <span className="text-xs font-normal text-slate-400">(opcional)</span>
+              </h2>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label
+                  htmlFor="profile-current-password"
+                  className="block text-xs font-semibold text-slate-500 uppercase mb-1.5"
+                >
+                  Contraseña actual
+                </label>
+                <input
+                  id="profile-current-password"
+                  type="password"
+                  value={currentPassword}
+                  onChange={(e) => setCurrentPassword(e.target.value)}
+                  className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  placeholder="••••••••"
+                  autoComplete="current-password"
+                />
+              </div>
+
+              <div>
+                <label
+                  htmlFor="profile-new-password"
+                  className="block text-xs font-semibold text-slate-500 uppercase mb-1.5"
+                >
+                  Nueva contraseña
+                </label>
+                <input
+                  id="profile-new-password"
+                  type="password"
+                  value={newPassword}
+                  onChange={(e) => setNewPassword(e.target.value)}
+                  className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  placeholder="Mínimo 6 caracteres"
+                  autoComplete="new-password"
+                />
+              </div>
+            </div>
+          </div>
+
+          {successMessage && (
+            <div className="flex items-center gap-2 text-xs font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3">
+              <CheckCircle2 className="w-4 h-4 shrink-0" />
+              <span>{successMessage}</span>
+            </div>
+          )}
+
+          {errorMessage && (
+            <div className="flex items-center gap-2 text-xs font-medium text-rose-700 bg-rose-50 border border-rose-200 rounded-xl px-4 py-3">
+              <AlertCircle className="w-4 h-4 shrink-0" />
+              <span>{errorMessage}</span>
+            </div>
+          )}
+
+          <div className="flex items-center justify-between gap-4 pt-2">
+            <div className="flex items-center gap-2 text-xs text-emerald-700">
+              <ShieldCheck className="w-4 h-4 shrink-0" />
+              <span>Sesión activa y sincronizada con tu cuenta de EstudioApp.</span>
+            </div>
+
+            <button
+              type="submit"
+              disabled={submitting}
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 text-white text-sm font-semibold transition cursor-pointer shadow-xs"
+            >
+              <Save className="w-4 h-4" />
+              <span>{submitting ? 'Guardando...' : 'Guardar cambios'}</span>
+            </button>
+          </div>
+        </form>
       </div>
     </div>
   );
@@ -547,11 +280,23 @@ function SettingsView() {
     return localStorage.getItem('includeWeekendInSchedule') === 'true';
   });
 
+  const [pomodoroMinutes, setPomodoroMinutes] = useState<number>(() =>
+    getInitialPomodoroMinutes()
+  );
+
   const handleToggleWeekend = (checked: boolean) => {
     setIncludeWeekend(checked);
     localStorage.setItem('includeWeekendInSchedule', String(checked));
     window.dispatchEvent(
       new CustomEvent('weekend-preference-change', { detail: checked })
+    );
+  };
+
+  const handlePomodoroMinutesChange = (minutes: number) => {
+    setPomodoroMinutes(minutes);
+    localStorage.setItem('pomodoroMinutes', String(minutes));
+    window.dispatchEvent(
+      new CustomEvent('pomodoro-minutes-change', { detail: minutes })
     );
   };
 
@@ -600,17 +345,36 @@ function SettingsView() {
             />
           </label>
 
-          <div className="flex items-center justify-between p-4 rounded-2xl bg-slate-50">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl bg-slate-50">
             <div className="flex items-center gap-3">
-              <Clock className="w-5 h-5 text-indigo-600" />
+              <Clock className="w-5 h-5 text-indigo-600 shrink-0" />
               <div>
-                <p className="text-sm font-semibold text-slate-900">Duración de Pomodoro</p>
-                <p className="text-xs text-slate-500">Bloque de enfoque predeterminado</p>
+                <label
+                  htmlFor="pomodoro-minutes-select"
+                  className="text-sm font-semibold text-slate-900 block"
+                >
+                  Duración de Pomodoro
+                </label>
+                <p className="text-xs text-slate-500">
+                  Bloque de enfoque predeterminado ({pomodoroMinutes} min)
+                </p>
               </div>
             </div>
-            <span className="text-xs font-semibold px-3 py-1 rounded-lg bg-white border border-slate-200 text-slate-700">
-              25 min
-            </span>
+
+            <div className="flex items-center gap-2">
+              <select
+                id="pomodoro-minutes-select"
+                value={pomodoroMinutes}
+                onChange={(e) => handlePomodoroMinutesChange(Number(e.target.value))}
+                className="text-xs font-semibold px-3 py-2 rounded-xl bg-white border border-slate-200 text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer"
+              >
+                {POMODORO_DURATION_OPTIONS.map((mins) => (
+                  <option key={mins} value={mins}>
+                    {mins} min
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
 
           <div className="flex items-center justify-between p-4 rounded-2xl bg-slate-50">
@@ -677,8 +441,8 @@ export function App() {
             }
           >
             <Route index element={<Dashboard />} />
-            <Route path="materias" element={<MateriasView />} />
-            <Route path="examenes" element={<ExamenesView />} />
+            <Route path="materias" element={<SubjectsPage />} />
+            <Route path="examenes" element={<ExamsPage />} />
             <Route path="perfil" element={<ProfileView />} />
             <Route path="ajustes" element={<SettingsView />} />
           </Route>

@@ -62,6 +62,40 @@ export class AuthController {
       res.status(500).json({ message: 'Error interno del servidor' });
     }
   }
+
+  async updateProfile(req: Request, res: Response): Promise<void> {
+    try {
+      if (!req.user?.id) {
+        res.status(401).json({ message: 'No autenticado' });
+        return;
+      }
+
+      const { name, currentPassword, newPassword } = req.body;
+
+      if (name === undefined && !newPassword) {
+        res.status(400).json({ message: 'Debés proporcionar al menos un campo para actualizar (name o newPassword)' });
+        return;
+      }
+
+      const user = await authService.updateProfile(req.user.id, {
+        name,
+        currentPassword,
+        newPassword,
+      });
+
+      res.status(200).json({
+        user,
+        message: 'Perfil actualizado correctamente',
+      });
+    } catch (error) {
+      if (error instanceof AuthError) {
+        res.status(error.statusCode).json({ message: error.message });
+        return;
+      }
+      console.error('Error in updateProfile:', error);
+      res.status(500).json({ message: 'Error interno del servidor' });
+    }
+  }
 }
 
 export const authController = new AuthController();

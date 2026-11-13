@@ -20,6 +20,8 @@ import {
   BarChart3,
   ArrowRight,
   MapPin,
+  Pencil,
+  History,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/axios';
@@ -28,11 +30,32 @@ import type {
   ClassSchedule,
   Exam,
   StudyMethod,
+  ActivityType,
+  StudySession,
   StudyStatsResponse,
   DashboardOutletContext,
 } from '../types/academic';
 
-const POMODORO_DEFAULT_SECONDS = 25 * 60;
+const DEFAULT_POMODORO_MINUTES = 25;
+
+function readPomodoroMinutesFromStorage(): number {
+  const raw = Number(localStorage.getItem('pomodoroMinutes'));
+  return Number.isFinite(raw) && raw > 0 ? raw : DEFAULT_POMODORO_MINUTES;
+}
+
+const ACTIVITY_TYPE_OPTIONS: { value: ActivityType; label: string }[] = [
+  { value: 'THEORY', label: 'Teoría' },
+  { value: 'PRACTICE', label: 'Práctica' },
+  { value: 'ASSIGNMENT', label: 'TP/Entrega' },
+  { value: 'EXAM_PREP', label: 'Parcial/Final' },
+];
+
+const ACTIVITY_TYPE_LABELS: Record<ActivityType, string> = {
+  THEORY: 'Teoría',
+  PRACTICE: 'Práctica',
+  ASSIGNMENT: 'TP/Entrega',
+  EXAM_PREP: 'Parcial/Final',
+};
 
 const DAY_FULL_LABELS: Record<number, string> = {
   1: 'Lunes',
@@ -45,13 +68,13 @@ const DAY_FULL_LABELS: Record<number, string> = {
 };
 
 const ALL_WEEK_DAYS = [
-  { dayOfWeek: 1, short: 'Lun', label: 'Lunes' },
-  { dayOfWeek: 2, short: 'Mar', label: 'Martes' },
-  { dayOfWeek: 3, short: 'Mié', label: 'Miércoles' },
-  { dayOfWeek: 4, short: 'Jue', label: 'Jueves' },
-  { dayOfWeek: 5, short: 'Vie', label: 'Viernes' },
-  { dayOfWeek: 6, short: 'Sáb', label: 'Sábado' },
-  { dayOfWeek: 7, short: 'Dom', label: 'Domingo' },
+  { dayOfWeek: 1, short: 'L', label: 'Lunes' },
+  { dayOfWeek: 2, short: 'M', label: 'Martes' },
+  { dayOfWeek: 3, short: 'M', label: 'Miércoles' },
+  { dayOfWeek: 4, short: 'J', label: 'Jueves' },
+  { dayOfWeek: 5, short: 'V', label: 'Viernes' },
+  { dayOfWeek: 6, short: 'S', label: 'Sábado' },
+  { dayOfWeek: 7, short: 'D', label: 'Domingo' },
 ];
 
 const DAY_OPTIONS = [
@@ -119,6 +142,7 @@ export default function Dashboard() {
   const [localSubjects, setLocalSubjects] = useState<Subject[]>([]);
   const [schedules, setSchedules] = useState<ClassSchedule[]>([]);
   const [exams, setExams] = useState<Exam[]>([]);
+  const [sessions, setSessions] = useState<StudySession[]>([]);
   const [stats, setStats] = useState<StudyStatsResponse | null>(null);
   const [statsBySubject, setStatsBySubject] = useState<Record<string, number>>({});
   const [loadingData, setLoadingData] = useState(true);
@@ -128,30 +152,58 @@ export default function Dashboard() {
     return localStorage.getItem('includeWeekendInSchedule') === 'true';
   });
 
-  useEffect(() => {
-    const syncPreference = () => {
-      setIncludeWeekend(localStorage.getItem('includeWeekendInSchedule') === 'true');
-    };
-
-    window.addEventListener('weekend-preference-change', syncPreference);
-    window.addEventListener('storage', syncPreference);
-    return () => {
-      window.removeEventListener('weekend-preference-change', syncPreference);
-      window.removeEventListener('storage', syncPreference);
-    };
-  }, []);
+  // Duración del bloque Pomodoro leída dinámicamente desde localStorage (por defecto 25 min)
+  const [pomodoroMinutes, setPomodoroMinutes] = useState<number>(() =>
+    readPomodoroMinutesFromStorage()
+  );
+  const pomodoroDurationSeconds = pomodoroMinutes * 60;
 
   // Estado del temporizador (Pomodoro / Cronómetro)
   const [studyMethod, setStudyMethod] = useState<StudyMethod>('POMODORO');
+  const [activityType, setActivityType] = useState<ActivityType>('THEORY');
+  const [sessionNotes, setSessionNotes] = useState<string>('');
   const [selectedSubjectId, setSelectedSubjectId] = useState<string>('');
-  const [seconds, setSeconds] = useState<number>(POMODORO_DEFAULT_SECONDS);
+  const [seconds, setSeconds] = useState<number>(() => readPomodoroMinutesFromStorage() * 60);
   const [isRunning, setIsRunning] = useState<boolean>(false);
   const [savingSession, setSavingSession] = useState<boolean>(false);
   const [timerFeedback, setTimerFeedback] = useState<string | null>(null);
   const autoSaveTriggeredRef = useRef<boolean>(false);
 
-  // Estado del modal de Horarios (POST /api/schedules)
+  // Estado del modal de Historial de Sesiones (GET / DELETE /api/sessions)
+  const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
+  const [deletingSessionId, setDeletingSessionId] = useState<string | null>(null);
+
+  useEffect(() => {
+    const syncPreference = () => {
+      setIncludeWeekend(localStorage.getItem('includeWeekendInSchedule') === 'true');
+    };
+
+    const syncPomodoroMinutes = () => {
+      const nextMinutes = readPomodoroMinutesFromStorage();
+      setPomodoroMinutes(nextMinutes);
+      setSeconds((prev) => {
+        if (!isRunning && studyMethod === 'POMODORO') {
+          return nextMinutes * 60;
+        }
+        return prev;
+      });
+    };
+
+    window.addEventListener('weekend-preference-change', syncPreference);
+    window.addEventListener('pomodoro-minutes-change', syncPomodoroMinutes);
+    window.addEventListener('storage', syncPreference);
+    window.addEventListener('storage', syncPomodoroMinutes);
+    return () => {
+      window.removeEventListener('weekend-preference-change', syncPreference);
+      window.removeEventListener('pomodoro-minutes-change', syncPomodoroMinutes);
+      window.removeEventListener('storage', syncPreference);
+      window.removeEventListener('storage', syncPomodoroMinutes);
+    };
+  }, [isRunning, studyMethod]);
+
+  // Estado del modal de Horarios (POST /api/schedules y PUT /api/schedules/:id)
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
+  const [editingScheduleId, setEditingScheduleId] = useState<string | null>(null);
   const [scheduleSubjectId, setScheduleSubjectId] = useState('');
   const [scheduleDay, setScheduleDay] = useState<number>(1);
   const [scheduleStartTime, setScheduleStartTime] = useState('08:00');
@@ -184,19 +236,27 @@ export default function Dashboard() {
 
   const fetchDashboardData = useCallback(async () => {
     try {
-      const [subjectsRes, schedulesRes, examsRes, statsRes] = await Promise.all([
+      const [subjectsRes, schedulesRes, examsRes, sessionsRes, statsRes] = await Promise.all([
         api.get<Subject[]>('/subjects').catch(() => ({ data: [] as Subject[] })),
         api.get<ClassSchedule[]>('/schedules').catch(() => ({ data: [] as ClassSchedule[] })),
         api.get<Exam[]>('/exams').catch(() => ({ data: [] as Exam[] })),
+        api.get<StudySession[]>('/sessions').catch(() => ({ data: [] as StudySession[] })),
         api
           .get<StudyStatsResponse>('/sessions/stats')
           .catch(() => ({ data: null as StudyStatsResponse | null })),
       ]);
 
       const fetchedSubjects = Array.isArray(subjectsRes.data) ? subjectsRes.data : [];
+      const fetchedSessions = Array.isArray(sessionsRes.data)
+        ? [...sessionsRes.data].sort(
+            (a, b) => new Date(b.startTime).getTime() - new Date(a.startTime).getTime()
+          )
+        : [];
+
       setLocalSubjects(fetchedSubjects);
       setSchedules(Array.isArray(schedulesRes.data) ? schedulesRes.data : []);
       setExams(Array.isArray(examsRes.data) ? examsRes.data : []);
+      setSessions(fetchedSessions);
       setStats(statsRes.data);
 
       if (fetchedSubjects.length > 0) {
@@ -227,7 +287,7 @@ export default function Dashboard() {
 
   const elapsedSeconds =
     studyMethod === 'POMODORO'
-      ? Math.max(0, POMODORO_DEFAULT_SECONDS - seconds)
+      ? Math.max(0, pomodoroDurationSeconds - seconds)
       : seconds;
 
   const saveStudySession = useCallback(
@@ -240,17 +300,21 @@ export default function Dashboard() {
       try {
         const end = new Date();
         const start = new Date(end.getTime() - durationToSave * 1000);
+        const trimmedNotes = sessionNotes.trim();
 
         await api.post('/sessions', {
           subjectId: activeSubjectId,
           method: studyMethod,
+          activityType,
           startTime: start.toISOString(),
           endTime: end.toISOString(),
           durationSeconds: durationToSave,
+          notes: trimmedNotes ? trimmedNotes : undefined,
         });
 
         setIsRunning(false);
-        setSeconds(studyMethod === 'POMODORO' ? POMODORO_DEFAULT_SECONDS : 0);
+        setSeconds(studyMethod === 'POMODORO' ? pomodoroDurationSeconds : 0);
+        setSessionNotes('');
         setTimerFeedback('¡Sesión guardada!');
         await Promise.all([
           fetchDashboardData(),
@@ -267,8 +331,31 @@ export default function Dashboard() {
         autoSaveTriggeredRef.current = false;
       }
     },
-    [activeSubjectId, studyMethod, fetchDashboardData, outletCtx]
+    [
+      activeSubjectId,
+      studyMethod,
+      activityType,
+      sessionNotes,
+      pomodoroDurationSeconds,
+      fetchDashboardData,
+      outletCtx,
+    ]
   );
+
+  const handleDeleteSession = async (sessionId: string) => {
+    setDeletingSessionId(sessionId);
+    try {
+      await api.delete(`/sessions/${sessionId}`);
+      await Promise.all([
+        fetchDashboardData(),
+        outletCtx?.refreshAcademicData ? outletCtx.refreshAcademicData() : Promise.resolve(),
+      ]);
+    } catch {
+      // Ignorar si falla el borrado
+    } finally {
+      setDeletingSessionId(null);
+    }
+  };
 
   // Tick del temporizador
   useEffect(() => {
@@ -281,7 +368,7 @@ export default function Dashboard() {
             setIsRunning(false);
             if (!autoSaveTriggeredRef.current) {
               autoSaveTriggeredRef.current = true;
-              void saveStudySession(POMODORO_DEFAULT_SECONDS);
+              void saveStudySession(pomodoroDurationSeconds);
             }
             return 0;
           }
@@ -292,19 +379,19 @@ export default function Dashboard() {
     }, 1000);
 
     return () => window.clearInterval(interval);
-  }, [isRunning, studyMethod, saveStudySession]);
+  }, [isRunning, studyMethod, pomodoroDurationSeconds, saveStudySession]);
 
   const handleMethodChange = (method: StudyMethod) => {
     setIsRunning(false);
     setTimerFeedback(null);
     setStudyMethod(method);
-    setSeconds(method === 'POMODORO' ? POMODORO_DEFAULT_SECONDS : 0);
+    setSeconds(method === 'POMODORO' ? pomodoroDurationSeconds : 0);
   };
 
   const handleResetTimer = () => {
     setIsRunning(false);
     setTimerFeedback(null);
-    setSeconds(studyMethod === 'POMODORO' ? POMODORO_DEFAULT_SECONDS : 0);
+    setSeconds(studyMethod === 'POMODORO' ? pomodoroDurationSeconds : 0);
   };
 
   const formatTimerClock = (totalSeconds: number) => {
@@ -313,8 +400,34 @@ export default function Dashboard() {
     return `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
   };
 
-  // Alta de Horario (POST /api/schedules)
-  const handleCreateSchedule = async (e: FormEvent<HTMLFormElement>) => {
+  const handleOpenCreateSchedule = () => {
+    setEditingScheduleId(null);
+    setScheduleSubjectId(subjects[0]?.id || '');
+    setScheduleDay(1);
+    setScheduleStartTime('08:00');
+    setScheduleEndTime('10:00');
+    setScheduleClassroom('');
+    setScheduleError(null);
+    setIsScheduleModalOpen(true);
+  };
+
+  const handleOpenEditSchedule = (item: ClassSchedule) => {
+    const subjId =
+      typeof item.subject === 'object' && item.subject !== null
+        ? item.subject.id
+        : String(item.subject || '');
+    setEditingScheduleId(item.id);
+    setScheduleSubjectId(subjId || subjects[0]?.id || '');
+    setScheduleDay(Number(item.dayOfWeek));
+    setScheduleStartTime(formatTimeHHMM(item.startTime));
+    setScheduleEndTime(formatTimeHHMM(item.endTime));
+    setScheduleClassroom(item.classroom || '');
+    setScheduleError(null);
+    setIsScheduleModalOpen(true);
+  };
+
+  // Alta / Edición de Horario (POST /api/schedules o PUT /api/schedules/:id)
+  const handleSaveSchedule = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!activeScheduleSubjectId) return;
 
@@ -322,14 +435,25 @@ export default function Dashboard() {
     setSubmittingSchedule(true);
 
     try {
-      await api.post('/schedules', {
-        subjectId: activeScheduleSubjectId,
-        dayOfWeek: Number(scheduleDay),
-        startTime: scheduleStartTime,
-        endTime: scheduleEndTime,
-        classroom: scheduleClassroom.trim() || undefined,
-      });
+      if (editingScheduleId) {
+        await api.put(`/schedules/${editingScheduleId}`, {
+          subjectId: activeScheduleSubjectId,
+          dayOfWeek: Number(scheduleDay),
+          startTime: scheduleStartTime,
+          endTime: scheduleEndTime,
+          classroom: scheduleClassroom.trim(),
+        });
+      } else {
+        await api.post('/schedules', {
+          subjectId: activeScheduleSubjectId,
+          dayOfWeek: Number(scheduleDay),
+          startTime: scheduleStartTime,
+          endTime: scheduleEndTime,
+          classroom: scheduleClassroom.trim() || undefined,
+        });
+      }
 
+      setEditingScheduleId(null);
       setScheduleClassroom('');
       setIsScheduleModalOpen(false);
       await fetchDashboardData();
@@ -353,9 +477,14 @@ export default function Dashboard() {
     }
   };
 
-  const resolveSubject = (subjRef: Exam['subject'] | ClassSchedule['subject']) => {
+  const resolveSubject = (
+    subjRef: Exam['subject'] | ClassSchedule['subject'] | StudySession['subject']
+  ): Subject | null => {
     if (typeof subjRef === 'object' && subjRef !== null) {
-      return subjRef;
+      if ('color' in subjRef && subjRef.color) {
+        return subjRef as Subject;
+      }
+      return subjects.find((s) => s.id === subjRef.id) || (subjRef as Subject);
     }
     return subjects.find((s) => s.id === subjRef) || null;
   };
@@ -474,10 +603,20 @@ export default function Dashboard() {
               <p className="text-base xl:text-lg font-bold text-slate-900 leading-tight mt-0.5 truncate">
                 {formatTotalHours(totalStudiedSeconds)}
               </p>
-              <p className="text-[11px] text-indigo-600 font-medium truncate">
-                {stats?.totalSessions || 0}{' '}
-                {stats?.totalSessions === 1 ? 'sesión' : 'sesiones'}
-              </p>
+              <div className="flex items-center gap-2 mt-0.5">
+                <p className="text-[11px] text-slate-500 font-medium truncate">
+                  {stats?.totalSessions || 0}{' '}
+                  {stats?.totalSessions === 1 ? 'sesión' : 'sesiones'}
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setIsHistoryModalOpen(true)}
+                  className="inline-flex items-center gap-1 text-[11px] font-semibold text-indigo-600 hover:text-indigo-800 underline-offset-2 hover:underline transition cursor-pointer shrink-0"
+                >
+                  <History className="w-3 h-3" />
+                  <span>Ver historial</span>
+                </button>
+              </div>
             </div>
             <div className="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
               <Clock className="w-4 h-4" />
@@ -521,66 +660,103 @@ export default function Dashboard() {
             <button
               type="button"
               onClick={() => handleMethodChange('POMODORO')}
-              className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold transition cursor-pointer ${
-                studyMethod === 'POMODORO'
-                  ? 'bg-white text-indigo-900 shadow-2xs'
-                  : 'text-indigo-100 hover:text-white'
-              }`}
+              className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold transition cursor-pointer ${studyMethod === 'POMODORO'
+                ? 'bg-white text-indigo-900 shadow-2xs'
+                : 'text-indigo-100 hover:text-white'
+                }`}
             >
               Pomodoro
             </button>
             <button
               type="button"
               onClick={() => handleMethodChange('CHRONOMETER')}
-              className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold transition cursor-pointer ${
-                studyMethod === 'CHRONOMETER'
-                  ? 'bg-white text-indigo-900 shadow-2xs'
-                  : 'text-indigo-100 hover:text-white'
-              }`}
+              className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold transition cursor-pointer ${studyMethod === 'CHRONOMETER'
+                ? 'bg-white text-indigo-900 shadow-2xs'
+                : 'text-indigo-100 hover:text-white'
+                }`}
             >
               Cronómetro
             </button>
           </div>
         </div>
 
-        {/* Reloj compacto + Selector de materia */}
-        <div className="flex items-center justify-between gap-3 my-1 min-h-0">
+        {/* Reloj compacto + Selector de materia, tipo de actividad y nota breve */}
+        <div className="flex items-center justify-between gap-2.5 my-1 min-h-0">
           <div className="shrink-0">
             <div className="text-2xl xl:text-3xl font-mono font-bold tracking-tight leading-none">
               {formatTimerClock(seconds)}
             </div>
             <p className="text-[10px] text-indigo-200 mt-1">
               {timerFeedback ||
-                (studyMethod === 'POMODORO' ? 'Bloque 25 min' : 'Tiempo libre')}
+                (studyMethod === 'POMODORO'
+                  ? `Bloque ${pomodoroMinutes} min`
+                  : 'Tiempo libre')}
             </p>
           </div>
 
-          <div className="flex-1 min-w-0">
-            <label htmlFor="timer-subject" className="sr-only">
-              Materia de la sesión
-            </label>
-            {subjects.length === 0 ? (
-              <button
-                type="button"
-                onClick={() => outletCtx?.openSubjectsDrawer()}
-                className="w-full py-2 px-2.5 rounded-xl bg-white/10 hover:bg-white/20 border border-dashed border-white/30 text-[11px] text-indigo-100 font-medium transition cursor-pointer truncate"
-              >
-                + Crear materia
-              </button>
-            ) : (
-              <select
-                id="timer-subject"
-                value={activeSubjectId}
-                onChange={(e) => setSelectedSubjectId(e.target.value)}
-                className="w-full rounded-xl bg-white/10 border border-white/20 px-2.5 py-1.5 text-xs text-white focus:outline-none focus:ring-2 focus:ring-white/40 truncate"
-              >
-                {subjects.map((subj) => (
-                  <option key={subj.id} value={subj.id} className="text-slate-900">
-                    {subj.name}
-                  </option>
-                ))}
-              </select>
-            )}
+          <div className="flex-1 min-w-0 flex flex-col gap-1.5">
+            <div className="grid grid-cols-2 gap-1.5">
+              <div className="min-w-0">
+                <label htmlFor="timer-subject" className="sr-only">
+                  Materia de la sesión
+                </label>
+                {subjects.length === 0 ? (
+                  <button
+                    type="button"
+                    onClick={() => outletCtx?.openSubjectsDrawer()}
+                    className="w-full py-1 px-2 rounded-xl bg-white/10 hover:bg-white/20 border border-dashed border-white/30 text-[11px] text-indigo-100 font-medium transition cursor-pointer truncate"
+                  >
+                    + Materia
+                  </button>
+                ) : (
+                  <select
+                    id="timer-subject"
+                    value={activeSubjectId}
+                    onChange={(e) => setSelectedSubjectId(e.target.value)}
+                    className="w-full rounded-xl bg-white/10 border border-white/20 px-2 py-1 text-[11px] text-white focus:outline-none focus:ring-2 focus:ring-white/40 truncate"
+                  >
+                    {subjects.map((subj) => (
+                      <option key={subj.id} value={subj.id} className="text-slate-900">
+                        {subj.name}
+                      </option>
+                    ))}
+                  </select>
+                )}
+              </div>
+
+              <div className="min-w-0">
+                <label htmlFor="timer-activity-type" className="sr-only">
+                  Actividad de estudio
+                </label>
+                <select
+                  id="timer-activity-type"
+                  value={activityType}
+                  onChange={(e) => setActivityType(e.target.value as ActivityType)}
+                  className="w-full rounded-xl bg-white/10 border border-white/20 px-2 py-1 text-[11px] text-indigo-100 focus:outline-none focus:ring-2 focus:ring-white/40 truncate"
+                >
+                  {ACTIVITY_TYPE_OPTIONS.map((opt) => (
+                    <option key={opt.value} value={opt.value} className="text-slate-900">
+                      {opt.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            <div>
+              <label htmlFor="timer-session-notes" className="sr-only">
+                Nota breve de la sesión (opcional)
+              </label>
+              <input
+                id="timer-session-notes"
+                type="text"
+                maxLength={120}
+                value={sessionNotes}
+                onChange={(e) => setSessionNotes(e.target.value)}
+                placeholder="Nota breve (opcional)..."
+                className="w-full rounded-xl bg-white/10 border border-white/20 px-2.5 py-1 text-[11px] text-white placeholder-indigo-200/70 focus:outline-none focus:ring-2 focus:ring-white/40 truncate"
+              />
+            </div>
           </div>
         </div>
 
@@ -803,21 +979,20 @@ export default function Dashboard() {
                   </div>
 
                   <span
-                    className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-[11px] font-bold shrink-0 ${
-                      daysLeft <= 3
-                        ? 'bg-rose-50 text-rose-700 border border-rose-200'
-                        : daysLeft <= 10
+                    className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-[11px] font-bold shrink-0 ${daysLeft <= 3
+                      ? 'bg-rose-50 text-rose-700 border border-rose-200'
+                      : daysLeft <= 10
                         ? 'bg-amber-50 text-amber-700 border border-amber-200'
                         : 'bg-indigo-50 text-indigo-700 border border-indigo-100'
-                    }`}
+                      }`}
                   >
                     <CalendarClock className="w-3 h-3" />
                     <span>
                       {daysLeft === 0
                         ? 'Hoy'
                         : daysLeft === 1
-                        ? '1 día'
-                        : `${daysLeft} días`}
+                          ? '1 día'
+                          : `${daysLeft} días`}
                     </span>
                   </span>
                 </div>
@@ -850,14 +1025,11 @@ export default function Dashboard() {
 
           <button
             type="button"
-            onClick={() => {
-              setScheduleError(null);
-              setIsScheduleModalOpen(true);
-            }}
+            onClick={handleOpenCreateSchedule}
             className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold transition cursor-pointer shrink-0 shadow-2xs"
           >
             <Plus className="w-3.5 h-3.5" />
-            <span>+ Agregar</span>
+            <span>Agregar</span>
           </button>
         </div>
 
@@ -908,9 +1080,8 @@ export default function Dashboard() {
                     {/* Etiqueta del día a la izquierda */}
                     <div className="flex items-center gap-1.5 pl-1 min-w-0">
                       <span
-                        className={`text-xs font-bold truncate ${
-                          daySchedules.length > 0 ? 'text-slate-900' : 'text-slate-400'
-                        }`}
+                        className={`text-xs font-bold truncate ${daySchedules.length > 0 ? 'text-slate-900' : 'text-slate-400'
+                          }`}
                         title={dayRow.label}
                       >
                         {dayRow.short}
@@ -960,7 +1131,7 @@ export default function Dashboard() {
                         const widthPercent = Math.max(
                           3.5,
                           ((clampedEnd - clampedStart) / TIMELINE_TOTAL_SPAN_HOURS) *
-                            100
+                          100
                         );
 
                         const startFormatted = formatTimeHHMM(item.startTime);
@@ -999,18 +1170,32 @@ export default function Dashboard() {
                                     </p>
                                   </div>
 
-                                  <button
-                                    type="button"
-                                    onClick={(e) => {
-                                      e.stopPropagation();
-                                      void handleDeleteSchedule(item.id);
-                                    }}
-                                    aria-label={`Eliminar horario de ${subjectName}`}
-                                    title="Eliminar horario"
-                                    className="p-1 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition cursor-pointer shrink-0"
-                                  >
-                                    <Trash2 className="w-3.5 h-3.5" />
-                                  </button>
+                                  <div className="flex items-center gap-0.5 shrink-0">
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        handleOpenEditSchedule(item);
+                                      }}
+                                      aria-label={`Editar horario de ${subjectName}`}
+                                      title="Editar horario"
+                                      className="p-1 rounded-lg text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition cursor-pointer"
+                                    >
+                                      <Pencil className="w-3.5 h-3.5" />
+                                    </button>
+                                    <button
+                                      type="button"
+                                      onClick={(e) => {
+                                        e.stopPropagation();
+                                        void handleDeleteSchedule(item.id);
+                                      }}
+                                      aria-label={`Eliminar horario de ${subjectName}`}
+                                      title="Eliminar horario"
+                                      className="p-1 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition cursor-pointer"
+                                    >
+                                      <Trash2 className="w-3.5 h-3.5" />
+                                    </button>
+                                  </div>
                                 </div>
 
                                 <div className="space-y-1 text-[11px] text-slate-600">
@@ -1050,20 +1235,28 @@ export default function Dashboard() {
         )}
       </section>
 
-      {/* MODAL: Alta de Horario (POST /api/schedules) */}
+      {/* MODAL: Alta / Edición de Horario (POST /api/schedules o PUT /api/schedules/:id) */}
       {isScheduleModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
           <div
-            onClick={() => setIsScheduleModalOpen(false)}
+            onClick={() => {
+              setIsScheduleModalOpen(false);
+              setEditingScheduleId(null);
+            }}
             aria-hidden="true"
             className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs"
           />
           <div className="relative z-10 w-full max-w-md bg-white rounded-3xl shadow-xl border border-slate-200 p-6 space-y-5">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-bold text-slate-900">Nuevo Horario de Cursada</h3>
+              <h3 className="text-lg font-bold text-slate-900">
+                {editingScheduleId ? 'Editar Horario de Cursada' : 'Nuevo Horario de Cursada'}
+              </h3>
               <button
                 type="button"
-                onClick={() => setIsScheduleModalOpen(false)}
+                onClick={() => {
+                  setIsScheduleModalOpen(false);
+                  setEditingScheduleId(null);
+                }}
                 className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-pointer"
               >
                 <X className="w-5 h-5" />
@@ -1079,6 +1272,7 @@ export default function Dashboard() {
                   type="button"
                   onClick={() => {
                     setIsScheduleModalOpen(false);
+                    setEditingScheduleId(null);
                     outletCtx?.openSubjectsDrawer();
                   }}
                   className="px-4 py-2.5 rounded-xl bg-indigo-600 text-white text-xs font-semibold hover:bg-indigo-700 transition cursor-pointer"
@@ -1087,7 +1281,7 @@ export default function Dashboard() {
                 </button>
               </div>
             ) : (
-              <form onSubmit={handleCreateSchedule} className="space-y-4">
+              <form onSubmit={handleSaveSchedule} className="space-y-4">
                 {scheduleError && (
                   <div className="flex items-center gap-2 p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs">
                     <AlertCircle className="w-4 h-4 shrink-0" />
@@ -1174,7 +1368,10 @@ export default function Dashboard() {
                 <div className="flex justify-end gap-2 pt-2">
                   <button
                     type="button"
-                    onClick={() => setIsScheduleModalOpen(false)}
+                    onClick={() => {
+                      setIsScheduleModalOpen(false);
+                      setEditingScheduleId(null);
+                    }}
                     className="px-4 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-50 cursor-pointer"
                   >
                     Cancelar
@@ -1185,11 +1382,151 @@ export default function Dashboard() {
                     className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-300 text-white text-xs font-semibold transition cursor-pointer"
                   >
                     {submittingSchedule && <Loader2 className="w-4 h-4 animate-spin" />}
-                    <span>Guardar horario</span>
+                    <span>{editingScheduleId ? 'Guardar cambios' : 'Guardar horario'}</span>
                   </button>
                 </div>
               </form>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* MODAL: Historial de Sesiones (GET /api/sessions y DELETE /api/sessions/:id) */}
+      {isHistoryModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div
+            onClick={() => setIsHistoryModalOpen(false)}
+            aria-hidden="true"
+            className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs"
+          />
+          <div className="relative z-10 w-full max-w-2xl max-h-[85vh] bg-white rounded-3xl shadow-xl border border-slate-200 p-6 flex flex-col min-h-0">
+            <div className="flex items-center justify-between gap-2 pb-4 border-b border-slate-100 shrink-0">
+              <div className="flex items-center gap-2.5">
+                <div className="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
+                  <History className="w-4 h-4" />
+                </div>
+                <div>
+                  <h3 className="text-base sm:text-lg font-bold text-slate-900">
+                    Historial de Sesiones de Estudio
+                  </h3>
+                  <p className="text-xs text-slate-500">
+                    {sessions.length}{' '}
+                    {sessions.length === 1 ? 'sesión registrada' : 'sesiones registradas'} • Total:{' '}
+                    {formatTotalHours(totalStudiedSeconds)}
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsHistoryModalOpen(false)}
+                className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-pointer"
+              >
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {sessions.length === 0 ? (
+              <div className="py-10 text-center space-y-2">
+                <Clock className="w-8 h-8 text-slate-300 mx-auto" />
+                <p className="text-sm font-semibold text-slate-700">
+                  Todavía no registraste sesiones de estudio
+                </p>
+                <p className="text-xs text-slate-500">
+                  Iniciá el temporizador Pomodoro o Cronómetro en el Dashboard para guardar tu primera sesión.
+                </p>
+              </div>
+            ) : (
+              <div className="flex-1 min-h-0 overflow-y-auto divide-y divide-slate-100 my-2 pr-1">
+                {sessions.map((session) => {
+                  const subj = resolveSubject(session.subject);
+                  const subjName =
+                    subj?.name ||
+                    (typeof session.subject === 'object' &&
+                    session.subject !== null &&
+                    'name' in session.subject
+                      ? session.subject.name
+                      : null) ||
+                    'Materia';
+                  const subjColor = subj?.color || '#4F46E5';
+                  const activityLabel =
+                    ACTIVITY_TYPE_LABELS[session.activityType] || session.activityType || 'Práctica';
+                  const methodLabel = session.method === 'POMODORO' ? 'Pomodoro' : 'Cronómetro';
+                  const formattedDate = new Date(session.startTime).toLocaleDateString('es-AR', {
+                    day: '2-digit',
+                    month: 'short',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit',
+                  });
+
+                  return (
+                    <div
+                      key={session.id}
+                      className="py-3 flex items-start justify-between gap-3"
+                    >
+                      <div className="min-w-0 flex-1 space-y-1">
+                        <div className="flex flex-wrap items-center gap-1.5">
+                          <span
+                            className="w-2.5 h-2.5 rounded-full shrink-0"
+                            style={{ backgroundColor: subjColor }}
+                          />
+                          <span className="text-xs font-bold text-slate-900 truncate">
+                            {subjName}
+                          </span>
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-lg bg-indigo-50 text-indigo-700 text-[10px] font-semibold">
+                            {activityLabel}
+                          </span>
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-lg bg-slate-100 text-slate-600 text-[10px] font-medium">
+                            {methodLabel}
+                          </span>
+                          <span className="text-[11px] text-slate-400">
+                            • {formattedDate}
+                          </span>
+                        </div>
+
+                        {session.notes && (
+                          <p className="text-xs text-slate-600 bg-slate-50 rounded-xl px-2.5 py-1.5 border border-slate-100 break-words">
+                            {session.notes}
+                          </p>
+                        )}
+                      </div>
+
+                      <div className="flex items-center gap-2 shrink-0">
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-emerald-50 text-emerald-700 text-xs font-bold">
+                          <Clock className="w-3 h-3" />
+                          <span>{formatTotalHours(session.durationSeconds)}</span>
+                        </span>
+
+                        <button
+                          type="button"
+                          disabled={deletingSessionId === session.id}
+                          onClick={() => void handleDeleteSession(session.id)}
+                          aria-label={`Eliminar sesión de ${subjName}`}
+                          title="Eliminar sesión"
+                          className="p-1.5 rounded-xl text-slate-400 hover:text-red-600 hover:bg-red-50 disabled:opacity-50 transition cursor-pointer"
+                        >
+                          {deletingSessionId === session.id ? (
+                            <Loader2 className="w-4 h-4 animate-spin text-red-600" />
+                          ) : (
+                            <Trash2 className="w-4 h-4" />
+                          )}
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+
+            <div className="pt-3 border-t border-slate-100 flex justify-end shrink-0">
+              <button
+                type="button"
+                onClick={() => setIsHistoryModalOpen(false)}
+                className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition cursor-pointer"
+              >
+                Cerrar
+              </button>
+            </div>
           </div>
         </div>
       )}

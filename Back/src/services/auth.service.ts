@@ -14,6 +14,12 @@ export interface LoginDTO {
   password: string;
 }
 
+export interface UpdateProfileDTO {
+  name?: string;
+  currentPassword?: string;
+  newPassword?: string;
+}
+
 export class AuthError extends Error {
   constructor(public statusCode: number, message: string) {
     super(message);
@@ -97,6 +103,44 @@ export class AuthService {
     if (!user) {
       throw new AuthError(404, 'Usuario no encontrado');
     }
+
+    return this.sanitizeUser(user);
+  }
+
+  async updateProfile(userId: string, data: UpdateProfileDTO) {
+    const userRepository = orm.em.getRepository(User);
+
+    const user = await userRepository.findOne({ id: userId });
+    if (!user) {
+      throw new AuthError(404, 'Usuario no encontrado');
+    }
+
+    if (data.name !== undefined) {
+      const trimmedName = data.name.trim();
+      if (!trimmedName) {
+        throw new AuthError(400, 'El nombre no puede estar vacío');
+      }
+      user.name = trimmedName;
+    }
+
+    if (data.newPassword !== undefined && data.newPassword !== '') {
+      if (!data.currentPassword) {
+        throw new AuthError(400, 'Debés ingresar tu contraseña actual para cambiar la contraseña');
+      }
+
+      const isPasswordValid = await bcrypt.compare(data.currentPassword, user.password);
+      if (!isPasswordValid) {
+        throw new AuthError(401, 'La contraseña actual es incorrecta');
+      }
+
+      if (data.newPassword.length < 6) {
+        throw new AuthError(400, 'La nueva contraseña debe tener al menos 6 caracteres');
+      }
+
+      user.password = await bcrypt.hash(data.newPassword, 10);
+    }
+
+    await orm.em.flush();
 
     return this.sanitizeUser(user);
   }
