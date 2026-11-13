@@ -84,7 +84,21 @@ export class SubjectService {
   }
 
   async delete(id: string, userId: string): Promise<void> {
-    const subject = await this.findById(id, userId);
+    const subjectRepository = orm.em.getRepository(Subject);
+    const subject = await subjectRepository.findOne(
+      { id, user: userId },
+      { populate: ['studySessions', 'exams', 'schedules', 'goals'] }
+    );
+
+    if (!subject) {
+      throw new SubjectError(404, 'Materia no encontrada');
+    }
+
+    orm.em.remove(subject.studySessions.getItems());
+    orm.em.remove(subject.exams.getItems());
+    orm.em.remove(subject.schedules.getItems());
+    orm.em.remove(subject.goals.getItems());
+
     await orm.em.removeAndFlush(subject);
   }
 }

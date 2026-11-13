@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { NavLink, Outlet, useNavigate } from 'react-router-dom';
+import { NavLink, Outlet, useLocation, useNavigate } from 'react-router-dom';
 import {
   GraduationCap,
   Menu,
@@ -78,6 +78,8 @@ const NAV_ITEMS = [
 export default function DashboardLayout() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
+  const isDashboardRoot = location.pathname === '/';
 
   // Estado de barra lateral: expandida/colapsada en desktop y drawer en móvil
   const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
@@ -248,7 +250,7 @@ export default function DashboardLayout() {
   );
 
   return (
-    <div className="min-h-screen bg-slate-100/70 flex">
+    <div className="min-h-screen lg:h-screen lg:overflow-hidden bg-slate-100/70 flex">
       {/* Barra lateral izquierda en Desktop (colapsable / expandible) */}
       <aside
         aria-label="Navegación principal"
@@ -277,9 +279,9 @@ export default function DashboardLayout() {
       )}
 
       {/* Contenedor derecho: Header superior + Contenido principal */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className="flex-1 flex flex-col min-w-0 min-h-0">
         {/* Header superior limpio (sin ícono de materias, con indicador minimalista de Racha) */}
-        <header className="sticky top-0 z-20 h-16 bg-white/90 backdrop-blur-md border-b border-slate-200/80 px-4 sm:px-8 flex items-center justify-between">
+        <header className="sticky top-0 z-20 h-14 shrink-0 bg-white/90 backdrop-blur-md border-b border-slate-200/80 px-4 sm:px-8 flex items-center justify-between">
           <div className="flex items-center gap-3">
             {/* Botón hamburguesa para abrir el drawer en móvil */}
             <button
@@ -341,7 +343,13 @@ export default function DashboardLayout() {
         </header>
 
         {/* Contenido principal */}
-        <main className="flex-1 w-full max-w-7xl mx-auto px-4 sm:px-8 py-8">
+        <main
+          className={`flex-1 min-h-0 w-full max-w-7xl mx-auto px-4 sm:px-6 ${
+            isDashboardRoot
+              ? 'py-3 lg:py-4 overflow-hidden'
+              : 'py-6 sm:py-8 overflow-y-auto'
+          }`}
+        >
           <Outlet context={outletContext} />
         </main>
       </div>

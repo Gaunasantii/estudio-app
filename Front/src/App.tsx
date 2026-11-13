@@ -543,6 +543,18 @@ function ProfileView() {
 }
 
 function SettingsView() {
+  const [includeWeekend, setIncludeWeekend] = useState<boolean>(() => {
+    return localStorage.getItem('includeWeekendInSchedule') === 'true';
+  });
+
+  const handleToggleWeekend = (checked: boolean) => {
+    setIncludeWeekend(checked);
+    localStorage.setItem('includeWeekendInSchedule', String(checked));
+    window.dispatchEvent(
+      new CustomEvent('weekend-preference-change', { detail: checked })
+    );
+  };
+
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       <Link
@@ -562,6 +574,32 @@ function SettingsView() {
         </div>
 
         <div className="space-y-4 pt-4 border-t border-slate-100">
+          <label
+            htmlFor="include-weekend-checkbox"
+            className="flex items-center justify-between p-4 rounded-2xl bg-slate-50 hover:bg-slate-100/80 transition cursor-pointer"
+          >
+            <div className="flex items-center gap-3">
+              <CalendarCheck className="w-5 h-5 text-indigo-600 shrink-0" />
+              <div>
+                <p className="text-sm font-semibold text-slate-900">
+                  Incluir Sábado y Domingo en el horario semanal
+                </p>
+                <p className="text-xs text-slate-500">
+                  {includeWeekend
+                    ? 'Mostrando de Lunes a Domingo en el Dashboard'
+                    : 'Mostrando de Lunes a Viernes en el Dashboard'}
+                </p>
+              </div>
+            </div>
+            <input
+              id="include-weekend-checkbox"
+              type="checkbox"
+              checked={includeWeekend}
+              onChange={(e) => handleToggleWeekend(e.target.checked)}
+              className="w-5 h-5 rounded-md border-slate-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer accent-indigo-600"
+            />
+          </label>
+
           <div className="flex items-center justify-between p-4 rounded-2xl bg-slate-50">
             <div className="flex items-center gap-3">
               <Clock className="w-5 h-5 text-indigo-600" />

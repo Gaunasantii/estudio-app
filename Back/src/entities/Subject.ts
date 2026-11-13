@@ -22,16 +22,16 @@ export class Subject {
   @ManyToOne(() => User)
   user!: User;
 
-  @OneToMany(() => StudySession, (session) => session.subject)
+  @OneToMany(() => StudySession, (session) => session.subject, { orphanRemoval: true })
   studySessions = new Collection<StudySession>(this);
 
-  @OneToMany(() => Exam, (exam) => exam.subject)
+  @OneToMany(() => Exam, (exam) => exam.subject, { orphanRemoval: true })
   exams = new Collection<Exam>(this);
 
-  @OneToMany(() => ClassSchedule, (schedule) => schedule.subject)
+  @OneToMany(() => ClassSchedule, (schedule) => schedule.subject, { orphanRemoval: true })
   schedules = new Collection<ClassSchedule>(this);
 
-  @OneToMany(() => Goal, (goal) => goal.subject)
+  @OneToMany(() => Goal, (goal) => goal.subject, { orphanRemoval: true })
   goals = new Collection<Goal>(this);
 
   @Property({ defaultRaw: `now()` })
