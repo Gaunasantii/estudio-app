@@ -812,93 +812,251 @@ export default function Dashboard() {
         </div>
       </section>
 
-      {/* FILA 2, COLUMNAS 1 Y 2 UNIDAS (lg:col-span-8): RENDIMIENTO Y HORAS POR MATERIA */}
+      {/* FILA 2, COLUMNAS 1 Y 2 UNIDAS (lg:col-span-8): RENDIMIENTO (ÚLTIMAS 12 SEMANAS) */}
       <section
-        aria-label="Gráfico de rendimiento por materia"
+        aria-label="Gráfico de rendimiento de las últimas 12 semanas"
         className="lg:col-span-8 lg:col-start-1 lg:row-start-2 bg-white rounded-3xl border border-slate-200/80 p-4 xl:p-5 shadow-xs flex flex-col justify-between min-h-0 overflow-hidden"
       >
-        <div className="flex items-center justify-between gap-2 mb-2 shrink-0">
-          <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
-              <BarChart3 className="w-4 h-4" />
-            </div>
-            <div className="min-w-0">
-              <h2 className="text-sm xl:text-base font-bold text-slate-900 truncate">
-                Rendimiento y Horas por Materia
-              </h2>
-              <p className="text-[11px] text-slate-500 truncate">
-                Tiempo de estudio acumulado por asignatura
-              </p>
-            </div>
-          </div>
+        {(() => {
+          const formatAxisTime = (secs: number): string => {
+            const rounded = Math.round(secs);
+            if (!rounded || rounded <= 0) return '0 s';
+            const hours = Math.floor(rounded / 3600);
+            const mins = Math.floor((rounded % 3600) / 60);
+            const remSecs = rounded % 60;
+            if (hours > 0 && mins > 0) return `${hours}h ${mins}m`;
+            if (hours > 0 && remSecs > 0) return `${hours}h ${remSecs}s`;
+            if (hours > 0) return `${hours} h`;
+            if (mins > 0 && remSecs > 0) return `${mins}m ${remSecs}s`;
+            if (mins > 0) return `${mins} min`;
+            return `${remSecs} s`;
+          };
 
-          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-slate-100 text-slate-700 text-xs font-semibold shrink-0">
-            <Clock className="w-3.5 h-3.5 text-indigo-600" />
-            <span>Total: {formatTotalHours(totalStudiedSeconds)}</span>
-          </span>
-        </div>
+          const formatExactDuration = (secs: number): string => {
+            const rounded = Math.round(secs);
+            if (!rounded || rounded <= 0) return '0 s';
+            const hours = Math.floor(rounded / 3600);
+            const mins = Math.floor((rounded % 3600) / 60);
+            const remSecs = rounded % 60;
+            const parts: string[] = [];
+            if (hours > 0) parts.push(`${hours}h`);
+            if (mins > 0) parts.push(`${mins}m`);
+            if (remSecs > 0 || parts.length === 0) parts.push(`${remSecs}s`);
+            return parts.join(' ');
+          };
 
-        {loadingData ? (
-          <div className="flex-1 min-h-0 flex items-center justify-center text-slate-400 text-xs gap-2">
-            <Loader2 className="w-4 h-4 animate-spin text-indigo-600" />
-            <span>Cargando estadísticas...</span>
-          </div>
-        ) : subjectChartData.length === 0 ? (
-          <div className="flex-1 min-h-0 px-4 rounded-2xl border border-dashed border-slate-200 flex flex-col items-center justify-center text-center">
-            <BarChart3 className="w-6 h-6 text-slate-300 mb-1" />
-            <p className="text-xs font-semibold text-slate-700">
-              Sin datos de materias para graficar
-            </p>
-            <p className="text-[11px] text-slate-500">
-              Creá tus materias y registrá sesiones con el temporizador.
-            </p>
-          </div>
-        ) : (
-          <div className="flex-1 min-h-0 flex flex-col justify-end rounded-2xl bg-slate-50/70 border border-slate-100 px-3 pt-2 pb-1.5">
-            <div className="flex-1 min-h-0 flex items-end justify-around gap-3 border-b border-slate-200/80 pb-1.5">
-              {subjectChartData.map((item) => (
-                <div
-                  key={item.id}
-                  className="flex-1 max-w-20 h-full min-h-0 flex flex-col items-center justify-end"
-                >
-                  <span className="text-[10px] font-bold text-slate-700 mb-1 whitespace-nowrap">
-                    {item.formatted}
-                  </span>
-                  <div className="w-full max-w-11 bg-slate-200/60 rounded-t-xl flex-1 min-h-0 flex items-end overflow-hidden p-0.5">
-                    <div
-                      className="w-full rounded-t-lg transition-all duration-500"
-                      style={{
-                        height: `${Math.max(item.percentOfMax, 8)}%`,
-                        backgroundColor: item.color,
-                      }}
-                      title={`${item.name}: ${item.formatted} (${item.hours} h)`}
-                    />
+          const now = new Date();
+          const today = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+          const dayOfWeek = today.getDay();
+          const diffToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
+          const currentWeekMonday = new Date(
+            today.getFullYear(),
+            today.getMonth(),
+            today.getDate() + diffToMonday
+          );
+
+          const weeksData = Array.from({ length: 12 }, (_, idx) => {
+            const weeksAgo = 11 - idx;
+            const weekStart = new Date(
+              currentWeekMonday.getFullYear(),
+              currentWeekMonday.getMonth(),
+              currentWeekMonday.getDate() - weeksAgo * 7,
+              0,
+              0,
+              0,
+              0
+            );
+            const weekEnd = new Date(
+              weekStart.getFullYear(),
+              weekStart.getMonth(),
+              weekStart.getDate() + 6,
+              23,
+              59,
+              59,
+              999
+            );
+
+            const startLabel = `${String(weekStart.getDate()).padStart(2, '0')}/${String(
+              weekStart.getMonth() + 1
+            ).padStart(2, '0')}`;
+            const endLabel = `${String(weekEnd.getDate()).padStart(2, '0')}/${String(
+              weekEnd.getMonth() + 1
+            ).padStart(2, '0')}`;
+
+            const startMs = weekStart.getTime();
+            const endMs = weekEnd.getTime();
+
+            let weekSeconds = 0;
+            let weekSessionsCount = 0;
+            for (const s of sessions) {
+              const t = new Date(s.startTime).getTime();
+              if (t >= startMs && t <= endMs) {
+                weekSeconds += Number(s.durationSeconds) || 0;
+                weekSessionsCount += 1;
+              }
+            }
+
+            return {
+              key: `${weekStart.getFullYear()}-${startLabel}`,
+              startLabel,
+              endLabel,
+              rangeLabel: `${startLabel} al ${endLabel}`,
+              seconds: weekSeconds,
+              sessionsCount: weekSessionsCount,
+              isCurrentWeek: weeksAgo === 0,
+            };
+          });
+
+          const maxWeekSeconds = Math.max(...weeksData.map((w) => w.seconds), 0);
+          const yScaleMax = maxWeekSeconds > 0 ? maxWeekSeconds : 3600;
+          const yTicks = [1, 0.75, 0.5, 0.25, 0].map((ratio) => ({
+            ratio,
+            seconds: Math.round(yScaleMax * ratio),
+            label: formatAxisTime(Math.round(yScaleMax * ratio)),
+          }));
+          const totalLast12WeeksSeconds = weeksData.reduce((acc, w) => acc + w.seconds, 0);
+
+          return (
+            <>
+              <div className="flex items-center justify-between gap-2 mb-2 shrink-0">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div className="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
+                    <BarChart3 className="w-4 h-4" />
+                  </div>
+                  <div className="min-w-0">
+                    <h2 className="text-sm xl:text-base font-bold text-slate-900 truncate">
+                      Rendimiento
+                    </h2>
+                    <p className="text-[11px] text-slate-500 truncate">
+                      Últimas 12 semanas • Todas las materias
+                    </p>
                   </div>
                 </div>
-              ))}
-            </div>
 
-            <div className="flex items-center justify-around gap-3 pt-1.5 shrink-0">
-              {subjectChartData.map((item) => (
-                <div
-                  key={item.id}
-                  className="flex-1 max-w-20 flex items-center justify-center gap-1 min-w-0"
-                >
-                  <span
-                    className="w-2 h-2 rounded-full shrink-0"
-                    style={{ backgroundColor: item.color }}
-                  />
-                  <p
-                    className="text-[11px] font-semibold text-slate-700 truncate"
-                    title={item.name}
-                  >
-                    {item.name}
-                  </p>
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-slate-100 text-slate-700 text-xs font-semibold shrink-0">
+                  <Clock className="w-3.5 h-3.5 text-indigo-600" />
+                  <span>12 sem: {formatAxisTime(totalLast12WeeksSeconds)}</span>
+                </span>
+              </div>
+
+              {loadingData ? (
+                <div className="flex-1 min-h-0 flex items-center justify-center text-slate-400 text-xs gap-2">
+                  <Loader2 className="w-4 h-4 animate-spin text-indigo-600" />
+                  <span>Cargando estadísticas...</span>
                 </div>
-              ))}
-            </div>
-          </div>
-        )}
+              ) : (
+                <div className="flex-1 min-h-0 flex flex-col justify-end rounded-2xl bg-slate-50/70 border border-slate-100 px-3 pt-3 pb-2">
+                  <div className="flex-1 min-h-0 flex gap-2">
+                    {/* Eje Y izquierdo con marcas de escala */}
+                    <div
+                      aria-label="Eje Y de tiempo de estudio"
+                      className="flex flex-col justify-between items-end pr-2 border-r border-slate-200/90 text-[10px] font-mono font-semibold text-slate-500 select-none shrink-0 min-w-[54px]"
+                    >
+                      {yTicks.map((tick) => (
+                        <div key={tick.ratio} className="flex items-center gap-1.5 leading-none">
+                          <span>{tick.label}</span>
+                          <span className="w-1.5 h-px bg-slate-300 -mr-2" />
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Área de las 12 barras semanales */}
+                    <div className="relative flex-1 min-h-0 flex items-end justify-between gap-1.5 sm:gap-2 border-b border-slate-200/90 pb-1.5 pl-1">
+                      {/* Líneas guía horizontales proporcionales al eje Y */}
+                      <div
+                        aria-hidden="true"
+                        className="pointer-events-none absolute inset-0 flex flex-col justify-between pb-1.5"
+                      >
+                        {yTicks.map((tick) => (
+                          <div
+                            key={tick.ratio}
+                            className="w-full border-t border-dashed border-slate-200/70"
+                          />
+                        ))}
+                      </div>
+
+                      {weeksData.map((week) => {
+                        const heightPercent =
+                          week.seconds > 0
+                            ? Math.max(6, Math.round((week.seconds / yScaleMax) * 100))
+                            : 0;
+
+                        return (
+                          <div
+                            key={week.key}
+                            className="group/week relative z-10 flex-1 h-full min-h-0 flex flex-col items-center justify-end"
+                          >
+                            {/* Tooltip flotante al pasar el mouse */}
+                            <div className="invisible opacity-0 pointer-events-none group-hover/week:visible group-hover/week:opacity-100 transition-all duration-150 absolute bottom-full mb-1.5 left-1/2 -translate-x-1/2 z-30 whitespace-nowrap">
+                              <div className="bg-slate-900 text-white rounded-xl px-2.5 py-1.5 shadow-lg text-[10px] leading-tight text-center">
+                                <p className="font-semibold text-indigo-200">
+                                  Sem. {week.rangeLabel}
+                                </p>
+                                <p className="font-bold text-white mt-0.5">
+                                  {formatExactDuration(week.seconds)}
+                                </p>
+                                <p className="text-[9px] text-slate-300">
+                                  {week.sessionsCount}{' '}
+                                  {week.sessionsCount === 1 ? 'sesión' : 'sesiones'}
+                                </p>
+                              </div>
+                            </div>
+
+                            <div className="w-full max-w-9 h-full min-h-0 bg-slate-200/50 rounded-t-xl flex items-end overflow-hidden p-0.5">
+                              <div
+                                className={`w-full rounded-t-lg transition-all duration-500 ${
+                                  week.seconds > 0
+                                    ? week.isCurrentWeek
+                                      ? 'bg-indigo-600 group-hover/week:bg-indigo-500'
+                                      : 'bg-indigo-500/85 group-hover/week:bg-indigo-600'
+                                    : 'bg-slate-300/60'
+                                }`}
+                                style={{
+                                  height: week.seconds > 0 ? `${heightPercent}%` : '3px',
+                                }}
+                                title={`Semana ${week.rangeLabel}: ${formatExactDuration(
+                                  week.seconds
+                                )} (${week.seconds} s)`}
+                              />
+                            </div>
+                          </div>
+                        );
+                      })}
+                    </div>
+                  </div>
+
+                  {/* Eje X: Fechas de inicio de cada una de las 12 semanas */}
+                  <div className="flex items-center gap-2 pt-1.5 shrink-0">
+                    <div className="min-w-[54px] pr-2 shrink-0 text-[9px] font-semibold uppercase tracking-wider text-slate-400 text-right select-none">
+                      Sem.
+                    </div>
+                    <div className="flex-1 flex items-center justify-between gap-1.5 sm:gap-2 pl-1 min-w-0">
+                      {weeksData.map((week) => (
+                        <div
+                          key={week.key}
+                          className="flex-1 min-w-0 text-center"
+                          title={`Semana del ${week.rangeLabel}: ${formatExactDuration(
+                            week.seconds
+                          )}`}
+                        >
+                          <span
+                            className={`block text-[10px] font-mono truncate ${
+                              week.isCurrentWeek
+                                ? 'font-bold text-indigo-600'
+                                : 'font-medium text-slate-600'
+                            }`}
+                          >
+                            {week.startLabel}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </>
+          );
+        })()}
       </section>
 
       {/* FILAS 1 Y 2 UNIDAS, COLUMNA 3 (lg:col-span-4 lg:row-span-2): PRÓXIMOS EXÁMENES */}
@@ -1072,6 +1230,77 @@ export default function Dashboard() {
               {visibleWeekDays.map((dayRow) => {
                 const daySchedules = schedulesByDay[dayRow.dayOfWeek] || [];
 
+                const positionedSchedules = (() => {
+                  const items = daySchedules
+                    .map((item) => {
+                      const rawStart = parseTimeToDecimalHours(item.startTime);
+                      const rawEnd = parseTimeToDecimalHours(item.endTime);
+
+                      const clampedStart = Math.max(
+                        TIMELINE_START_HOUR,
+                        Math.min(TIMELINE_END_HOUR + 0.75, rawStart)
+                      );
+                      const clampedEnd = Math.max(
+                        clampedStart + 0.5,
+                        Math.min(TIMELINE_END_HOUR + 1, rawEnd)
+                      );
+
+                      return {
+                        item,
+                        rawStart,
+                        rawEnd,
+                        clampedStart,
+                        clampedEnd,
+                        lane: 0,
+                        totalLanes: 1,
+                      };
+                    })
+                    .sort(
+                      (a, b) =>
+                        a.clampedStart - b.clampedStart || b.clampedEnd - a.clampedEnd
+                    );
+
+                  let clusterStartIdx = 0;
+                  let clusterMaxEnd = -Infinity;
+
+                  const assignClusterLanes = (startIdx: number, endIdx: number) => {
+                    const laneEnds: number[] = [];
+                    for (let i = startIdx; i < endIdx; i++) {
+                      const current = items[i];
+                      let assignedLane = laneEnds.findIndex(
+                        (end) => end <= current.clampedStart
+                      );
+                      if (assignedLane === -1) {
+                        assignedLane = laneEnds.length;
+                        laneEnds.push(current.clampedEnd);
+                      } else {
+                        laneEnds[assignedLane] = current.clampedEnd;
+                      }
+                      current.lane = assignedLane;
+                    }
+                    const total = Math.max(1, laneEnds.length);
+                    for (let i = startIdx; i < endIdx; i++) {
+                      items[i].totalLanes = total;
+                    }
+                  };
+
+                  for (let i = 0; i < items.length; i++) {
+                    if (i > clusterStartIdx && items[i].clampedStart >= clusterMaxEnd) {
+                      assignClusterLanes(clusterStartIdx, i);
+                      clusterStartIdx = i;
+                      clusterMaxEnd = items[i].clampedEnd;
+                    } else {
+                      clusterMaxEnd = Math.max(clusterMaxEnd, items[i].clampedEnd);
+                    }
+                  }
+
+                  if (items.length > 0) {
+                    assignClusterLanes(clusterStartIdx, items.length);
+                  }
+
+                  return items;
+                })();
+
                 return (
                   <div
                     key={dayRow.dayOfWeek}
@@ -1107,125 +1336,139 @@ export default function Dashboard() {
                       </div>
 
                       {/* Barras horizontales redondeadas por clase */}
-                      {daySchedules.map((item) => {
-                        const subj = resolveSubject(item.subject);
-                        const color = subj?.color || '#4F46E5';
-                        const subjectName = subj?.name || 'Materia';
+                      {positionedSchedules.map(
+                        ({ item, rawStart, clampedStart, clampedEnd, lane, totalLanes }) => {
+                          const subj = resolveSubject(item.subject);
+                          const color = subj?.color || '#4F46E5';
+                          const subjectName = subj?.name || 'Materia';
 
-                        const rawStart = parseTimeToDecimalHours(item.startTime);
-                        const rawEnd = parseTimeToDecimalHours(item.endTime);
+                          const leftPercent =
+                            ((clampedStart - TIMELINE_START_HOUR) /
+                              TIMELINE_TOTAL_SPAN_HOURS) *
+                            100;
+                          const widthPercent = Math.max(
+                            3.5,
+                            ((clampedEnd - clampedStart) / TIMELINE_TOTAL_SPAN_HOURS) *
+                              100
+                          );
 
-                        const clampedStart = Math.max(
-                          TIMELINE_START_HOUR,
-                          Math.min(TIMELINE_END_HOUR + 0.75, rawStart)
-                        );
-                        const clampedEnd = Math.max(
-                          clampedStart + 0.5,
-                          Math.min(TIMELINE_END_HOUR + 1, rawEnd)
-                        );
+                          const topPercent = (lane / totalLanes) * 100;
+                          const heightPercent = 100 / totalLanes;
 
-                        const leftPercent =
-                          ((clampedStart - TIMELINE_START_HOUR) /
-                            TIMELINE_TOTAL_SPAN_HOURS) *
-                          100;
-                        const widthPercent = Math.max(
-                          3.5,
-                          ((clampedEnd - clampedStart) / TIMELINE_TOTAL_SPAN_HOURS) *
-                          100
-                        );
+                          const tooltipAlignClass =
+                            rawStart < 10
+                              ? 'left-0'
+                              : rawStart >= 18
+                                ? 'right-0'
+                                : 'left-1/2 -translate-x-1/2';
 
-                        const startFormatted = formatTimeHHMM(item.startTime);
-                        const endFormatted = formatTimeHHMM(item.endTime);
+                          const startFormatted = formatTimeHHMM(item.startTime);
+                          const endFormatted = formatTimeHHMM(item.endTime);
 
-                        return (
-                          <div
-                            key={item.id}
-                            style={{
-                              left: `${leftPercent}%`,
-                              width: `${widthPercent}%`,
-                            }}
-                            className="group/bar absolute inset-y-1 z-10 hover:z-40"
-                          >
-                            {/* Barra horizontal redondeada */}
+                          return (
                             <div
-                              style={{ backgroundColor: color }}
-                              className="w-full h-full rounded-xl px-2 flex items-center justify-between gap-1 shadow-2xs cursor-pointer overflow-hidden transition-transform duration-150 group-hover/bar:scale-[1.02] group-hover/bar:ring-2 group-hover/bar:ring-slate-900/15"
+                              key={item.id}
+                              style={{
+                                left: `${leftPercent}%`,
+                                width: `${widthPercent}%`,
+                                top: `${topPercent}%`,
+                                height: `${heightPercent}%`,
+                              }}
+                              className={`group/bar absolute z-10 hover:z-40 ${
+                                totalLanes > 1 ? 'py-px' : 'py-1'
+                              }`}
                             >
-                              <span className="text-[11px] font-bold text-white truncate select-none">
-                                {subjectName}
-                              </span>
-                            </div>
+                              {/* Barra horizontal redondeada */}
+                              <div
+                                style={{ backgroundColor: color }}
+                                className={`w-full h-full ${
+                                  totalLanes > 1 ? 'rounded-lg px-1.5' : 'rounded-xl px-2'
+                                } flex items-center justify-between gap-1 shadow-2xs cursor-pointer overflow-hidden transition-transform duration-150 group-hover/bar:scale-[1.02] group-hover/bar:ring-2 group-hover/bar:ring-slate-900/15`}
+                              >
+                                <span
+                                  className={`${
+                                    totalLanes > 1
+                                      ? 'text-[10px] leading-none'
+                                      : 'text-[11px]'
+                                  } font-bold text-white truncate select-none`}
+                                >
+                                  {subjectName}
+                                </span>
+                              </div>
 
-                            {/* Tooltip flotante hacia arriba (bottom-full mb-2) para no cortarse abajo */}
-                            <div className="invisible opacity-0 pointer-events-none group-hover/bar:visible group-hover/bar:opacity-100 group-hover/bar:pointer-events-auto transition-all duration-150 absolute bottom-full mb-2 left-1/2 -translate-x-1/2 z-50 w-56 after:content-[''] after:absolute after:top-full after:inset-x-0 after:h-3">
-                              <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xl p-3 text-left space-y-1.5">
-                                <div className="flex items-start justify-between gap-2">
-                                  <div className="flex items-center gap-1.5 min-w-0">
-                                    <span
-                                      className="w-2.5 h-2.5 rounded-full shrink-0"
-                                      style={{ backgroundColor: color }}
-                                    />
-                                    <p className="text-xs font-bold text-slate-900 truncate">
-                                      {subjectName}
-                                    </p>
-                                  </div>
-
-                                  <div className="flex items-center gap-0.5 shrink-0">
-                                    <button
-                                      type="button"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        handleOpenEditSchedule(item);
-                                      }}
-                                      aria-label={`Editar horario de ${subjectName}`}
-                                      title="Editar horario"
-                                      className="p-1 rounded-lg text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition cursor-pointer"
-                                    >
-                                      <Pencil className="w-3.5 h-3.5" />
-                                    </button>
-                                    <button
-                                      type="button"
-                                      onClick={(e) => {
-                                        e.stopPropagation();
-                                        void handleDeleteSchedule(item.id);
-                                      }}
-                                      aria-label={`Eliminar horario de ${subjectName}`}
-                                      title="Eliminar horario"
-                                      className="p-1 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition cursor-pointer"
-                                    >
-                                      <Trash2 className="w-3.5 h-3.5" />
-                                    </button>
-                                  </div>
-                                </div>
-
-                                <div className="space-y-1 text-[11px] text-slate-600">
-                                  <div className="flex items-center gap-1.5 font-medium text-slate-700">
-                                    <Calendar className="w-3 h-3 text-slate-400 shrink-0" />
-                                    <span>
-                                      {DAY_FULL_LABELS[item.dayOfWeek] ||
-                                        `Día ${item.dayOfWeek}`}
-                                    </span>
-                                  </div>
-
-                                  <div className="flex items-center gap-1.5 font-mono text-slate-600">
-                                    <Clock className="w-3 h-3 text-slate-400 shrink-0" />
-                                    <span>
-                                      {startFormatted} - {endFormatted}
-                                    </span>
-                                  </div>
-
-                                  {item.classroom && (
-                                    <div className="flex items-center gap-1.5 text-slate-600">
-                                      <MapPin className="w-3 h-3 text-slate-400 shrink-0" />
-                                      <span className="truncate">{item.classroom}</span>
+                              {/* Tooltip flotante hacia arriba (bottom-full mb-2) para no cortarse abajo */}
+                              <div
+                                className={`invisible opacity-0 pointer-events-none group-hover/bar:visible group-hover/bar:opacity-100 group-hover/bar:pointer-events-auto transition-all duration-150 absolute bottom-full mb-2 ${tooltipAlignClass} z-50 w-56 after:content-[''] after:absolute after:top-full after:inset-x-0 after:h-3`}
+                              >
+                                <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xl p-3 text-left space-y-1.5">
+                                  <div className="flex items-start justify-between gap-2">
+                                    <div className="flex items-center gap-1.5 min-w-0">
+                                      <span
+                                        className="w-2.5 h-2.5 rounded-full shrink-0"
+                                        style={{ backgroundColor: color }}
+                                      />
+                                      <p className="text-xs font-bold text-slate-900 truncate">
+                                        {subjectName}
+                                      </p>
                                     </div>
-                                  )}
+
+                                    <div className="flex items-center gap-0.5 shrink-0">
+                                      <button
+                                        type="button"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          handleOpenEditSchedule(item);
+                                        }}
+                                        aria-label={`Editar horario de ${subjectName}`}
+                                        title="Editar horario"
+                                        className="p-1 rounded-lg text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition cursor-pointer"
+                                      >
+                                        <Pencil className="w-3.5 h-3.5" />
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          void handleDeleteSchedule(item.id);
+                                        }}
+                                        aria-label={`Eliminar horario de ${subjectName}`}
+                                        title="Eliminar horario"
+                                        className="p-1 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition cursor-pointer"
+                                      >
+                                        <Trash2 className="w-3.5 h-3.5" />
+                                      </button>
+                                    </div>
+                                  </div>
+
+                                  <div className="space-y-1 text-[11px] text-slate-600">
+                                    <div className="flex items-center gap-1.5 font-medium text-slate-700">
+                                      <Calendar className="w-3 h-3 text-slate-400 shrink-0" />
+                                      <span>
+                                        {DAY_FULL_LABELS[item.dayOfWeek] ||
+                                          `Día ${item.dayOfWeek}`}
+                                      </span>
+                                    </div>
+
+                                    <div className="flex items-center gap-1.5 font-mono text-slate-600">
+                                      <Clock className="w-3 h-3 text-slate-400 shrink-0" />
+                                      <span>
+                                        {startFormatted} - {endFormatted}
+                                      </span>
+                                    </div>
+
+                                    {item.classroom && (
+                                      <div className="flex items-center gap-1.5 text-slate-600">
+                                        <MapPin className="w-3 h-3 text-slate-400 shrink-0" />
+                                        <span className="truncate">{item.classroom}</span>
+                                      </div>
+                                    )}
+                                  </div>
                                 </div>
                               </div>
                             </div>
-                          </div>
-                        );
-                      })}
+                          );
+                        }
+                      )}
                     </div>
                   </div>
                 );

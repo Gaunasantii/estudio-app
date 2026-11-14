@@ -11,6 +11,7 @@ import {
   LayoutDashboard,
   CalendarCheck,
   Flame,
+  BarChart3,
   ChevronLeft,
   ChevronRight,
 } from 'lucide-react';
@@ -305,6 +306,21 @@ export default function DashboardLayout() {
           </div>
 
           <div className="flex items-center gap-5">
+            {/* Botón de Estadísticas a la izquierda del contador de racha */}
+            <NavLink
+              to="/estadisticas"
+              className={({ isActive }) =>
+                `inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-semibold border transition cursor-pointer ${
+                  isActive
+                    ? 'bg-indigo-600 text-white border-indigo-600 shadow-xs'
+                    : 'bg-white text-slate-700 border-slate-200 hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-200'
+                }`
+              }
+            >
+              <BarChart3 className="w-4 h-4 shrink-0" />
+              <span>Estadísticas</span>
+            </NavLink>
+
             {/* Indicador de Racha minimalista: únicamente Flame + número de días */}
             <div
               title={

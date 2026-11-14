@@ -30,6 +30,7 @@ import DashboardLayout from './pages/DashboardLayout';
 import Dashboard from './pages/Dashboard';
 import SubjectsPage from './pages/SubjectsPage';
 import ExamsPage from './pages/ExamsPage';
+import StatsPage from './pages/StatsPage';
 
 const POMODORO_DURATION_OPTIONS = [15, 25, 30, 45, 50, 60];
 
@@ -443,6 +444,7 @@ export function App() {
             <Route index element={<Dashboard />} />
             <Route path="materias" element={<SubjectsPage />} />
             <Route path="examenes" element={<ExamsPage />} />
+            <Route path="estadisticas" element={<StatsPage />} />
             <Route path="perfil" element={<ProfileView />} />
             <Route path="ajustes" element={<SettingsView />} />
           </Route>

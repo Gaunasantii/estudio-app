@@ -1,0 +1,10 @@
+{
+  "name": "estudio-app",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev:back": "npm --prefix Back run dev",
+    "dev:front": "npm --prefix Front run dev",
+    "test:back": "npm --prefix Back test"
+  }
+}

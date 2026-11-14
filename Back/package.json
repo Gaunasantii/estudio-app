@@ -5,7 +5,8 @@
   "scripts": {
     "dev": "ts-node-dev --respawn --transpile-only src/app.ts",
     "build": "tsc",
-    "mikro-orm": "mikro-orm"
+    "mikro-orm": "mikro-orm",
+    "test": "vitest run"
   },
   "dependencies": {
     "@mikro-orm/core": "^6.0.0",
