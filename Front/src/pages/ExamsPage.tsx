@@ -17,7 +17,7 @@ import {
   BookOpen,
 } from 'lucide-react';
 import api from '../api/axios';
-import type { Exam, Subject } from '../types/academic';
+import type { Exam, Subject, StudySession } from '../types/academic';
 
 type ExamFilter = 'ALL' | 'PENDING' | 'COMPLETED';
 
@@ -51,6 +51,7 @@ function toInputDateValue(isoDate: string): string {
 export default function ExamsPage() {
   const [exams, setExams] = useState<Exam[]>([]);
   const [subjects, setSubjects] = useState<Subject[]>([]);
+  const [sessions, setSessions] = useState<StudySession[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -89,16 +90,19 @@ export default function ExamsPage() {
     setLoading(true);
     setError(null);
     try {
-      const [examsRes, subjectsRes] = await Promise.all([
+      const [examsRes, subjectsRes, sessionsRes] = await Promise.all([
         api.get<Exam[]>('/exams'),
         api.get<Subject[]>('/subjects').catch(() => ({ data: [] as Subject[] })),
+        api.get<StudySession[]>('/sessions').catch(() => ({ data: [] as StudySession[] })),
       ]);
 
       const fetchedExams = Array.isArray(examsRes.data) ? examsRes.data : [];
       const fetchedSubjects = Array.isArray(subjectsRes.data) ? subjectsRes.data : [];
+      const fetchedSessions = Array.isArray(sessionsRes.data) ? sessionsRes.data : [];
 
       setExams(fetchedExams);
       setSubjects(fetchedSubjects);
+      setSessions(fetchedSessions);
     } catch (err: unknown) {
       if (axios.isAxiosError<{ message?: string }>(err)) {
         setError(err.response?.data?.message || 'No se pudieron cargar los exámenes.');
@@ -123,6 +127,26 @@ export default function ExamsPage() {
     },
     [subjects]
   );
+
+  // Horas estudiadas por materia con activityType === 'EXAM_PREP'
+  const examPrepHoursBySubject = useMemo(() => {
+    const secondsBySubj: Record<string, number> = {};
+    for (const session of sessions) {
+      if (session.activityType !== 'EXAM_PREP') continue;
+      const subjId =
+        typeof session.subject === 'object' && session.subject !== null
+          ? session.subject.id
+          : String(session.subject || '');
+      if (!subjId) continue;
+      secondsBySubj[subjId] =
+        (secondsBySubj[subjId] || 0) + (Number(session.durationSeconds) || 0);
+    }
+    const hoursBySubj: Record<string, number> = {};
+    for (const [id, secs] of Object.entries(secondsBySubj)) {
+      hoursBySubj[id] = Number((secs / 3600).toFixed(1));
+    }
+    return hoursBySubj;
+  }, [sessions]);
 
   // Contadores y métricas
   const pendingCount = useMemo(
@@ -596,6 +620,7 @@ export default function ExamsPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {filteredExams.map((exam) => {
             const subj = resolveSubject(exam.subject);
+            const subjId = subj?.id ?? (typeof exam.subject === 'string' ? exam.subject : '');
             const subjColor = subj?.color || '#4F46E5';
             const formattedDate = new Date(exam.examDate).toLocaleDateString('es-AR', {
               weekday: 'short',
@@ -603,6 +628,11 @@ export default function ExamsPage() {
               month: 'short',
               year: 'numeric',
             });
+            const hasTargetHours = typeof exam.targetHours === 'number' && exam.targetHours > 0;
+            const studiedExamPrepHours = subjId ? (examPrepHoursBySubject[subjId] ?? 0) : 0;
+            const progressPercent = hasTargetHours
+              ? Math.min(100, Math.round((studiedExamPrepHours / (exam.targetHours || 1)) * 100))
+              : 0;
 
             return (
               <div
@@ -627,16 +657,33 @@ export default function ExamsPage() {
 
                   {/* Título y fecha */}
                   <div className="flex items-start justify-between gap-3">
-                    <div>
+                    <div className="min-w-0 flex-1">
                       <h2 className="text-base font-bold text-slate-900">
                         {exam.title}
                       </h2>
                       <p className="text-xs text-slate-500 mt-0.5 capitalize">
                         Fecha: {formattedDate}
-                        {typeof exam.targetHours === 'number' && exam.targetHours > 0
-                          ? ` • Meta: ${exam.targetHours}h de estudio`
-                          : ''}
                       </p>
+
+                      {hasTargetHours && (
+                        <div className="mt-2.5 space-y-1">
+                          <div className="flex items-center justify-between text-[11px] font-semibold">
+                            <span className="text-slate-600">
+                              {studiedExamPrepHours}h / {exam.targetHours}h objetivo
+                            </span>
+                            <span className="text-indigo-600">{progressPercent}%</span>
+                          </div>
+                          <div className="w-full h-1.5 rounded-full bg-slate-100 overflow-hidden">
+                            <div
+                              className="h-full rounded-full transition-all duration-500"
+                              style={{
+                                width: `${progressPercent}%`,
+                                backgroundColor: subjColor,
+                              }}
+                            />
+                          </div>
+                        </div>
+                      )}
                     </div>
 
                     {/* Indicador / Botón de Nota (score) */}

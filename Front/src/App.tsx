@@ -24,6 +24,12 @@ import {
 import api from './api/axios';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import type { User as AuthUser } from './context/AuthContext';
+import {
+  CUSTOM_AVATARS,
+  getSavedAvatarId,
+  setSavedAvatarId,
+  findAvatarById,
+} from './utils/avatars';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import DashboardLayout from './pages/DashboardLayout';
@@ -72,6 +78,9 @@ function ProfileView() {
   const [name, setName] = useState<string>(user?.name || '');
   const [currentPassword, setCurrentPassword] = useState<string>('');
   const [newPassword, setNewPassword] = useState<string>('');
+  const [selectedAvatarId, setSelectedAvatarId] = useState<string | null>(() =>
+    getSavedAvatarId()
+  );
   const [submitting, setSubmitting] = useState<boolean>(false);
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -81,6 +90,24 @@ function ProfileView() {
       setName(user.name);
     }
   }, [user?.name]);
+
+  useEffect(() => {
+    const syncAvatar = () => setSelectedAvatarId(getSavedAvatarId());
+    window.addEventListener('avatar-change', syncAvatar);
+    window.addEventListener('storage', syncAvatar);
+    return () => {
+      window.removeEventListener('avatar-change', syncAvatar);
+      window.removeEventListener('storage', syncAvatar);
+    };
+  }, []);
+
+  const selectedAvatar = findAvatarById(selectedAvatarId);
+  const userInitial = (name || user?.name || 'U').trim().charAt(0).toUpperCase() || 'U';
+
+  const handleSelectAvatar = (avatarId: string | null) => {
+    setSelectedAvatarId(avatarId);
+    setSavedAvatarId(avatarId);
+  };
 
   const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -147,13 +174,82 @@ function ProfileView() {
 
       <div className="bg-white rounded-3xl border border-slate-200 p-8 shadow-xs space-y-6">
         <div className="flex items-center gap-4">
-          <div className="w-14 h-14 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
-            <User className="w-7 h-7" />
+          <div className="w-14 h-14 rounded-full overflow-hidden bg-indigo-50 text-indigo-600 font-bold text-lg flex items-center justify-center border border-indigo-100 shrink-0">
+            {selectedAvatar ? (
+              <img
+                src={selectedAvatar.src}
+                alt={selectedAvatar.label}
+                className="w-full h-full object-cover"
+              />
+            ) : (
+              <span>{userInitial}</span>
+            )}
           </div>
           <div>
             <h1 className="text-xl font-bold text-slate-900">Mi Perfil</h1>
             <p className="text-sm text-slate-500">Información personal y seguridad de tu cuenta académica</p>
           </div>
+        </div>
+
+        <div className="pt-4 border-t border-slate-100 space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <User className="w-4 h-4 text-indigo-600" />
+              <h2 className="text-sm font-bold text-slate-900">Avatar de perfil</h2>
+            </div>
+            {selectedAvatar && (
+              <button
+                type="button"
+                onClick={() => handleSelectAvatar(null)}
+                className="text-xs font-semibold text-slate-500 hover:text-indigo-600 transition cursor-pointer"
+              >
+                Usar inicial
+              </button>
+            )}
+          </div>
+
+          {CUSTOM_AVATARS.length > 0 ? (
+            <div className="flex flex-wrap items-center gap-3">
+              <button
+                type="button"
+                onClick={() => handleSelectAvatar(null)}
+                title="Inicial del nombre"
+                className={`w-12 h-12 rounded-full bg-indigo-50 text-indigo-600 font-bold text-sm flex items-center justify-center border transition cursor-pointer ${
+                  !selectedAvatar
+                    ? 'border-indigo-600 ring-2 ring-indigo-500/30'
+                    : 'border-indigo-100 hover:border-indigo-300'
+                }`}
+              >
+                {userInitial}
+              </button>
+              {CUSTOM_AVATARS.map((avatar) => {
+                const isSelected = selectedAvatar?.id === avatar.id;
+                return (
+                  <button
+                    key={avatar.id}
+                    type="button"
+                    onClick={() => handleSelectAvatar(avatar.id)}
+                    title={avatar.label}
+                    className={`w-12 h-12 rounded-full overflow-hidden border transition cursor-pointer ${
+                      isSelected
+                        ? 'border-indigo-600 ring-2 ring-indigo-500/30'
+                        : 'border-slate-200 hover:border-indigo-300'
+                    }`}
+                  >
+                    <img
+                      src={avatar.src}
+                      alt={avatar.label}
+                      className="w-full h-full object-cover"
+                    />
+                  </button>
+                );
+              })}
+            </div>
+          ) : (
+            <p className="text-xs text-slate-500 bg-slate-50 border border-dashed border-slate-200 rounded-xl px-3.5 py-2.5">
+              Próximamente podrás elegir un avatar personalizado desde aquí.
+            </p>
+          )}
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5 pt-4 border-t border-slate-100">

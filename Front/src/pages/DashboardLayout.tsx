@@ -4,7 +4,6 @@ import {
   GraduationCap,
   Menu,
   X,
-  User,
   Settings,
   LogOut,
   BookOpen,
@@ -12,11 +11,10 @@ import {
   CalendarCheck,
   Flame,
   BarChart3,
-  ChevronLeft,
-  ChevronRight,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/axios';
+import { getSavedAvatarId, findAvatarById } from '../utils/avatars';
 import type {
   Subject,
   StudySession,
@@ -72,7 +70,6 @@ const NAV_ITEMS = [
   { to: '/', label: 'Dashboard', icon: LayoutDashboard, end: true },
   { to: '/materias', label: 'Materias', icon: BookOpen, end: false },
   { to: '/examenes', label: 'Exámenes', icon: CalendarCheck, end: false },
-  { to: '/perfil', label: 'Mi Perfil', icon: User, end: false },
   { to: '/ajustes', label: 'Ajustes', icon: Settings, end: false },
 ];
 
@@ -82,9 +79,24 @@ export default function DashboardLayout() {
   const location = useLocation();
   const isDashboardRoot = location.pathname === '/';
 
-  // Estado de barra lateral: expandida/colapsada en desktop y drawer en móvil
-  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(false);
+  // Estado de barra lateral: cerrada por defecto en desktop y drawer en móvil
+  const [isSidebarCollapsed, setIsSidebarCollapsed] = useState(true);
   const [isMobileDrawerOpen, setIsMobileDrawerOpen] = useState(false);
+  const [selectedAvatarId, setSelectedAvatarId] = useState<string | null>(() =>
+    getSavedAvatarId()
+  );
+
+  useEffect(() => {
+    const syncAvatar = () => setSelectedAvatarId(getSavedAvatarId());
+    window.addEventListener('avatar-change', syncAvatar);
+    window.addEventListener('storage', syncAvatar);
+    return () => {
+      window.removeEventListener('avatar-change', syncAvatar);
+      window.removeEventListener('storage', syncAvatar);
+    };
+  }, []);
+
+  const selectedAvatar = findAvatarById(selectedAvatarId);
 
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [subjectSecondsMap, setSubjectSecondsMap] = useState<Record<string, number>>({});
@@ -156,7 +168,13 @@ export default function DashboardLayout() {
           collapsed ? 'justify-center' : 'justify-between'
         }`}
       >
-        <div className="flex items-center gap-3 overflow-hidden">
+        <button
+          type="button"
+          onClick={() => setIsSidebarCollapsed((prev) => !prev)}
+          title={collapsed ? 'Expandir menú' : 'Colapsar menú'}
+          aria-label={collapsed ? 'Expandir menú' : 'Colapsar menú'}
+          className="flex items-center gap-3 overflow-hidden rounded-xl hover:opacity-90 transition cursor-pointer"
+        >
           <div className="w-9 h-9 rounded-xl bg-white/15 text-white flex items-center justify-center shrink-0 shadow-xs">
             <GraduationCap className="w-5 h-5" />
           </div>
@@ -165,9 +183,9 @@ export default function DashboardLayout() {
               EstudioApp
             </span>
           )}
-        </div>
+        </button>
 
-        {isMobile ? (
+        {isMobile && (
           <button
             type="button"
             onClick={() => setIsMobileDrawerOpen(false)}
@@ -176,37 +194,10 @@ export default function DashboardLayout() {
           >
             <X className="w-5 h-5" />
           </button>
-        ) : (
-          !collapsed && (
-            <button
-              type="button"
-              onClick={() => setIsSidebarCollapsed(true)}
-              aria-label="Colapsar barra lateral"
-              title="Colapsar menú"
-              className="p-1.5 rounded-lg text-white/80 hover:text-white hover:bg-white/15 transition cursor-pointer"
-            >
-              <ChevronLeft className="w-5 h-5" />
-            </button>
-          )
         )}
       </div>
 
-      {/* Botón para expandir cuando está colapsada en desktop */}
-      {!isMobile && collapsed && (
-        <div className="px-3 pt-3 flex justify-center">
-          <button
-            type="button"
-            onClick={() => setIsSidebarCollapsed(false)}
-            aria-label="Expandir barra lateral"
-            title="Expandir menú"
-            className="w-11 h-9 rounded-xl bg-white/10 hover:bg-white/20 text-white flex items-center justify-center transition cursor-pointer"
-          >
-            <ChevronRight className="w-5 h-5" />
-          </button>
-        </div>
-      )}
-
-      {/* Opciones de navegación: Dashboard, Materias, Exámenes, Mi Perfil y Ajustes */}
+      {/* Opciones de navegación: Dashboard, Materias, Exámenes y Ajustes */}
       <nav className="flex-1 px-3 py-5 space-y-1.5 overflow-y-auto">
         {NAV_ITEMS.map(({ to, label, icon: Icon, end }) => (
           <NavLink
@@ -233,8 +224,41 @@ export default function DashboardLayout() {
         ))}
       </nav>
 
-      {/* Cerrar Sesión fijado abajo de todo */}
-      <div className="p-3 border-t border-white/15 mt-auto">
+      {/* Mi Perfil y Cerrar Sesión fijados abajo de todo */}
+      <div className="p-3 border-t border-white/15 mt-auto space-y-1.5">
+        {user && (
+          <NavLink
+            to="/perfil"
+            onClick={() => {
+              if (isMobile) setIsMobileDrawerOpen(false);
+            }}
+            title={collapsed ? 'Mi Perfil' : undefined}
+            aria-label="Mi Perfil"
+            className={({ isActive }) =>
+              `flex items-center gap-3 rounded-xl text-sm font-medium transition ${
+                collapsed ? 'justify-center px-2.5 py-2.5' : 'px-3 py-2'
+              } ${
+                isActive
+                  ? 'bg-white text-indigo-600 font-semibold shadow-sm'
+                  : 'text-white/85 hover:bg-white/15 hover:text-white'
+              }`
+            }
+          >
+            <div className="w-8 h-8 rounded-full overflow-hidden bg-indigo-50 text-indigo-600 font-bold text-xs flex items-center justify-center shrink-0 border border-white/30">
+              {selectedAvatar ? (
+                <img
+                  src={selectedAvatar.src}
+                  alt={selectedAvatar.label}
+                  className="w-full h-full object-cover"
+                />
+              ) : (
+                user.name?.charAt(0).toUpperCase() || 'U'
+              )}
+            </div>
+            {!collapsed && <span className="truncate">Mi Perfil</span>}
+          </NavLink>
+        )}
+
         <button
           type="button"
           onClick={handleLogout}
@@ -251,11 +275,11 @@ export default function DashboardLayout() {
   );
 
   return (
-    <div className="min-h-screen lg:h-screen lg:overflow-hidden bg-slate-100/70 flex">
+    <div className="fixed inset-0 overflow-hidden bg-slate-100/70 flex">
       {/* Barra lateral izquierda en Desktop (colapsable / expandible) */}
       <aside
         aria-label="Navegación principal"
-        className={`hidden md:flex flex-col shrink-0 transition-all duration-300 ease-in-out shadow-lg z-30 sticky top-0 h-screen ${
+        className={`hidden md:flex flex-col shrink-0 transition-all duration-300 ease-in-out shadow-lg z-30 h-full ${
           isSidebarCollapsed ? 'w-20' : 'w-64'
         }`}
       >
@@ -292,16 +316,6 @@ export default function DashboardLayout() {
               className="md:hidden p-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-slate-700 transition cursor-pointer"
             >
               <Menu className="w-5 h-5" />
-            </button>
-
-            {/* Botón para alternar colapso en desktop */}
-            <button
-              type="button"
-              onClick={() => setIsSidebarCollapsed((prev) => !prev)}
-              aria-label="Alternar barra lateral"
-              className="hidden md:inline-flex p-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-slate-600 transition cursor-pointer"
-            >
-              <Menu className="w-4 h-4" />
             </button>
           </div>
 
@@ -341,20 +355,6 @@ export default function DashboardLayout() {
               />
               <span>{currentStreak}</span>
             </div>
-
-            {user && (
-              <div className="flex items-center gap-3 pl-4 border-l border-slate-200">
-                <div className="hidden sm:flex flex-col items-end">
-                  <span className="text-sm font-semibold text-slate-800 leading-tight">
-                    {user.name}
-                  </span>
-                  <span className="text-xs text-slate-500 leading-tight">{user.email}</span>
-                </div>
-                <div className="w-9 h-9 rounded-full bg-indigo-50 text-indigo-600 font-bold text-sm flex items-center justify-center border border-indigo-100">
-                  {user.name?.charAt(0).toUpperCase() || 'U'}
-                </div>
-              </div>
-            )}
           </div>
         </header>
 

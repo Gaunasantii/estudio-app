@@ -52,6 +52,72 @@ function formatReadableDuration(totalSeconds: number): string {
 }
 
 /**
+ * Formatea una duración exacta en formato "Xh Ym Zs" (ej. "2h 15m 30s").
+ */
+function formatExactDuration(totalSeconds: number): string {
+  const safeSeconds = Math.max(0, Math.round(totalSeconds));
+  const hours = Math.floor(safeSeconds / 3600);
+  const minutes = Math.floor((safeSeconds % 3600) / 60);
+  const seconds = safeSeconds % 60;
+  return `${hours}h ${minutes}m ${seconds}s`;
+}
+
+/**
+ * Formatea una fecha en formato "dd/mm/yyyy".
+ */
+function formatDateDDMMYYYY(date: Date): string {
+  const dd = String(date.getDate()).padStart(2, '0');
+  const mm = String(date.getMonth() + 1).padStart(2, '0');
+  const yyyy = date.getFullYear();
+  return `${dd}/${mm}/${yyyy}`;
+}
+
+type HeatmapIntensity = 0 | 1 | 2 | 3 | 4;
+
+interface HeatmapDayCell {
+  dateKey: string;
+  formattedDate: string;
+  isCurrentYear: boolean;
+  isToday: boolean;
+  totalSeconds: number;
+  sessionsCount: number;
+  intensity: HeatmapIntensity;
+}
+
+const HEATMAP_LEVEL_CLASSES: Record<HeatmapIntensity, string> = {
+  0: 'bg-slate-200/75 border-slate-300/60 hover:ring-slate-400',
+  1: 'bg-emerald-200 border-emerald-300/80 hover:ring-emerald-400',
+  2: 'bg-emerald-400 border-emerald-500/80 hover:ring-emerald-500',
+  3: 'bg-emerald-500 border-emerald-600/80 hover:ring-emerald-600',
+  4: 'bg-emerald-700 border-emerald-800/80 hover:ring-emerald-800',
+};
+
+const HEATMAP_MONTH_LABELS = [
+  'Ene',
+  'Feb',
+  'Mar',
+  'Abr',
+  'May',
+  'Jun',
+  'Jul',
+  'Ago',
+  'Sep',
+  'Oct',
+  'Nov',
+  'Dic',
+];
+
+const HEATMAP_DAY_ROWS = [
+  { index: 0, label: 'Lun' },
+  { index: 1, label: 'Mar' },
+  { index: 2, label: 'Mié' },
+  { index: 3, label: 'Jue' },
+  { index: 4, label: 'Vie' },
+  { index: 5, label: 'Sáb' },
+  { index: 6, label: 'Dom' },
+];
+
+/**
  * Obtiene el lunes a las 00:00:00.000 de la semana correspondiente a la fecha dada.
  */
 function getStartOfISOWeek(date: Date): Date {
@@ -110,6 +176,10 @@ export default function StatsPage() {
 
   // Selector de período del Bloque 2 (por defecto: Semana actual)
   const [selectedPeriod, setSelectedPeriod] = useState<SubjectPeriod>('WEEK');
+
+  // Selector de año del Bloque 3 (por defecto: Año actual)
+  const [selectedYear, setSelectedYear] = useState<number>(() => new Date().getFullYear());
+  const [hoveredHeatmapDay, setHoveredHeatmapDay] = useState<HeatmapDayCell | null>(null);
 
   const fetchStatsData = useCallback(async () => {
     setLoading(true);
@@ -325,6 +395,142 @@ export default function StatsPage() {
       })),
     };
   }, [subjects, sessions, selectedPeriod]);
+
+  // =========================================================================
+  // BLOQUE 3: Calendario Heatmap Anual estilo GitHub
+  // =========================================================================
+  const availableYears = useMemo(() => {
+    const currentYear = new Date().getFullYear();
+    const yearSet = new Set<number>([currentYear, currentYear - 1, currentYear - 2]);
+
+    for (const session of sessions) {
+      if (!session.startTime) continue;
+      const d = new Date(session.startTime);
+      if (!Number.isNaN(d.getTime())) {
+        yearSet.add(d.getFullYear());
+      }
+    }
+
+    return Array.from(yearSet).sort((a, b) => b - a);
+  }, [sessions]);
+
+  const annualHeatmapData = useMemo(() => {
+    const dailyStats = new Map<string, { seconds: number; count: number }>();
+
+    for (const session of sessions) {
+      const duration = Math.max(0, Number(session.durationSeconds) || 0);
+      if (duration <= 0 || !session.startTime) continue;
+
+      const d = new Date(session.startTime);
+      if (Number.isNaN(d.getTime()) || d.getFullYear() !== selectedYear) continue;
+
+      const key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(
+        d.getDate()
+      ).padStart(2, '0')}`;
+      const prev = dailyStats.get(key) || { seconds: 0, count: 0 };
+      dailyStats.set(key, {
+        seconds: prev.seconds + duration,
+        count: prev.count + 1,
+      });
+    }
+
+    let totalYearSeconds = 0;
+    let activeDaysCount = 0;
+    let maxDaySeconds = 0;
+
+    for (const entry of dailyStats.values()) {
+      if (entry.seconds > 0) {
+        totalYearSeconds += entry.seconds;
+        activeDaysCount += 1;
+        if (entry.seconds > maxDaySeconds) {
+          maxDaySeconds = entry.seconds;
+        }
+      }
+    }
+
+    const now = new Date();
+    const todayKey = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(
+      2,
+      '0'
+    )}-${String(now.getDate()).padStart(2, '0')}`;
+
+    const jan1 = new Date(selectedYear, 0, 1, 0, 0, 0, 0);
+    const dec31 = new Date(selectedYear, 11, 31, 0, 0, 0, 0);
+    const gridStart = getStartOfISOWeek(jan1);
+    const gridEnd = getEndOfISOWeek(getStartOfISOWeek(dec31));
+
+    const weeks: {
+      weekIndex: number;
+      monthLabel: string | null;
+      days: HeatmapDayCell[];
+    }[] = [];
+
+    const seenMonths = new Set<number>();
+    const cursor = new Date(gridStart);
+    let weekIndex = 0;
+
+    while (cursor.getTime() <= gridEnd.getTime()) {
+      const days: HeatmapDayCell[] = [];
+      let monthLabel: string | null = null;
+
+      for (let dayOffset = 0; dayOffset < 7; dayOffset++) {
+        const cellDate = new Date(
+          cursor.getFullYear(),
+          cursor.getMonth(),
+          cursor.getDate() + dayOffset
+        );
+        const isCurrentYear = cellDate.getFullYear() === selectedYear;
+
+        if (isCurrentYear) {
+          const m = cellDate.getMonth();
+          if ((cellDate.getDate() === 1 || (weekIndex === 0 && m === 0)) && !seenMonths.has(m)) {
+            seenMonths.add(m);
+            monthLabel = HEATMAP_MONTH_LABELS[m];
+          }
+        }
+
+        const dateKey = `${cellDate.getFullYear()}-${String(cellDate.getMonth() + 1).padStart(
+          2,
+          '0'
+        )}-${String(cellDate.getDate()).padStart(2, '0')}`;
+        const stat = isCurrentYear ? dailyStats.get(dateKey) : undefined;
+        const totalSeconds = stat ? stat.seconds : 0;
+        const sessionsCount = stat ? stat.count : 0;
+
+        let intensity: HeatmapIntensity = 0;
+        if (totalSeconds > 0 && maxDaySeconds > 0) {
+          const level = Math.ceil((totalSeconds / maxDaySeconds) * 4);
+          intensity = Math.min(4, Math.max(1, level)) as HeatmapIntensity;
+        }
+
+        days.push({
+          dateKey,
+          formattedDate: formatDateDDMMYYYY(cellDate),
+          isCurrentYear,
+          isToday: isCurrentYear && dateKey === todayKey,
+          totalSeconds,
+          sessionsCount,
+          intensity,
+        });
+      }
+
+      weeks.push({
+        weekIndex,
+        monthLabel,
+        days,
+      });
+
+      cursor.setDate(cursor.getDate() + 7);
+      weekIndex += 1;
+    }
+
+    return {
+      weeks,
+      totalYearSeconds,
+      activeDaysCount,
+      maxDaySeconds,
+    };
+  }, [sessions, selectedYear]);
 
   return (
     <div className="space-y-6 pb-8">
@@ -646,9 +852,9 @@ export default function StatsPage() {
           {/* =================================================================== */}
           <section
             aria-label="Actividad Anual"
-            className="bg-white rounded-3xl border border-slate-200/80 p-5 sm:p-6 shadow-xs space-y-4"
+            className="bg-white rounded-3xl border border-slate-200/80 p-5 sm:p-6 shadow-xs space-y-5"
           >
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
               <div className="flex items-center gap-3">
                 <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
                   <Calendar className="w-5 h-5" />
@@ -658,31 +864,208 @@ export default function StatsPage() {
                     Actividad Anual
                   </h2>
                   <p className="text-xs text-slate-500">
-                    Mapa de calor de constancia diaria de estudio durante el año
+                    Mapa de calor de constancia diaria de estudio durante el año{' '}
+                    <span className="font-semibold text-slate-700">{selectedYear}</span>
                   </p>
                 </div>
               </div>
 
-              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-xs font-semibold self-start sm:self-auto">
-                <Activity className="w-3.5 h-3.5" />
-                <span>Calendario de Actividad</span>
-              </span>
+              {/* Resumen anual + Selector de año arriba a la derecha */}
+              <div className="flex flex-wrap items-center gap-3 self-start md:self-auto">
+                <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-2xl bg-emerald-50/80 border border-emerald-200/80 text-emerald-800 text-xs font-semibold">
+                  <Activity className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                  <span>
+                    {annualHeatmapData.activeDaysCount}{' '}
+                    {annualHeatmapData.activeDaysCount === 1 ? 'día activo' : 'días activos'}
+                  </span>
+                  <span className="text-emerald-300">•</span>
+                  <span>
+                    Acumulado: {formatExactDuration(annualHeatmapData.totalYearSeconds)}
+                  </span>
+                </div>
+
+                <div className="inline-flex items-center gap-1.5 bg-slate-100 rounded-2xl p-1">
+                  <label htmlFor="heatmap-year-select" className="sr-only">
+                    Seleccionar año
+                  </label>
+                  <select
+                    id="heatmap-year-select"
+                    aria-label="Seleccionar año"
+                    value={selectedYear}
+                    onChange={(e) => {
+                      setSelectedYear(Number(e.target.value));
+                      setHoveredHeatmapDay(null);
+                    }}
+                    className="px-3 py-1.5 rounded-xl bg-white text-slate-800 text-xs font-bold shadow-2xs border border-slate-200/80 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 cursor-pointer"
+                  >
+                    {availableYears.map((yr) => (
+                      <option key={yr} value={yr}>
+                        {yr}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              </div>
             </div>
 
-            {/* Contenedor reservado limpio listo para incorporar próximamente el heatmap tipo GitHub */}
+            {/* Calendario Heatmap Anual estilo GitHub */}
             <div
-              data-testid="github-heatmap-placeholder"
-              className="min-h-44 rounded-2xl border border-dashed border-slate-200 bg-slate-50/60 p-6 flex flex-col items-center justify-center text-center gap-2"
+              data-testid="github-heatmap"
+              className="rounded-2xl bg-slate-50/80 border border-slate-100 p-4 sm:p-5 space-y-4"
             >
-              <div className="w-10 h-10 rounded-xl bg-white border border-slate-200/80 text-emerald-600 flex items-center justify-center shadow-2xs">
-                <Calendar className="w-5 h-5" />
+              <div className="overflow-x-auto pb-2">
+                <div className="inline-flex flex-col min-w-max gap-1.5">
+                  {/* Fila superior: Etiquetas de meses alineadas con las columnas de semanas */}
+                  <div className="flex items-center gap-2">
+                    <div className="w-8 shrink-0" aria-hidden="true" />
+                    <div className="flex items-center gap-1">
+                      {annualHeatmapData.weeks.map((week) => (
+                        <div
+                          key={`month-col-${week.weekIndex}`}
+                          className="w-3.5 h-4 relative select-none"
+                        >
+                          {week.monthLabel && (
+                            <span className="absolute left-0 top-0 text-[10px] font-semibold text-slate-500 whitespace-nowrap">
+                              {week.monthLabel}
+                            </span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+
+                  {/* Cuerpo del Heatmap: Etiquetas Lunes-Domingo en filas y Semanas en columnas */}
+                  <div className="flex items-start gap-2">
+                    {/* Etiquetas de días de la semana (Lunes a Domingo) */}
+                    <div
+                      aria-label="Días de la semana"
+                      className="w-8 shrink-0 flex flex-col gap-1 select-none"
+                    >
+                      {HEATMAP_DAY_ROWS.map((row) => (
+                        <div
+                          key={row.index}
+                          className="h-3.5 flex items-center justify-end pr-1 text-[10px] font-medium text-slate-400 leading-none"
+                        >
+                          {row.label}
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Grilla de semanas en columnas (cada columna tiene 7 celdas: Lun a Dom) */}
+                    <div
+                      role="grid"
+                      aria-label={`Mapa de calor de estudio del año ${selectedYear}`}
+                      className="flex items-start gap-1"
+                      onMouseLeave={() => setHoveredHeatmapDay(null)}
+                    >
+                      {annualHeatmapData.weeks.map((week) => (
+                        <div
+                          key={`week-${week.weekIndex}`}
+                          role="row"
+                          className="flex flex-col gap-1"
+                        >
+                          {week.days.map((day) => {
+                            if (!day.isCurrentYear) {
+                              return (
+                                <div
+                                  key={day.dateKey}
+                                  aria-hidden="true"
+                                  className="w-3.5 h-3.5 rounded-[3px] bg-transparent pointer-events-none"
+                                />
+                              );
+                            }
+
+                            const tooltipText = `${day.formattedDate}${
+                              day.isToday ? ' (Hoy)' : ''
+                            } — ${formatExactDuration(day.totalSeconds)}`;
+
+                            return (
+                              <div
+                                key={day.dateKey}
+                                role="gridcell"
+                                tabIndex={0}
+                                aria-current={day.isToday ? 'date' : undefined}
+                                aria-label={tooltipText}
+                                title={tooltipText}
+                                onMouseEnter={() => setHoveredHeatmapDay(day)}
+                                onFocus={() => setHoveredHeatmapDay(day)}
+                                onBlur={() => setHoveredHeatmapDay(null)}
+                                className={`group/cell relative w-3.5 h-3.5 rounded-[3px] border transition-transform duration-150 hover:scale-125 hover:z-20 hover:ring-2 cursor-pointer ${
+                                  HEATMAP_LEVEL_CLASSES[day.intensity]
+                                } ${
+                                  day.isToday
+                                    ? 'ring-2 ring-indigo-600 ring-offset-1 z-10'
+                                    : ''
+                                }`}
+                              >
+                                {/* Tooltip flotante al hacer hover sobre la celda */}
+                                <div
+                                  role="tooltip"
+                                  className="pointer-events-none invisible opacity-0 group-hover/cell:visible group-hover/cell:opacity-100 group-focus/cell:visible group-focus/cell:opacity-100 transition-opacity duration-150 absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-30 px-2.5 py-1.5 rounded-xl bg-slate-900 text-white text-[11px] font-medium whitespace-nowrap shadow-lg"
+                                >
+                                  <span className="font-bold text-emerald-300">
+                                    {day.formattedDate}
+                                    {day.isToday ? ' (Hoy)' : ''}
+                                  </span>
+                                  <span className="mx-1.5 text-slate-400">•</span>
+                                  <span className="font-mono">
+                                    {formatExactDuration(day.totalSeconds)}
+                                  </span>
+                                </div>
+                              </div>
+                            );
+                          })}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                </div>
               </div>
-              <p className="text-xs font-semibold text-slate-700">
-                Espacio reservado para el Heatmap de Actividad Anual (estilo GitHub)
-              </p>
-              <p className="text-[11px] text-slate-500 max-w-md">
-                Aquí se visualizará la cuadrícula anual de contribuciones de estudio día por día.
-              </p>
+
+              {/* Pie del Heatmap: detalle interactivo del día en hover + leyenda Menos -> Más */}
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pt-2 border-t border-slate-200/70 text-xs text-slate-500">
+                <div className="min-h-5 flex items-center gap-2">
+                  {hoveredHeatmapDay ? (
+                    <div className="inline-flex items-center gap-2 text-xs text-slate-700 font-medium">
+                      <span className="font-bold text-slate-900">
+                        {hoveredHeatmapDay.formattedDate}
+                      </span>
+                      <span className="text-slate-300">•</span>
+                      <span className="font-mono font-semibold text-emerald-700">
+                        {formatExactDuration(hoveredHeatmapDay.totalSeconds)}
+                      </span>
+                      <span className="text-slate-400">
+                        ({hoveredHeatmapDay.sessionsCount}{' '}
+                        {hoveredHeatmapDay.sessionsCount === 1 ? 'sesión' : 'sesiones'})
+                      </span>
+                    </div>
+                  ) : (
+                    <span className="text-[11px] text-slate-400">
+                      Pasá el cursor sobre cualquier día para ver la fecha (dd/mm/yyyy) y duración exacta (Xh Ym Zs).
+                    </span>
+                  )}
+                </div>
+
+                {/* Leyenda de los 5 niveles de intensidad: Menos -> Más */}
+                <div
+                  aria-label="Leyenda de intensidad de actividad"
+                  className="inline-flex items-center gap-1.5 self-end sm:self-auto select-none"
+                >
+                  <span className="text-[11px] font-medium text-slate-500 mr-0.5">Menos</span>
+                  {([0, 1, 2, 3, 4] as HeatmapIntensity[]).map((level) => (
+                    <span
+                      key={level}
+                      className={`w-3.5 h-3.5 rounded-[3px] border ${HEATMAP_LEVEL_CLASSES[level]}`}
+                      title={
+                        level === 0
+                          ? 'Nivel 0: Sin actividad (0h 0m 0s)'
+                          : `Nivel ${level} de intensidad`
+                      }
+                    />
+                  ))}
+                  <span className="text-[11px] font-medium text-slate-500 ml-0.5">Más</span>
+                </div>
+              </div>
             </div>
           </section>
         </>

@@ -43,6 +43,57 @@ function readPomodoroMinutesFromStorage(): number {
   return Number.isFinite(raw) && raw > 0 ? raw : DEFAULT_POMODORO_MINUTES;
 }
 
+function playPomodoroCompleteChime(): void {
+  try {
+    const AudioContextClass =
+      window.AudioContext ||
+      (window as unknown as { webkitAudioContext?: typeof AudioContext }).webkitAudioContext;
+    if (!AudioContextClass) return;
+
+    const ctx = new AudioContextClass();
+    const now = ctx.currentTime;
+
+    const notes = [523.25, 659.25, 783.99]; // C5, E5, G5 (acorde suave)
+    notes.forEach((freq, idx) => {
+      const osc = ctx.createOscillator();
+      const gain = ctx.createGain();
+
+      osc.type = 'sine';
+      osc.frequency.setValueAtTime(freq, now + idx * 0.14);
+
+      gain.gain.setValueAtTime(0.0001, now + idx * 0.14);
+      gain.gain.exponentialRampToValueAtTime(0.12, now + idx * 0.14 + 0.03);
+      gain.gain.exponentialRampToValueAtTime(0.0001, now + idx * 0.14 + 0.55);
+
+      osc.connect(gain);
+      gain.connect(ctx.destination);
+
+      osc.start(now + idx * 0.14);
+      osc.stop(now + idx * 0.14 + 0.6);
+    });
+
+    window.setTimeout(() => {
+      void ctx.close().catch(() => {});
+    }, 1200);
+  } catch {
+    // Ignorar errores de reproducción de audio del navegador
+  }
+}
+
+function sendPomodoroNotification(minutes: number): void {
+  try {
+    if (typeof window !== 'undefined' && 'Notification' in window) {
+      if (Notification.permission === 'granted') {
+        new Notification('¡Pomodoro completado!', {
+          body: `Finalizaste tu bloque de ${minutes} minutos. ¡Sesión guardada automáticamente!`,
+        });
+      }
+    }
+  } catch {
+    // Ignorar si las notificaciones no están soportadas
+  }
+}
+
 const ACTIVITY_TYPE_OPTIONS: { value: ActivityType; label: string }[] = [
   { value: 'THEORY', label: 'Teoría' },
   { value: 'PRACTICE', label: 'Práctica' },
@@ -368,6 +419,8 @@ export default function Dashboard() {
             setIsRunning(false);
             if (!autoSaveTriggeredRef.current) {
               autoSaveTriggeredRef.current = true;
+              playPomodoroCompleteChime();
+              sendPomodoroNotification(pomodoroMinutes);
               void saveStudySession(pomodoroDurationSeconds);
             }
             return 0;
@@ -379,7 +432,7 @@ export default function Dashboard() {
     }, 1000);
 
     return () => window.clearInterval(interval);
-  }, [isRunning, studyMethod, pomodoroDurationSeconds, saveStudySession]);
+  }, [isRunning, studyMethod, pomodoroMinutes, pomodoroDurationSeconds, saveStudySession]);
 
   const handleMethodChange = (method: StudyMethod) => {
     setIsRunning(false);
@@ -767,6 +820,15 @@ export default function Dashboard() {
             disabled={subjects.length === 0 || savingSession}
             onClick={() => {
               setTimerFeedback(null);
+              if (
+                !isRunning &&
+                studyMethod === 'POMODORO' &&
+                typeof window !== 'undefined' &&
+                'Notification' in window &&
+                Notification.permission === 'default'
+              ) {
+                void Notification.requestPermission().catch(() => {});
+              }
               setIsRunning((prev) => !prev);
             }}
             className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-white text-indigo-700 font-semibold text-xs hover:bg-indigo-50 disabled:opacity-50 transition shadow-2xs cursor-pointer"
