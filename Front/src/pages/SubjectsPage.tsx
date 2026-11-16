@@ -235,14 +235,14 @@ export default function SubjectsPage() {
       {/* Encabezado principal */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-700 text-xs font-semibold mb-2">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 dark:bg-indigo-500/15 border border-indigo-100 dark:border-indigo-500/30 text-indigo-700 dark:text-indigo-300 text-xs font-semibold mb-2">
             <Sparkles className="w-3.5 h-3.5" />
             <span>Gestión Académica</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">
             Mis Materias
           </h1>
-          <p className="text-sm text-slate-500 mt-1">
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
             Administrá tus asignaturas, colores identificadores y estado de cursada actual.
           </p>
         </div>
@@ -259,48 +259,60 @@ export default function SubjectsPage() {
 
       {/* Tarjetas de resumen */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs flex items-center justify-between">
+        <div className="bg-white dark:bg-[#111827]/95 rounded-2xl border border-slate-200/80 dark:border-white/[0.07] p-5 shadow-xs flex items-center justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
               Total Registradas
             </p>
-            <p className="text-2xl font-bold text-slate-900 mt-1">{subjects.length}</p>
-            <p className="text-xs text-slate-500 mt-0.5">Materias en tu plan</p>
+            <p className="text-2xl font-bold text-slate-900 dark:text-slate-100 mt-1">
+              {subjects.length}
+            </p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+              Materias en tu plan
+            </p>
           </div>
-          <div className="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+          <div className="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
             <BookOpen className="w-6 h-6" />
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs flex items-center justify-between">
+        <div className="bg-white dark:bg-[#111827]/95 rounded-2xl border border-slate-200/80 dark:border-white/[0.07] p-5 shadow-xs flex items-center justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
               Cursando Ahora
             </p>
-            <p className="text-2xl font-bold text-emerald-600 mt-1">{takingCount}</p>
-            <p className="text-xs text-slate-500 mt-0.5">Materias activas este cuatrimestre</p>
+            <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mt-1">
+              {takingCount}
+            </p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+              Materias activas este cuatrimestre
+            </p>
           </div>
-          <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+          <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
             <CheckCircle2 className="w-6 h-6" />
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs flex items-center justify-between">
+        <div className="bg-white dark:bg-[#111827]/95 rounded-2xl border border-slate-200/80 dark:border-white/[0.07] p-5 shadow-xs flex items-center justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
               Pausadas / Finalizadas
             </p>
-            <p className="text-2xl font-bold text-slate-700 mt-1">{inactiveCount}</p>
-            <p className="text-xs text-slate-500 mt-0.5">Fuera de cursada actual</p>
+            <p className="text-2xl font-bold text-slate-700 dark:text-slate-200 mt-1">
+              {inactiveCount}
+            </p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+              Fuera de cursada actual
+            </p>
           </div>
-          <div className="w-12 h-12 rounded-2xl bg-slate-100 text-slate-600 flex items-center justify-center">
+          <div className="w-12 h-12 rounded-2xl bg-slate-100 dark:bg-[#0B111E] dark:border dark:border-white/[0.07] text-slate-600 dark:text-slate-400 flex items-center justify-center">
             <XCircle className="w-6 h-6" />
           </div>
         </div>
       </div>
 
       {/* Barra de búsqueda y filtros */}
-      <div className="bg-white rounded-3xl border border-slate-200/80 p-4 sm:p-5 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-white dark:bg-[#111827]/95 rounded-3xl border border-slate-200/80 dark:border-white/[0.07] p-4 sm:p-5 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div className="relative flex-1">
           <Search className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
           <input
@@ -308,28 +320,28 @@ export default function SubjectsPage() {
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Buscar materia por nombre..."
-            className="w-full pl-10 pr-9 py-2.5 rounded-xl bg-slate-50 border border-slate-200 text-sm text-slate-900 placeholder-slate-400 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+            className="w-full pl-10 pr-9 py-2.5 rounded-xl bg-slate-50 dark:bg-[#0B111E] border border-slate-200 dark:border-white/[0.07] text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:bg-white dark:focus:bg-[#0B111E] focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
           />
           {searchQuery && (
             <button
               type="button"
               onClick={() => setSearchQuery('')}
               aria-label="Limpiar búsqueda"
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 cursor-pointer"
             >
               <X className="w-4 h-4" />
             </button>
           )}
         </div>
 
-        <div className="inline-flex rounded-xl bg-slate-100 p-1 self-start md:self-auto">
+        <div className="inline-flex rounded-xl bg-slate-100 dark:bg-[#0B111E] dark:border dark:border-white/[0.07] p-1 self-start md:self-auto">
           <button
             type="button"
             onClick={() => setStatusFilter('ALL')}
             className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer ${
               statusFilter === 'ALL'
-                ? 'bg-white text-indigo-600 shadow-2xs'
-                : 'text-slate-600 hover:text-slate-900'
+                ? 'bg-white dark:bg-[#111827] text-indigo-600 dark:text-indigo-400 shadow-2xs'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'
             }`}
           >
             Todas ({subjects.length})
@@ -339,8 +351,8 @@ export default function SubjectsPage() {
             onClick={() => setStatusFilter('TAKING')}
             className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer ${
               statusFilter === 'TAKING'
-                ? 'bg-white text-indigo-600 shadow-2xs'
-                : 'text-slate-600 hover:text-slate-900'
+                ? 'bg-white dark:bg-[#111827] text-indigo-600 dark:text-indigo-400 shadow-2xs'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'
             }`}
           >
             Cursando ({takingCount})
@@ -350,8 +362,8 @@ export default function SubjectsPage() {
             onClick={() => setStatusFilter('INACTIVE')}
             className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer ${
               statusFilter === 'INACTIVE'
-                ? 'bg-white text-indigo-600 shadow-2xs'
-                : 'text-slate-600 hover:text-slate-900'
+                ? 'bg-white dark:bg-[#111827] text-indigo-600 dark:text-indigo-400 shadow-2xs'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'
             }`}
           >
             Inactivas ({inactiveCount})
@@ -361,7 +373,7 @@ export default function SubjectsPage() {
 
       {/* Mensaje de error general */}
       {error && (
-        <div className="flex items-center justify-between gap-3 p-4 rounded-2xl bg-red-50 border border-red-200 text-red-700 text-sm">
+        <div className="flex items-center justify-between gap-3 p-4 rounded-2xl bg-red-50 dark:bg-rose-500/10 border border-red-200 dark:border-rose-500/25 text-red-700 dark:text-rose-300 text-sm">
           <div className="flex items-center gap-2.5">
             <AlertCircle className="w-5 h-5 shrink-0" />
             <span>{error}</span>
@@ -369,7 +381,7 @@ export default function SubjectsPage() {
           <button
             type="button"
             onClick={() => void fetchSubjects()}
-            className="px-3 py-1.5 rounded-xl bg-white border border-red-200 text-xs font-semibold text-red-700 hover:bg-red-100 transition cursor-pointer"
+            className="px-3 py-1.5 rounded-xl bg-white dark:bg-[#0B111E] border border-red-200 dark:border-rose-500/30 text-xs font-semibold text-red-700 dark:text-rose-300 hover:bg-red-100 dark:hover:bg-rose-500/20 transition cursor-pointer"
           >
             Reintentar
           </button>
@@ -378,21 +390,21 @@ export default function SubjectsPage() {
 
       {/* Listado de materias */}
       {loading ? (
-        <div className="bg-white rounded-3xl border border-slate-200/80 p-12 flex flex-col items-center justify-center gap-3 text-slate-500">
-          <Loader2 className="w-7 h-7 animate-spin text-indigo-600" />
+        <div className="bg-white dark:bg-[#111827]/95 rounded-3xl border border-slate-200/80 dark:border-white/[0.07] p-12 flex flex-col items-center justify-center gap-3 text-slate-500 dark:text-slate-400">
+          <Loader2 className="w-7 h-7 animate-spin text-indigo-600 dark:text-indigo-400" />
           <p className="text-sm font-medium">Cargando tus materias...</p>
         </div>
       ) : filteredSubjects.length === 0 ? (
-        <div className="bg-white rounded-3xl border border-dashed border-slate-300 p-12 text-center space-y-3">
-          <div className="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center mx-auto">
+        <div className="bg-white dark:bg-[#111827]/95 rounded-3xl border border-dashed border-slate-300 dark:border-white/[0.07] p-12 text-center space-y-3">
+          <div className="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mx-auto">
             <BookOpen className="w-6 h-6" />
           </div>
-          <h3 className="text-base font-bold text-slate-900">
+          <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">
             {subjects.length === 0
               ? 'Todavía no cargaste ninguna materia'
               : 'No se encontraron materias con ese criterio'}
           </h3>
-          <p className="text-xs text-slate-500 max-w-md mx-auto">
+          <p className="text-xs text-slate-500 dark:text-slate-400 max-w-md mx-auto">
             {subjects.length === 0
               ? 'Creá tu primera asignatura con un color identificador para asociarla a tus sesiones de estudio y exámenes.'
               : 'Probá cambiando el texto de búsqueda o el filtro de estado de cursada.'}
@@ -419,7 +431,7 @@ export default function SubjectsPage() {
             return (
               <div
                 key={subject.id}
-                className="bg-white rounded-3xl border border-slate-200/80 p-5 shadow-xs hover:shadow-md hover:border-slate-300 transition flex flex-col justify-between gap-4"
+                className="bg-white dark:bg-[#111827]/95 rounded-3xl border border-slate-200/80 dark:border-white/[0.07] p-5 shadow-xs hover:shadow-md hover:border-slate-300 dark:hover:border-white/15 transition flex flex-col justify-between gap-4"
               >
                 <div className="space-y-3">
                   <div className="flex items-start justify-between gap-3">
@@ -429,11 +441,11 @@ export default function SubjectsPage() {
                         style={{ backgroundColor: subjectColor }}
                       />
                       <div className="min-w-0">
-                        <h2 className="text-base font-bold text-slate-900 truncate">
+                        <h2 className="text-base font-bold text-slate-900 dark:text-slate-100 truncate">
                           {subject.name}
                         </h2>
                         <div className="flex items-center gap-2 mt-1">
-                          <span className="inline-flex items-center gap-1 text-xs text-slate-500 font-mono">
+                          <span className="inline-flex items-center gap-1 text-xs text-slate-500 dark:text-slate-400 font-mono">
                             <span
                               className="w-2.5 h-2.5 rounded-full inline-block"
                               style={{ backgroundColor: subjectColor }}
@@ -458,8 +470,8 @@ export default function SubjectsPage() {
                       title="Cambiar estado de cursada"
                       className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-semibold border transition cursor-pointer shrink-0 ${
                         subject.isCurrentlyTaking
-                          ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'
-                          : 'bg-slate-100 text-slate-600 border-slate-200 hover:bg-slate-200'
+                          ? 'bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-500/30 hover:bg-emerald-100 dark:hover:bg-emerald-500/25'
+                          : 'bg-slate-100 dark:bg-[#0B111E] text-slate-600 dark:text-slate-400 border-slate-200 dark:border-white/[0.07] hover:bg-slate-200 dark:hover:bg-slate-800'
                       }`}
                     >
                       {togglingId === subject.id ? (
@@ -475,7 +487,7 @@ export default function SubjectsPage() {
                 </div>
 
                 {/* Pie de tarjeta con acciones */}
-                <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-2">
+                <div className="pt-3 border-t border-slate-100 dark:border-white/[0.07] flex items-center justify-between gap-2">
                   <span className="text-xs text-slate-400">
                     {subject.createdAt
                       ? `Creada el ${new Date(subject.createdAt).toLocaleDateString('es-AR')}`
@@ -486,7 +498,7 @@ export default function SubjectsPage() {
                     <button
                       type="button"
                       onClick={() => openEditModal(subject)}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-indigo-50 text-slate-700 hover:text-indigo-600 text-xs font-semibold transition cursor-pointer"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-[#0B111E] dark:border dark:border-white/[0.07] hover:bg-indigo-50 dark:hover:bg-indigo-500/15 text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 text-xs font-semibold transition cursor-pointer"
                     >
                       <Pencil className="w-3.5 h-3.5" />
                       <span>Editar</span>
@@ -498,7 +510,7 @@ export default function SubjectsPage() {
                         setSubjectToDelete(subject);
                       }}
                       aria-label={`Eliminar ${subject.name}`}
-                      className="p-2 rounded-xl text-slate-400 hover:text-red-600 hover:bg-red-50 transition cursor-pointer"
+                      className="p-2 rounded-xl text-slate-400 hover:text-red-600 dark:hover:text-rose-400 hover:bg-red-50 dark:hover:bg-rose-500/15 transition cursor-pointer"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -516,22 +528,22 @@ export default function SubjectsPage() {
           <div
             onClick={closeModal}
             aria-hidden="true"
-            className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs"
+            className="fixed inset-0 bg-slate-900/40 dark:bg-black/60 backdrop-blur-xs"
           />
-          <div className="relative z-10 w-full max-w-md bg-white rounded-3xl shadow-xl border border-slate-200 p-6 space-y-5">
+          <div className="relative z-10 w-full max-w-md bg-white dark:bg-[#111827]/95 rounded-3xl shadow-xl border border-slate-200 dark:border-white/[0.07] p-6 space-y-5">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+                <div className="w-9 h-9 rounded-xl bg-indigo-50 dark:bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
                   <BookOpen className="w-5 h-5" />
                 </div>
-                <h3 className="text-lg font-bold text-slate-900">
+                <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">
                   {editingSubject ? 'Editar Materia' : 'Nueva Materia'}
                 </h3>
               </div>
               <button
                 type="button"
                 onClick={closeModal}
-                className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-pointer"
+                className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -539,7 +551,7 @@ export default function SubjectsPage() {
 
             <form onSubmit={handleSubmitSubject} className="space-y-4">
               {formError && (
-                <div className="flex items-center gap-2 p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs">
+                <div className="flex items-center gap-2 p-3 rounded-xl bg-red-50 dark:bg-rose-500/10 border border-red-200 dark:border-rose-500/25 text-red-700 dark:text-rose-300 text-xs">
                   <AlertCircle className="w-4 h-4 shrink-0" />
                   <span>{formError}</span>
                 </div>
@@ -548,7 +560,7 @@ export default function SubjectsPage() {
               <div>
                 <label
                   htmlFor="subject-name"
-                  className="block text-xs font-semibold text-slate-700 mb-1.5"
+                  className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1.5"
                 >
                   Nombre de la materia
                 </label>
@@ -559,18 +571,18 @@ export default function SubjectsPage() {
                   value={nameInput}
                   onChange={(e) => setNameInput(e.target.value)}
                   placeholder="Ej. Algoritmos y Estructuras de Datos"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-[#0B111E] border border-slate-200 dark:border-white/[0.07] text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
               </div>
 
               {/* Selector de color identificador */}
               <div>
-                <label className="flex items-center gap-1.5 text-xs font-semibold text-slate-700 mb-2">
-                  <Palette className="w-3.5 h-3.5 text-indigo-600" />
+                <label className="flex items-center gap-1.5 text-xs font-semibold text-slate-700 dark:text-slate-300 mb-2">
+                  <Palette className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
                   <span>Color identificador</span>
                 </label>
 
-                <div className="flex flex-wrap items-center gap-2.5 p-3 rounded-2xl bg-slate-50 border border-slate-200/80">
+                <div className="flex flex-wrap items-center gap-2.5 p-3 rounded-2xl bg-slate-50 dark:bg-[#0B111E] border border-slate-200/80 dark:border-white/[0.07]">
                   {PRESET_COLORS.map((preset) => (
                     <button
                       key={preset.hex}
@@ -580,22 +592,22 @@ export default function SubjectsPage() {
                       aria-label={`Seleccionar color ${preset.label}`}
                       className={`w-7 h-7 rounded-full transition cursor-pointer ${
                         colorInput.toLowerCase() === preset.hex.toLowerCase()
-                          ? 'ring-2 ring-offset-2 ring-indigo-600 scale-110'
+                          ? 'ring-2 ring-offset-2 ring-indigo-600 dark:ring-indigo-400 dark:ring-offset-[#0B111E] scale-110'
                           : 'opacity-80 hover:opacity-100'
                       }`}
                       style={{ backgroundColor: preset.hex }}
                     />
                   ))}
 
-                  <div className="ml-auto flex items-center gap-2 pl-2 border-l border-slate-200">
+                  <div className="ml-auto flex items-center gap-2 pl-2 border-l border-slate-200 dark:border-white/[0.07]">
                     <input
                       type="color"
                       value={colorInput}
                       onChange={(e) => setColorInput(e.target.value)}
                       aria-label="Selector de color personalizado"
-                      className="w-7 h-7 rounded-lg border border-slate-200 cursor-pointer bg-white p-0.5"
+                      className="w-7 h-7 rounded-lg border border-slate-200 dark:border-white/10 cursor-pointer bg-white dark:bg-[#111827] p-0.5"
                     />
-                    <span className="text-xs font-mono text-slate-600">
+                    <span className="text-xs font-mono text-slate-600 dark:text-slate-400">
                       {colorInput.toUpperCase()}
                     </span>
                   </div>
@@ -603,12 +615,12 @@ export default function SubjectsPage() {
               </div>
 
               {/* Estado de cursada (isCurrentlyTaking) */}
-              <div className="p-3.5 rounded-2xl bg-slate-50 border border-slate-200/80 flex items-center justify-between gap-3">
+              <div className="p-3.5 rounded-2xl bg-slate-50 dark:bg-[#0B111E] border border-slate-200/80 dark:border-white/[0.07] flex items-center justify-between gap-3">
                 <div>
-                  <p className="text-xs font-semibold text-slate-800">
+                  <p className="text-xs font-semibold text-slate-800 dark:text-slate-100">
                     Cursando actualmente
                   </p>
-                  <p className="text-[11px] text-slate-500">
+                  <p className="text-[11px] text-slate-500 dark:text-slate-400">
                     Activá esta opción si estás cursando la materia este período
                   </p>
                 </div>
@@ -618,7 +630,9 @@ export default function SubjectsPage() {
                   aria-checked={isCurrentlyTakingInput}
                   onClick={() => setIsCurrentlyTakingInput((prev) => !prev)}
                   className={`relative inline-flex h-6 w-11 shrink-0 cursor-pointer rounded-full border-2 border-transparent transition-colors duration-200 ease-in-out ${
-                    isCurrentlyTakingInput ? 'bg-indigo-600' : 'bg-slate-300'
+                    isCurrentlyTakingInput
+                      ? 'bg-indigo-600'
+                      : 'bg-slate-300 dark:bg-slate-700'
                   }`}
                 >
                   <span
@@ -634,14 +648,14 @@ export default function SubjectsPage() {
                   type="button"
                   onClick={closeModal}
                   disabled={submitting}
-                  className="px-4 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-50 cursor-pointer"
+                  className="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-white/[0.07] bg-white dark:bg-[#0B111E] text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
                   disabled={submitting || !nameInput.trim()}
-                  className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-300 text-white text-xs font-semibold transition cursor-pointer"
+                  className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-300 dark:disabled:bg-indigo-800/50 text-white text-xs font-semibold transition cursor-pointer"
                 >
                   {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
                   <span>{editingSubject ? 'Guardar cambios' : 'Crear materia'}</span>
@@ -660,20 +674,20 @@ export default function SubjectsPage() {
               if (!deleting) setSubjectToDelete(null);
             }}
             aria-hidden="true"
-            className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs"
+            className="fixed inset-0 bg-slate-900/40 dark:bg-black/60 backdrop-blur-xs"
           />
-          <div className="relative z-10 w-full max-w-md bg-white rounded-3xl shadow-xl border border-slate-200 p-6 space-y-4">
+          <div className="relative z-10 w-full max-w-md bg-white dark:bg-[#111827]/95 rounded-3xl shadow-xl border border-slate-200 dark:border-white/[0.07] p-6 space-y-4">
             <div className="flex items-start gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-red-50 text-red-600 flex items-center justify-center shrink-0">
+              <div className="w-10 h-10 rounded-2xl bg-red-50 dark:bg-rose-500/15 text-red-600 dark:text-rose-400 flex items-center justify-center shrink-0">
                 <Trash2 className="w-5 h-5" />
               </div>
               <div>
-                <h3 className="text-base font-bold text-slate-900">
+                <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">
                   Eliminar materia
                 </h3>
-                <p className="text-xs text-slate-500 mt-1">
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                   ¿Estás seguro de que querés eliminar{' '}
-                  <span className="font-semibold text-slate-800">
+                  <span className="font-semibold text-slate-800 dark:text-slate-200">
                     "{subjectToDelete.name}"
                   </span>
                   ? Esta acción no se puede deshacer.
@@ -682,7 +696,7 @@ export default function SubjectsPage() {
             </div>
 
             {deleteError && (
-              <div className="flex items-center gap-2 p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs">
+              <div className="flex items-center gap-2 p-3 rounded-xl bg-red-50 dark:bg-rose-500/10 border border-red-200 dark:border-rose-500/25 text-red-700 dark:text-rose-300 text-xs">
                 <AlertCircle className="w-4 h-4 shrink-0" />
                 <span>{deleteError}</span>
               </div>
@@ -693,7 +707,7 @@ export default function SubjectsPage() {
                 type="button"
                 disabled={deleting}
                 onClick={() => setSubjectToDelete(null)}
-                className="px-4 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-50 cursor-pointer"
+                className="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-white/[0.07] bg-white dark:bg-[#0B111E] text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer"
               >
                 Cancelar
               </button>
@@ -701,7 +715,7 @@ export default function SubjectsPage() {
                 type="button"
                 disabled={deleting}
                 onClick={() => void handleConfirmDelete()}
-                className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 disabled:bg-red-300 text-white text-xs font-semibold transition cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 disabled:bg-red-300 dark:disabled:bg-rose-800/50 text-white text-xs font-semibold transition cursor-pointer"
               >
                 {deleting && <Loader2 className="w-4 h-4 animate-spin" />}
                 <span>Sí, eliminar</span>

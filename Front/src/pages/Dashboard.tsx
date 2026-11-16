@@ -628,72 +628,72 @@ export default function Dashboard() {
       {/* FILA 1, COLUMNA 1 (lg:col-span-4): RESUMEN DE ACTIVIDAD */}
       <section
         aria-label="Resumen de Actividad"
-        className="lg:col-span-4 lg:col-start-1 lg:row-start-1 bg-white rounded-3xl border border-slate-200/80 p-4 xl:p-5 shadow-xs flex flex-col justify-between min-h-0 overflow-hidden"
+        className="lg:col-span-4 lg:col-start-1 lg:row-start-1 bg-white dark:bg-[#111827]/95 rounded-3xl border border-slate-200/80 dark:border-white/[0.07] p-4 xl:p-5 shadow-xs dark:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)] flex flex-col justify-between min-h-0 overflow-hidden transition-colors duration-200"
       >
         <div className="flex items-start justify-between gap-2 min-h-0">
           <div className="min-w-0">
-            <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-indigo-50 text-indigo-700 text-[11px] font-semibold mb-1">
+            <div className="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-full bg-indigo-50 dark:bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 dark:border dark:border-indigo-400/20 text-[11px] font-semibold mb-1">
               <Sparkles className="w-3 h-3" />
               <span>Resumen de Actividad</span>
             </div>
-            <h1 className="text-lg xl:text-xl font-bold text-slate-900 tracking-tight truncate">
+            <h1 className="text-lg xl:text-xl font-bold text-slate-900 dark:text-slate-100 tracking-tight truncate">
               Hola, {user?.name?.split(' ')[0] || 'Estudiante'}
             </h1>
-            <p className="text-xs text-slate-500 truncate">
+            <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
               Tu progreso académico en tiempo real.
             </p>
           </div>
         </div>
 
         {/* Grilla de métricas en 2 columnas: Tiempo Estudiado y Próximo Examen */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2.5 mt-2 border-t border-slate-100 min-h-0">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2.5 mt-2 border-t border-slate-100 dark:border-white/[0.06] min-h-0">
           {/* Tiempo Estudiado */}
-          <div className="rounded-2xl bg-slate-50/80 border border-slate-100 p-3 flex items-center justify-between gap-2 min-h-0">
+          <div className="rounded-2xl bg-slate-50/80 dark:bg-[#0B111E] border border-slate-100 dark:border-white/[0.06] p-3 flex items-center justify-between gap-2 min-h-0">
             <div className="min-w-0">
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 truncate">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-400 truncate">
                 Tiempo Estudiado
               </p>
-              <p className="text-base xl:text-lg font-bold text-slate-900 leading-tight mt-0.5 truncate">
+              <p className="text-base xl:text-lg font-bold text-slate-900 dark:text-slate-100 leading-tight mt-0.5 truncate">
                 {formatTotalHours(totalStudiedSeconds)}
               </p>
               <div className="flex items-center gap-2 mt-0.5">
-                <p className="text-[11px] text-slate-500 font-medium truncate">
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium truncate">
                   {stats?.totalSessions || 0}{' '}
                   {stats?.totalSessions === 1 ? 'sesión' : 'sesiones'}
                 </p>
                 <button
                   type="button"
                   onClick={() => setIsHistoryModalOpen(true)}
-                  className="inline-flex items-center gap-1 text-[11px] font-semibold text-indigo-600 hover:text-indigo-800 underline-offset-2 hover:underline transition cursor-pointer shrink-0"
+                  className="inline-flex items-center gap-1 text-[11px] font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 underline-offset-2 hover:underline transition cursor-pointer shrink-0"
                 >
                   <History className="w-3 h-3" />
                   <span>Ver historial</span>
                 </button>
               </div>
             </div>
-            <div className="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
+            <div className="w-9 h-9 rounded-xl bg-indigo-50 dark:bg-indigo-500/15 text-indigo-600 dark:text-indigo-300 flex items-center justify-center shrink-0">
               <Clock className="w-4 h-4" />
             </div>
           </div>
 
           {/* Próximo Examen */}
-          <div className="rounded-2xl bg-slate-50/80 border border-slate-100 p-3 flex items-center justify-between gap-2 min-h-0">
+          <div className="rounded-2xl bg-slate-50/80 dark:bg-[#0B111E] border border-slate-100 dark:border-white/[0.06] p-3 flex items-center justify-between gap-2 min-h-0">
             <div className="min-w-0">
-              <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 truncate">
+              <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-400 truncate">
                 Próximo Examen
               </p>
-              <p className="text-base xl:text-lg font-bold text-slate-900 leading-tight mt-0.5 truncate">
+              <p className="text-base xl:text-lg font-bold text-slate-900 dark:text-slate-100 leading-tight mt-0.5 truncate">
                 {nextExam
                   ? nextExamDays === 0
                     ? '¡Es hoy!'
                     : `En ${nextExamDays} ${nextExamDays === 1 ? 'día' : 'días'}`
                   : 'Sin fechas'}
               </p>
-              <p className="text-[11px] text-slate-500 font-medium truncate">
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium truncate">
                 {nextExam ? nextExam.title : 'Libre 30 días'}
               </p>
             </div>
-            <div className="w-9 h-9 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center shrink-0">
+            <div className="w-9 h-9 rounded-xl bg-rose-50 dark:bg-rose-500/15 text-rose-600 dark:text-rose-300 flex items-center justify-center shrink-0">
               <CalendarClock className="w-4 h-4" />
             </div>
           </div>
@@ -703,7 +703,7 @@ export default function Dashboard() {
       {/* FILA 1, COLUMNA 2 (lg:col-span-4): MÉTODO DE ESTUDIO */}
       <section
         aria-label="Método de Estudio"
-        className="lg:col-span-4 lg:col-start-5 lg:row-start-1 bg-gradient-to-br from-indigo-600 via-indigo-700 to-slate-900 text-white rounded-3xl p-4 xl:p-5 shadow-md flex flex-col justify-between min-h-0 overflow-hidden"
+        className="lg:col-span-4 lg:col-start-5 lg:row-start-1 bg-gradient-to-br from-indigo-600 via-indigo-700 to-slate-900 dark:from-[#1B254B] dark:via-[#151D3B] dark:to-[#0B111E] dark:border dark:border-indigo-400/20 dark:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.08)] text-white rounded-3xl p-4 xl:p-5 shadow-md flex flex-col justify-between min-h-0 overflow-hidden transition-colors duration-200"
       >
         <div className="flex items-center justify-between gap-2">
           <span className="text-[11px] font-semibold uppercase tracking-wider text-indigo-200 truncate">
@@ -877,7 +877,7 @@ export default function Dashboard() {
       {/* FILA 2, COLUMNAS 1 Y 2 UNIDAS (lg:col-span-8): RENDIMIENTO (ÚLTIMAS 12 SEMANAS) */}
       <section
         aria-label="Gráfico de rendimiento de las últimas 12 semanas"
-        className="lg:col-span-8 lg:col-start-1 lg:row-start-2 bg-white rounded-3xl border border-slate-200/80 p-4 xl:p-5 shadow-xs flex flex-col justify-between min-h-0 overflow-hidden"
+        className="lg:col-span-8 lg:col-start-1 lg:row-start-2 bg-white dark:bg-[#111827]/95 rounded-3xl border border-slate-200/80 dark:border-white/[0.07] p-4 xl:p-5 shadow-xs dark:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)] flex flex-col justify-between min-h-0 overflow-hidden transition-colors duration-200"
       >
         {(() => {
           const formatAxisTime = (secs: number): string => {
@@ -982,48 +982,48 @@ export default function Dashboard() {
             <>
               <div className="flex items-center justify-between gap-2 mb-2 shrink-0">
                 <div className="flex items-center gap-2.5 min-w-0">
-                  <div className="w-8 h-8 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
+                  <div className="w-8 h-8 rounded-xl bg-indigo-50 dark:bg-indigo-500/15 text-indigo-600 dark:text-indigo-300 flex items-center justify-center shrink-0">
                     <BarChart3 className="w-4 h-4" />
                   </div>
                   <div className="min-w-0">
-                    <h2 className="text-sm xl:text-base font-bold text-slate-900 truncate">
+                    <h2 className="text-sm xl:text-base font-bold text-slate-900 dark:text-slate-100 truncate">
                       Rendimiento
                     </h2>
-                    <p className="text-[11px] text-slate-500 truncate">
+                    <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
                       Últimas 12 semanas • Todas las materias
                     </p>
                   </div>
                 </div>
 
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-slate-100 text-slate-700 text-xs font-semibold shrink-0">
-                  <Clock className="w-3.5 h-3.5 text-indigo-600" />
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-slate-100 dark:bg-[#0B111E] dark:border dark:border-white/[0.07] text-slate-700 dark:text-slate-200 text-xs font-semibold shrink-0">
+                  <Clock className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
                   <span>12 sem: {formatAxisTime(totalLast12WeeksSeconds)}</span>
                 </span>
               </div>
 
               {loadingData ? (
-                <div className="flex-1 min-h-0 flex items-center justify-center text-slate-400 text-xs gap-2">
-                  <Loader2 className="w-4 h-4 animate-spin text-indigo-600" />
+                <div className="flex-1 min-h-0 flex items-center justify-center text-slate-400 dark:text-slate-400 text-xs gap-2">
+                  <Loader2 className="w-4 h-4 animate-spin text-indigo-600 dark:text-indigo-400" />
                   <span>Cargando estadísticas...</span>
                 </div>
               ) : (
-                <div className="flex-1 min-h-0 flex flex-col justify-end rounded-2xl bg-slate-50/70 border border-slate-100 px-3 pt-3 pb-2">
+                <div className="flex-1 min-h-0 flex flex-col justify-end rounded-2xl bg-slate-50/70 dark:bg-[#0B111E] border border-slate-100 dark:border-white/[0.06] px-3 pt-3 pb-2">
                   <div className="flex-1 min-h-0 flex gap-2">
                     {/* Eje Y izquierdo con marcas de escala */}
                     <div
                       aria-label="Eje Y de tiempo de estudio"
-                      className="flex flex-col justify-between items-end pr-2 border-r border-slate-200/90 text-[10px] font-mono font-semibold text-slate-500 select-none shrink-0 min-w-[54px]"
+                      className="flex flex-col justify-between items-end pr-2 border-r border-slate-200/90 dark:border-white/[0.08] text-[10px] font-mono font-semibold text-slate-500 dark:text-slate-400 select-none shrink-0 min-w-[54px]"
                     >
                       {yTicks.map((tick) => (
                         <div key={tick.ratio} className="flex items-center gap-1.5 leading-none">
                           <span>{tick.label}</span>
-                          <span className="w-1.5 h-px bg-slate-300 -mr-2" />
+                          <span className="w-1.5 h-px bg-slate-300 dark:bg-white/[0.15] -mr-2" />
                         </div>
                       ))}
                     </div>
 
                     {/* Área de las 12 barras semanales */}
-                    <div className="relative flex-1 min-h-0 flex items-end justify-between gap-1.5 sm:gap-2 border-b border-slate-200/90 pb-1.5 pl-1">
+                    <div className="relative flex-1 min-h-0 flex items-end justify-between gap-1.5 sm:gap-2 border-b border-slate-200/90 dark:border-white/[0.08] pb-1.5 pl-1">
                       {/* Líneas guía horizontales proporcionales al eje Y */}
                       <div
                         aria-hidden="true"
@@ -1032,7 +1032,7 @@ export default function Dashboard() {
                         {yTicks.map((tick) => (
                           <div
                             key={tick.ratio}
-                            className="w-full border-t border-dashed border-slate-200/70"
+                            className="w-full border-t border-dashed border-slate-200/70 dark:border-white/[0.07]"
                           />
                         ))}
                       </div>
@@ -1050,28 +1050,28 @@ export default function Dashboard() {
                           >
                             {/* Tooltip flotante al pasar el mouse */}
                             <div className="invisible opacity-0 pointer-events-none group-hover/week:visible group-hover/week:opacity-100 transition-all duration-150 absolute bottom-full mb-1.5 left-1/2 -translate-x-1/2 z-30 whitespace-nowrap">
-                              <div className="bg-slate-900 text-white rounded-xl px-2.5 py-1.5 shadow-lg text-[10px] leading-tight text-center">
+                              <div className="bg-slate-900 dark:bg-[#1B254B] dark:border dark:border-indigo-400/25 text-white rounded-xl px-2.5 py-1.5 shadow-lg text-[10px] leading-tight text-center">
                                 <p className="font-semibold text-indigo-200">
                                   Sem. {week.rangeLabel}
                                 </p>
                                 <p className="font-bold text-white mt-0.5">
                                   {formatExactDuration(week.seconds)}
                                 </p>
-                                <p className="text-[9px] text-slate-300">
+                                <p className="text-[9px] text-slate-300 dark:text-slate-200">
                                   {week.sessionsCount}{' '}
                                   {week.sessionsCount === 1 ? 'sesión' : 'sesiones'}
                                 </p>
                               </div>
                             </div>
 
-                            <div className="w-full max-w-9 h-full min-h-0 bg-slate-200/50 rounded-t-xl flex items-end overflow-hidden p-0.5">
+                            <div className="w-full max-w-9 h-full min-h-0 bg-slate-200/50 dark:bg-white/[0.04] rounded-t-xl flex items-end overflow-hidden p-0.5">
                               <div
                                 className={`w-full rounded-t-lg transition-all duration-500 ${
                                   week.seconds > 0
                                     ? week.isCurrentWeek
-                                      ? 'bg-indigo-600 group-hover/week:bg-indigo-500'
-                                      : 'bg-indigo-500/85 group-hover/week:bg-indigo-600'
-                                    : 'bg-slate-300/60'
+                                      ? 'bg-indigo-600 dark:bg-indigo-400 group-hover/week:bg-indigo-500 dark:group-hover/week:bg-indigo-300'
+                                      : 'bg-indigo-500/85 dark:bg-indigo-500 group-hover/week:bg-indigo-600 dark:group-hover/week:bg-indigo-400'
+                                    : 'bg-slate-300/60 dark:bg-white/[0.08]'
                                 }`}
                                 style={{
                                   height: week.seconds > 0 ? `${heightPercent}%` : '3px',
@@ -1089,7 +1089,7 @@ export default function Dashboard() {
 
                   {/* Eje X: Fechas de inicio de cada una de las 12 semanas */}
                   <div className="flex items-center gap-2 pt-1.5 shrink-0">
-                    <div className="min-w-[54px] pr-2 shrink-0 text-[9px] font-semibold uppercase tracking-wider text-slate-400 text-right select-none">
+                    <div className="min-w-[54px] pr-2 shrink-0 text-[9px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-400 text-right select-none">
                       Sem.
                     </div>
                     <div className="flex-1 flex items-center justify-between gap-1.5 sm:gap-2 pl-1 min-w-0">
@@ -1104,8 +1104,8 @@ export default function Dashboard() {
                           <span
                             className={`block text-[10px] font-mono truncate ${
                               week.isCurrentWeek
-                                ? 'font-bold text-indigo-600'
-                                : 'font-medium text-slate-600'
+                                ? 'font-bold text-indigo-600 dark:text-indigo-400'
+                                : 'font-medium text-slate-600 dark:text-slate-400'
                             }`}
                           >
                             {week.startLabel}
@@ -1124,18 +1124,18 @@ export default function Dashboard() {
       {/* FILAS 1 Y 2 UNIDAS, COLUMNA 3 (lg:col-span-4 lg:row-span-2): PRÓXIMOS EXÁMENES */}
       <section
         aria-label="Próximos Exámenes"
-        className="lg:col-span-4 lg:row-span-2 lg:col-start-9 lg:row-start-1 bg-white rounded-3xl border border-slate-200/80 p-4 xl:p-5 shadow-xs flex flex-col min-h-0 overflow-hidden"
+        className="lg:col-span-4 lg:row-span-2 lg:col-start-9 lg:row-start-1 bg-white dark:bg-[#111827]/95 rounded-3xl border border-slate-200/80 dark:border-white/[0.07] p-4 xl:p-5 shadow-xs dark:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)] flex flex-col min-h-0 overflow-hidden transition-colors duration-200"
       >
         <div className="flex items-center justify-between gap-2 mb-3 shrink-0">
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-8 h-8 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center shrink-0">
+            <div className="w-8 h-8 rounded-xl bg-rose-50 dark:bg-rose-500/15 text-rose-600 dark:text-rose-300 flex items-center justify-center shrink-0">
               <CalendarCheck className="w-4 h-4" />
             </div>
             <div className="min-w-0">
-              <h2 className="text-sm xl:text-base font-bold text-slate-900 truncate">
+              <h2 className="text-sm xl:text-base font-bold text-slate-900 dark:text-slate-100 truncate">
                 Próximos Exámenes
               </h2>
-              <p className="text-[11px] text-slate-500 truncate">
+              <p className="text-[11px] text-slate-500 dark:text-slate-400 truncate">
                 Pendientes en los próximos 30 días
               </p>
             </div>
@@ -1143,7 +1143,7 @@ export default function Dashboard() {
 
           <Link
             to="/examenes"
-            className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-indigo-50 hover:bg-indigo-100 text-indigo-700 text-xs font-semibold transition shrink-0"
+            className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-indigo-50 dark:bg-indigo-500/15 hover:bg-indigo-100 dark:hover:bg-indigo-500/25 text-indigo-700 dark:text-indigo-300 dark:border dark:border-indigo-400/20 text-xs font-semibold transition shrink-0"
           >
             <span>Ver todos</span>
             <ArrowRight className="w-3.5 h-3.5" />
@@ -1151,17 +1151,17 @@ export default function Dashboard() {
         </div>
 
         {loadingData ? (
-          <div className="flex-1 min-h-0 flex items-center justify-center text-slate-400 text-xs gap-2">
-            <Loader2 className="w-4 h-4 animate-spin text-indigo-600" />
+          <div className="flex-1 min-h-0 flex items-center justify-center text-slate-400 dark:text-slate-400 text-xs gap-2">
+            <Loader2 className="w-4 h-4 animate-spin text-indigo-600 dark:text-indigo-400" />
             <span>Cargando exámenes...</span>
           </div>
         ) : upcomingExams30Days.length === 0 ? (
-          <div className="flex-1 min-h-0 px-4 rounded-2xl border border-dashed border-slate-200 flex flex-col items-center justify-center text-center space-y-1">
-            <CalendarCheck className="w-7 h-7 text-slate-300" />
-            <p className="text-xs font-semibold text-slate-700">
+          <div className="flex-1 min-h-0 px-4 rounded-2xl border border-dashed border-slate-200 dark:border-white/[0.08] dark:bg-[#0B111E]/60 flex flex-col items-center justify-center text-center space-y-1">
+            <CalendarCheck className="w-7 h-7 text-slate-300 dark:text-slate-600" />
+            <p className="text-xs font-semibold text-slate-700 dark:text-slate-200">
               Sin exámenes en los próximos 30 días
             </p>
-            <p className="text-[11px] text-slate-500">
+            <p className="text-[11px] text-slate-500 dark:text-slate-400">
               Tus evaluaciones cercanas aparecerán aquí.
             </p>
           </div>
@@ -1178,7 +1178,7 @@ export default function Dashboard() {
               return (
                 <div
                   key={exam.id}
-                  className="flex items-center justify-between gap-2.5 p-3 rounded-2xl border border-slate-100 bg-slate-50/60 hover:bg-white hover:border-slate-200 transition"
+                  className="flex items-center justify-between gap-2.5 p-3 rounded-2xl border border-slate-100 dark:border-white/[0.06] bg-slate-50/60 dark:bg-[#0B111E] hover:bg-white dark:hover:bg-[#151D33] hover:border-slate-200 dark:hover:border-indigo-400/20 transition"
                 >
                   <div className="min-w-0">
                     <div className="flex items-center gap-1.5">
@@ -1186,24 +1186,24 @@ export default function Dashboard() {
                         className="w-2 h-2 rounded-full shrink-0"
                         style={{ backgroundColor: subj?.color || '#4F46E5' }}
                       />
-                      <span className="text-[11px] font-semibold text-slate-600 truncate">
+                      <span className="text-[11px] font-semibold text-slate-600 dark:text-slate-300 truncate">
                         {subj?.name || 'Materia'}
                       </span>
-                      <span className="text-[11px] text-slate-400 shrink-0">
+                      <span className="text-[11px] text-slate-400 dark:text-slate-400 shrink-0">
                         • {formattedDate}
                       </span>
                     </div>
-                    <h3 className="text-xs font-bold text-slate-900 mt-0.5 truncate">
+                    <h3 className="text-xs font-bold text-slate-900 dark:text-slate-100 mt-0.5 truncate">
                       {exam.title}
                     </h3>
                   </div>
 
                   <span
                     className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-xl text-[11px] font-bold shrink-0 ${daysLeft <= 3
-                      ? 'bg-rose-50 text-rose-700 border border-rose-200'
+                      ? 'bg-rose-50 dark:bg-rose-500/15 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-400/30'
                       : daysLeft <= 10
-                        ? 'bg-amber-50 text-amber-700 border border-amber-200'
-                        : 'bg-indigo-50 text-indigo-700 border border-indigo-100'
+                        ? 'bg-amber-50 dark:bg-amber-500/15 text-amber-700 dark:text-amber-300 border border-amber-200 dark:border-amber-400/30'
+                        : 'bg-indigo-50 dark:bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 border border-indigo-100 dark:border-indigo-400/30'
                       }`}
                   >
                     <CalendarClock className="w-3 h-3" />
@@ -1225,19 +1225,19 @@ export default function Dashboard() {
       {/* FILA 3 COMPLETA (lg:col-span-12): HORARIO SEMANAL HORIZONTAL */}
       <section
         aria-label="Horario Semanal"
-        className="lg:col-span-12 lg:col-start-1 lg:row-start-3 bg-white rounded-3xl border border-slate-200/80 p-4 xl:p-5 shadow-xs flex flex-col min-h-0"
+        className="lg:col-span-12 lg:col-start-1 lg:row-start-3 bg-white dark:bg-[#111827]/95 rounded-3xl border border-slate-200/80 dark:border-white/[0.07] p-4 xl:p-5 shadow-xs dark:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)] flex flex-col min-h-0 transition-colors duration-200"
       >
         {/* Cabecera del Horario Semanal */}
         <div className="flex items-center justify-between gap-2 mb-2 shrink-0">
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="w-8 h-8 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+            <div className="w-8 h-8 rounded-xl bg-emerald-50 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-300 flex items-center justify-center shrink-0">
               <Calendar className="w-4 h-4" />
             </div>
             <div className="flex items-center gap-2 min-w-0">
-              <h2 className="text-sm xl:text-base font-bold text-slate-900 truncate">
+              <h2 className="text-sm xl:text-base font-bold text-slate-900 dark:text-slate-100 truncate">
                 Horario Semanal
               </h2>
-              <span className="hidden sm:inline-flex items-center px-2 py-0.5 rounded-lg bg-slate-100 text-slate-600 text-[10px] font-semibold">
+              <span className="hidden sm:inline-flex items-center px-2 py-0.5 rounded-lg bg-slate-100 dark:bg-[#0B111E] dark:border dark:border-white/[0.07] text-slate-600 dark:text-slate-400 text-[10px] font-semibold">
                 {includeWeekend ? 'Lunes a Domingo' : 'Lunes a Viernes'} • 07:00 a 22:00
               </span>
             </div>
@@ -1254,15 +1254,15 @@ export default function Dashboard() {
         </div>
 
         {loadingData ? (
-          <div className="flex-1 min-h-0 flex items-center justify-center text-slate-400 text-xs gap-2">
-            <Loader2 className="w-4 h-4 animate-spin text-indigo-600" />
+          <div className="flex-1 min-h-0 flex items-center justify-center text-slate-400 dark:text-slate-400 text-xs gap-2">
+            <Loader2 className="w-4 h-4 animate-spin text-indigo-600 dark:text-indigo-400" />
             <span>Cargando horario semanal...</span>
           </div>
         ) : (
           <div className="flex-1 min-h-0 flex flex-col">
             {/* Encabezado horizontal de horas (07:00 a 22:00 de izquierda a derecha) */}
-            <div className="grid grid-cols-[56px_1fr] sm:grid-cols-[72px_1fr] gap-2 pb-1 border-b border-slate-200/80 shrink-0">
-              <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 pl-1">
+            <div className="grid grid-cols-[56px_1fr] sm:grid-cols-[72px_1fr] gap-2 pb-1 border-b border-slate-200/80 dark:border-white/[0.08] shrink-0">
+              <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-400 pl-1">
                 Día
               </div>
               <div
@@ -1274,7 +1274,7 @@ export default function Dashboard() {
                 {TIMELINE_HOURS.map((hour) => (
                   <div
                     key={hour}
-                    className="text-[10px] font-mono font-medium text-slate-400 text-left pl-0.5 truncate select-none"
+                    className="text-[10px] font-mono font-medium text-slate-400 dark:text-slate-400 text-left pl-0.5 truncate select-none"
                   >
                     {String(hour).padStart(2, '0')}:00
                   </div>
@@ -1284,7 +1284,7 @@ export default function Dashboard() {
 
             {/* Filas por cada día de la semana */}
             <div
-              className="flex-1 min-h-0 grid divide-y divide-slate-100"
+              className="flex-1 min-h-0 grid divide-y divide-slate-100 dark:divide-white/[0.06]"
               style={{
                 gridTemplateRows: `repeat(${visibleWeekDays.length}, minmax(0, 1fr))`,
               }}
@@ -1371,7 +1371,7 @@ export default function Dashboard() {
                     {/* Etiqueta del día a la izquierda */}
                     <div className="flex items-center gap-1.5 pl-1 min-w-0">
                       <span
-                        className={`text-xs font-bold truncate ${daySchedules.length > 0 ? 'text-slate-900' : 'text-slate-400'
+                        className={`text-xs font-bold truncate ${daySchedules.length > 0 ? 'text-slate-900 dark:text-slate-100' : 'text-slate-400 dark:text-slate-500'
                           }`}
                         title={dayRow.label}
                       >
@@ -1392,7 +1392,7 @@ export default function Dashboard() {
                         {TIMELINE_HOURS.map((hour) => (
                           <div
                             key={hour}
-                            className="border-l border-slate-100 h-full"
+                            className="border-l border-slate-100 dark:border-white/[0.06] h-full"
                           />
                         ))}
                       </div>
@@ -1445,7 +1445,7 @@ export default function Dashboard() {
                                 style={{ backgroundColor: color }}
                                 className={`w-full h-full ${
                                   totalLanes > 1 ? 'rounded-lg px-1.5' : 'rounded-xl px-2'
-                                } flex items-center justify-between gap-1 shadow-2xs cursor-pointer overflow-hidden transition-transform duration-150 group-hover/bar:scale-[1.02] group-hover/bar:ring-2 group-hover/bar:ring-slate-900/15`}
+                                } flex items-center justify-between gap-1 shadow-2xs cursor-pointer overflow-hidden transition-transform duration-150 group-hover/bar:scale-[1.02] group-hover/bar:ring-2 group-hover/bar:ring-slate-900/15 dark:group-hover/bar:ring-white/25`}
                               >
                                 <span
                                   className={`${
@@ -1462,14 +1462,14 @@ export default function Dashboard() {
                               <div
                                 className={`invisible opacity-0 pointer-events-none group-hover/bar:visible group-hover/bar:opacity-100 group-hover/bar:pointer-events-auto transition-all duration-150 absolute bottom-full mb-2 ${tooltipAlignClass} z-50 w-56 after:content-[''] after:absolute after:top-full after:inset-x-0 after:h-3`}
                               >
-                                <div className="bg-white rounded-2xl border border-slate-200/90 shadow-xl p-3 text-left space-y-1.5">
+                                <div className="bg-white dark:bg-[#0B111E] rounded-2xl border border-slate-200/90 dark:border-white/[0.1] shadow-xl p-3 text-left space-y-1.5">
                                   <div className="flex items-start justify-between gap-2">
                                     <div className="flex items-center gap-1.5 min-w-0">
                                       <span
                                         className="w-2.5 h-2.5 rounded-full shrink-0"
                                         style={{ backgroundColor: color }}
                                       />
-                                      <p className="text-xs font-bold text-slate-900 truncate">
+                                      <p className="text-xs font-bold text-slate-900 dark:text-slate-100 truncate">
                                         {subjectName}
                                       </p>
                                     </div>
@@ -1483,7 +1483,7 @@ export default function Dashboard() {
                                         }}
                                         aria-label={`Editar horario de ${subjectName}`}
                                         title="Editar horario"
-                                        className="p-1 rounded-lg text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 transition cursor-pointer"
+                                        className="p-1 rounded-lg text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-300 hover:bg-indigo-50 dark:hover:bg-indigo-500/20 transition cursor-pointer"
                                       >
                                         <Pencil className="w-3.5 h-3.5" />
                                       </button>
@@ -1495,32 +1495,32 @@ export default function Dashboard() {
                                         }}
                                         aria-label={`Eliminar horario de ${subjectName}`}
                                         title="Eliminar horario"
-                                        className="p-1 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition cursor-pointer"
+                                        className="p-1 rounded-lg text-slate-400 hover:text-red-600 dark:hover:text-rose-400 hover:bg-red-50 dark:hover:bg-rose-500/20 transition cursor-pointer"
                                       >
                                         <Trash2 className="w-3.5 h-3.5" />
                                       </button>
                                     </div>
                                   </div>
 
-                                  <div className="space-y-1 text-[11px] text-slate-600">
-                                    <div className="flex items-center gap-1.5 font-medium text-slate-700">
-                                      <Calendar className="w-3 h-3 text-slate-400 shrink-0" />
+                                  <div className="space-y-1 text-[11px] text-slate-600 dark:text-slate-300">
+                                    <div className="flex items-center gap-1.5 font-medium text-slate-700 dark:text-slate-200">
+                                      <Calendar className="w-3 h-3 text-slate-400 dark:text-slate-400 shrink-0" />
                                       <span>
                                         {DAY_FULL_LABELS[item.dayOfWeek] ||
                                           `Día ${item.dayOfWeek}`}
                                       </span>
                                     </div>
 
-                                    <div className="flex items-center gap-1.5 font-mono text-slate-600">
-                                      <Clock className="w-3 h-3 text-slate-400 shrink-0" />
+                                    <div className="flex items-center gap-1.5 font-mono text-slate-600 dark:text-slate-300">
+                                      <Clock className="w-3 h-3 text-slate-400 dark:text-slate-400 shrink-0" />
                                       <span>
                                         {startFormatted} - {endFormatted}
                                       </span>
                                     </div>
 
                                     {item.classroom && (
-                                      <div className="flex items-center gap-1.5 text-slate-600">
-                                        <MapPin className="w-3 h-3 text-slate-400 shrink-0" />
+                                      <div className="flex items-center gap-1.5 text-slate-600 dark:text-slate-300">
+                                        <MapPin className="w-3 h-3 text-slate-400 dark:text-slate-400 shrink-0" />
                                         <span className="truncate">{item.classroom}</span>
                                       </div>
                                     )}
@@ -1549,11 +1549,11 @@ export default function Dashboard() {
               setEditingScheduleId(null);
             }}
             aria-hidden="true"
-            className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs"
+            className="fixed inset-0 bg-slate-900/40 dark:bg-black/65 backdrop-blur-xs"
           />
-          <div className="relative z-10 w-full max-w-md bg-white rounded-3xl shadow-xl border border-slate-200 p-6 space-y-5">
+          <div className="relative z-10 w-full max-w-md bg-white dark:bg-[#111827]/95 rounded-3xl shadow-xl dark:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)] border border-slate-200 dark:border-white/[0.07] p-6 space-y-5">
             <div className="flex items-center justify-between">
-              <h3 className="text-lg font-bold text-slate-900">
+              <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">
                 {editingScheduleId ? 'Editar Horario de Cursada' : 'Nuevo Horario de Cursada'}
               </h3>
               <button
@@ -1562,7 +1562,7 @@ export default function Dashboard() {
                   setIsScheduleModalOpen(false);
                   setEditingScheduleId(null);
                 }}
-                className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-pointer"
+                className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/[0.06] cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -1570,7 +1570,7 @@ export default function Dashboard() {
 
             {subjects.length === 0 ? (
               <div className="space-y-4 text-center py-4">
-                <p className="text-sm text-slate-600">
+                <p className="text-sm text-slate-600 dark:text-slate-400">
                   Primero necesitás crear al menos una materia para asignarle un horario.
                 </p>
                 <button
@@ -1588,24 +1588,24 @@ export default function Dashboard() {
             ) : (
               <form onSubmit={handleSaveSchedule} className="space-y-4">
                 {scheduleError && (
-                  <div className="flex items-center gap-2 p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs">
+                  <div className="flex items-center gap-2 p-3 rounded-xl bg-red-50 dark:bg-rose-500/15 border border-red-200 dark:border-rose-400/30 text-red-700 dark:text-rose-300 text-xs">
                     <AlertCircle className="w-4 h-4 shrink-0" />
                     <span>{scheduleError}</span>
                   </div>
                 )}
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                     Materia
                   </label>
                   <select
                     required
                     value={activeScheduleSubjectId}
                     onChange={(e) => setScheduleSubjectId(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-white/[0.1] bg-white dark:bg-[#0B111E] text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   >
                     {subjects.map((s) => (
-                      <option key={s.id} value={s.id}>
+                      <option key={s.id} value={s.id} className="dark:bg-[#0B111E] dark:text-slate-100">
                         {s.name}
                       </option>
                     ))}
@@ -1613,17 +1613,17 @@ export default function Dashboard() {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                     Día de la semana
                   </label>
                   <select
                     required
                     value={scheduleDay}
                     onChange={(e) => setScheduleDay(Number(e.target.value))}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-white/[0.1] bg-white dark:bg-[#0B111E] text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   >
                     {DAY_OPTIONS.map((d) => (
-                      <option key={d.value} value={d.value}>
+                      <option key={d.value} value={d.value} className="dark:bg-[#0B111E] dark:text-slate-100">
                         {d.label}
                       </option>
                     ))}
@@ -1632,7 +1632,7 @@ export default function Dashboard() {
 
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                       Hora inicio
                     </label>
                     <input
@@ -1640,11 +1640,11 @@ export default function Dashboard() {
                       required
                       value={scheduleStartTime}
                       onChange={(e) => setScheduleStartTime(e.target.value)}
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-white/[0.1] bg-white dark:bg-[#0B111E] text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-slate-700 mb-1">
+                    <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                       Hora fin
                     </label>
                     <input
@@ -1652,13 +1652,13 @@ export default function Dashboard() {
                       required
                       value={scheduleEndTime}
                       onChange={(e) => setScheduleEndTime(e.target.value)}
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-white/[0.1] bg-white dark:bg-[#0B111E] text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">
+                  <label className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1">
                     Aula / Comisión (opcional)
                   </label>
                   <input
@@ -1666,7 +1666,7 @@ export default function Dashboard() {
                     value={scheduleClassroom}
                     onChange={(e) => setScheduleClassroom(e.target.value)}
                     placeholder="Ej. Aula 304 / Lab 2"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 dark:border-white/[0.1] bg-white dark:bg-[#0B111E] text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   />
                 </div>
 
@@ -1677,7 +1677,7 @@ export default function Dashboard() {
                       setIsScheduleModalOpen(false);
                       setEditingScheduleId(null);
                     }}
-                    className="px-4 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-50 cursor-pointer"
+                    className="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-white/[0.1] text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-white/[0.06] cursor-pointer"
                   >
                     Cancelar
                   </button>
@@ -1702,19 +1702,19 @@ export default function Dashboard() {
           <div
             onClick={() => setIsHistoryModalOpen(false)}
             aria-hidden="true"
-            className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs"
+            className="fixed inset-0 bg-slate-900/40 dark:bg-black/65 backdrop-blur-xs"
           />
-          <div className="relative z-10 w-full max-w-2xl max-h-[85vh] bg-white rounded-3xl shadow-xl border border-slate-200 p-6 flex flex-col min-h-0">
-            <div className="flex items-center justify-between gap-2 pb-4 border-b border-slate-100 shrink-0">
+          <div className="relative z-10 w-full max-w-2xl max-h-[85vh] bg-white dark:bg-[#111827]/95 rounded-3xl shadow-xl dark:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)] border border-slate-200 dark:border-white/[0.07] p-6 flex flex-col min-h-0">
+            <div className="flex items-center justify-between gap-2 pb-4 border-b border-slate-100 dark:border-white/[0.07] shrink-0">
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
+                <div className="w-9 h-9 rounded-xl bg-indigo-50 dark:bg-indigo-500/15 text-indigo-600 dark:text-indigo-300 flex items-center justify-center shrink-0">
                   <History className="w-4 h-4" />
                 </div>
                 <div>
-                  <h3 className="text-base sm:text-lg font-bold text-slate-900">
+                  <h3 className="text-base sm:text-lg font-bold text-slate-900 dark:text-slate-100">
                     Historial de Sesiones de Estudio
                   </h3>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
                     {sessions.length}{' '}
                     {sessions.length === 1 ? 'sesión registrada' : 'sesiones registradas'} • Total:{' '}
                     {formatTotalHours(totalStudiedSeconds)}
@@ -1724,7 +1724,7 @@ export default function Dashboard() {
               <button
                 type="button"
                 onClick={() => setIsHistoryModalOpen(false)}
-                className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-pointer"
+                className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-white/[0.06] cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -1732,16 +1732,16 @@ export default function Dashboard() {
 
             {sessions.length === 0 ? (
               <div className="py-10 text-center space-y-2">
-                <Clock className="w-8 h-8 text-slate-300 mx-auto" />
-                <p className="text-sm font-semibold text-slate-700">
+                <Clock className="w-8 h-8 text-slate-300 dark:text-slate-600 mx-auto" />
+                <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">
                   Todavía no registraste sesiones de estudio
                 </p>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-slate-500 dark:text-slate-400">
                   Iniciá el temporizador Pomodoro o Cronómetro en el Dashboard para guardar tu primera sesión.
                 </p>
               </div>
             ) : (
-              <div className="flex-1 min-h-0 overflow-y-auto divide-y divide-slate-100 my-2 pr-1">
+              <div className="flex-1 min-h-0 overflow-y-auto divide-y divide-slate-100 dark:divide-white/[0.06] my-2 pr-1">
                 {sessions.map((session) => {
                   const subj = resolveSubject(session.subject);
                   const subjName =
@@ -1775,29 +1775,29 @@ export default function Dashboard() {
                             className="w-2.5 h-2.5 rounded-full shrink-0"
                             style={{ backgroundColor: subjColor }}
                           />
-                          <span className="text-xs font-bold text-slate-900 truncate">
+                          <span className="text-xs font-bold text-slate-900 dark:text-slate-100 truncate">
                             {subjName}
                           </span>
-                          <span className="inline-flex items-center px-2 py-0.5 rounded-lg bg-indigo-50 text-indigo-700 text-[10px] font-semibold">
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-lg bg-indigo-50 dark:bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 text-[10px] font-semibold">
                             {activityLabel}
                           </span>
-                          <span className="inline-flex items-center px-2 py-0.5 rounded-lg bg-slate-100 text-slate-600 text-[10px] font-medium">
+                          <span className="inline-flex items-center px-2 py-0.5 rounded-lg bg-slate-100 dark:bg-[#0B111E] text-slate-600 dark:text-slate-400 text-[10px] font-medium">
                             {methodLabel}
                           </span>
-                          <span className="text-[11px] text-slate-400">
+                          <span className="text-[11px] text-slate-400 dark:text-slate-400">
                             • {formattedDate}
                           </span>
                         </div>
 
                         {session.notes && (
-                          <p className="text-xs text-slate-600 bg-slate-50 rounded-xl px-2.5 py-1.5 border border-slate-100 break-words">
+                          <p className="text-xs text-slate-600 dark:text-slate-300 bg-slate-50 dark:bg-[#0B111E] rounded-xl px-2.5 py-1.5 border border-slate-100 dark:border-white/[0.06] break-words">
                             {session.notes}
                           </p>
                         )}
                       </div>
 
                       <div className="flex items-center gap-2 shrink-0">
-                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-emerald-50 text-emerald-700 text-xs font-bold">
+                        <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-xl bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 text-xs font-bold">
                           <Clock className="w-3 h-3" />
                           <span>{formatTotalHours(session.durationSeconds)}</span>
                         </span>
@@ -1808,10 +1808,10 @@ export default function Dashboard() {
                           onClick={() => void handleDeleteSession(session.id)}
                           aria-label={`Eliminar sesión de ${subjName}`}
                           title="Eliminar sesión"
-                          className="p-1.5 rounded-xl text-slate-400 hover:text-red-600 hover:bg-red-50 disabled:opacity-50 transition cursor-pointer"
+                          className="p-1.5 rounded-xl text-slate-400 hover:text-red-600 dark:hover:text-rose-400 hover:bg-red-50 dark:hover:bg-rose-500/20 disabled:opacity-50 transition cursor-pointer"
                         >
                           {deletingSessionId === session.id ? (
-                            <Loader2 className="w-4 h-4 animate-spin text-red-600" />
+                            <Loader2 className="w-4 h-4 animate-spin text-red-600 dark:text-rose-400" />
                           ) : (
                             <Trash2 className="w-4 h-4" />
                           )}
@@ -1823,11 +1823,11 @@ export default function Dashboard() {
               </div>
             )}
 
-            <div className="pt-3 border-t border-slate-100 flex justify-end shrink-0">
+            <div className="pt-3 border-t border-slate-100 dark:border-white/[0.07] flex justify-end shrink-0">
               <button
                 type="button"
                 onClick={() => setIsHistoryModalOpen(false)}
-                className="px-4 py-2 rounded-xl bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold transition cursor-pointer"
+                className="px-4 py-2 rounded-xl bg-slate-100 dark:bg-[#0B111E] hover:bg-slate-200 dark:hover:bg-white/[0.08] text-slate-700 dark:text-slate-200 dark:border dark:border-white/[0.07] text-xs font-semibold transition cursor-pointer"
               >
                 Cerrar
               </button>

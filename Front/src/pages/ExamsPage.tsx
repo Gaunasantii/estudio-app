@@ -394,7 +394,7 @@ export default function ExamsPage() {
 
     if (exam.isCompleted) {
       return (
-        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200">
+        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30">
           <CheckCircle2 className="w-3.5 h-3.5" />
           <span>Completado</span>
         </span>
@@ -403,7 +403,7 @@ export default function ExamsPage() {
 
     if (daysLeft === 0) {
       return (
-        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-rose-50 text-rose-700 border border-rose-200">
+        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-rose-50 dark:bg-rose-500/15 text-rose-700 dark:text-rose-300 border border-rose-200 dark:border-rose-500/30">
           <CalendarClock className="w-3.5 h-3.5" />
           <span>¡Rinde hoy!</span>
         </span>
@@ -416,8 +416,8 @@ export default function ExamsPage() {
         <span
           className={`inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold border ${
             isUrgent
-              ? 'bg-amber-50 text-amber-700 border-amber-200'
-              : 'bg-indigo-50 text-indigo-700 border-indigo-200'
+              ? 'bg-amber-50 dark:bg-amber-500/15 text-amber-700 dark:text-amber-300 border-amber-200 dark:border-amber-500/30'
+              : 'bg-indigo-50 dark:bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-500/30'
           }`}
         >
           <Clock className="w-3.5 h-3.5" />
@@ -430,7 +430,7 @@ export default function ExamsPage() {
 
     const daysPast = Math.abs(daysLeft);
     return (
-      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 text-slate-600 border border-slate-200">
+      <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-slate-100 dark:bg-[#0B111E] text-slate-600 dark:text-slate-400 border border-slate-200 dark:border-white/[0.07]">
         <CalendarClock className="w-3.5 h-3.5" />
         <span>
           {daysPast === 1 ? 'Pasó hace 1 día' : `Pasó hace ${daysPast} días`}
@@ -444,14 +444,14 @@ export default function ExamsPage() {
       {/* Encabezado principal */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-700 text-xs font-semibold mb-2">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 dark:bg-indigo-500/15 border border-indigo-100 dark:border-indigo-500/30 text-indigo-700 dark:text-indigo-300 text-xs font-semibold mb-2">
             <Sparkles className="w-3.5 h-3.5" />
             <span>Calendario de Evaluaciones</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">
             Mis Exámenes
           </h1>
-          <p className="text-sm text-slate-500 mt-1">
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
             Planificá tus parciales, finales y entregas, controlá los días restantes y registrá tus notas.
           </p>
         </div>
@@ -468,58 +468,68 @@ export default function ExamsPage() {
 
       {/* Tarjetas de resumen */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs flex items-center justify-between">
+        <div className="bg-white dark:bg-[#111827]/95 rounded-2xl border border-slate-200/80 dark:border-white/[0.07] p-5 shadow-xs flex items-center justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
               Pendientes
             </p>
-            <p className="text-2xl font-bold text-indigo-600 mt-1">{pendingCount}</p>
-            <p className="text-xs text-slate-500 mt-0.5">Evaluaciones por rendir</p>
+            <p className="text-2xl font-bold text-indigo-600 dark:text-indigo-400 mt-1">
+              {pendingCount}
+            </p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+              Evaluaciones por rendir
+            </p>
           </div>
-          <div className="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+          <div className="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
             <CalendarClock className="w-6 h-6" />
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs flex items-center justify-between">
+        <div className="bg-white dark:bg-[#111827]/95 rounded-2xl border border-slate-200/80 dark:border-white/[0.07] p-5 shadow-xs flex items-center justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
               Aprobados / Completados
             </p>
-            <p className="text-2xl font-bold text-emerald-600 mt-1">{completedCount}</p>
-            <p className="text-xs text-slate-500 mt-0.5">Instancias finalizadas</p>
+            <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mt-1">
+              {completedCount}
+            </p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+              Instancias finalizadas
+            </p>
           </div>
-          <div className="w-12 h-12 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center">
+          <div className="w-12 h-12 rounded-2xl bg-emerald-50 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center">
             <CheckCircle2 className="w-6 h-6" />
           </div>
         </div>
 
-        <div className="bg-white rounded-2xl border border-slate-200/80 p-5 shadow-xs flex items-center justify-between">
+        <div className="bg-white dark:bg-[#111827]/95 rounded-2xl border border-slate-200/80 dark:border-white/[0.07] p-5 shadow-xs flex items-center justify-between">
           <div>
             <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
               Promedio General
             </p>
-            <p className="text-2xl font-bold text-slate-900 mt-1">
+            <p className="text-2xl font-bold text-slate-900 dark:text-slate-100 mt-1">
               {averageScore !== null ? averageScore : '—'}
             </p>
-            <p className="text-xs text-slate-500 mt-0.5">Sobre exámenes calificados</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+              Sobre exámenes calificados
+            </p>
           </div>
-          <div className="w-12 h-12 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center">
+          <div className="w-12 h-12 rounded-2xl bg-amber-50 dark:bg-amber-500/15 text-amber-600 dark:text-amber-400 flex items-center justify-center">
             <Award className="w-6 h-6" />
           </div>
         </div>
       </div>
 
       {/* Barra de filtros */}
-      <div className="bg-white rounded-3xl border border-slate-200/80 p-4 sm:p-5 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div className="inline-flex flex-wrap rounded-xl bg-slate-100 p-1 gap-1">
+      <div className="bg-white dark:bg-[#111827]/95 rounded-3xl border border-slate-200/80 dark:border-white/[0.07] p-4 sm:p-5 shadow-xs flex flex-col md:flex-row md:items-center justify-between gap-4">
+        <div className="inline-flex flex-wrap rounded-xl bg-slate-100 dark:bg-[#0B111E] dark:border dark:border-white/[0.07] p-1 gap-1">
           <button
             type="button"
             onClick={() => setStatusFilter('ALL')}
             className={`px-3.5 py-2 rounded-lg text-xs font-semibold transition cursor-pointer ${
               statusFilter === 'ALL'
-                ? 'bg-white text-indigo-600 shadow-2xs'
-                : 'text-slate-600 hover:text-slate-900'
+                ? 'bg-white dark:bg-[#111827] text-indigo-600 dark:text-indigo-400 shadow-2xs'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'
             }`}
           >
             Todos ({exams.length})
@@ -529,8 +539,8 @@ export default function ExamsPage() {
             onClick={() => setStatusFilter('PENDING')}
             className={`px-3.5 py-2 rounded-lg text-xs font-semibold transition cursor-pointer ${
               statusFilter === 'PENDING'
-                ? 'bg-white text-indigo-600 shadow-2xs'
-                : 'text-slate-600 hover:text-slate-900'
+                ? 'bg-white dark:bg-[#111827] text-indigo-600 dark:text-indigo-400 shadow-2xs'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'
             }`}
           >
             Pendientes ({pendingCount})
@@ -540,8 +550,8 @@ export default function ExamsPage() {
             onClick={() => setStatusFilter('COMPLETED')}
             className={`px-3.5 py-2 rounded-lg text-xs font-semibold transition cursor-pointer ${
               statusFilter === 'COMPLETED'
-                ? 'bg-white text-indigo-600 shadow-2xs'
-                : 'text-slate-600 hover:text-slate-900'
+                ? 'bg-white dark:bg-[#111827] text-indigo-600 dark:text-indigo-400 shadow-2xs'
+                : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'
             }`}
           >
             Aprobados / Completados ({completedCount})
@@ -555,7 +565,7 @@ export default function ExamsPage() {
             value={subjectFilter}
             onChange={(e) => setSubjectFilter(e.target.value)}
             aria-label="Filtrar por materia"
-            className="px-3.5 py-2 rounded-xl bg-slate-50 border border-slate-200 text-xs font-semibold text-slate-700 focus:bg-white focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="px-3.5 py-2 rounded-xl bg-slate-50 dark:bg-[#0B111E] border border-slate-200 dark:border-white/[0.07] text-xs font-semibold text-slate-700 dark:text-slate-200 focus:bg-white dark:focus:bg-[#0B111E] focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer"
           >
             <option value="ALL">Todas las materias</option>
             {subjects.map((subject) => (
@@ -569,7 +579,7 @@ export default function ExamsPage() {
 
       {/* Mensaje de error general */}
       {error && (
-        <div className="flex items-center justify-between gap-3 p-4 rounded-2xl bg-red-50 border border-red-200 text-red-700 text-sm">
+        <div className="flex items-center justify-between gap-3 p-4 rounded-2xl bg-red-50 dark:bg-rose-500/10 border border-red-200 dark:border-rose-500/25 text-red-700 dark:text-rose-300 text-sm">
           <div className="flex items-center gap-2.5">
             <AlertCircle className="w-5 h-5 shrink-0" />
             <span>{error}</span>
@@ -577,7 +587,7 @@ export default function ExamsPage() {
           <button
             type="button"
             onClick={() => void fetchData()}
-            className="px-3 py-1.5 rounded-xl bg-white border border-red-200 text-xs font-semibold text-red-700 hover:bg-red-100 transition cursor-pointer"
+            className="px-3 py-1.5 rounded-xl bg-white dark:bg-[#0B111E] border border-red-200 dark:border-rose-500/30 text-xs font-semibold text-red-700 dark:text-rose-300 hover:bg-red-100 dark:hover:bg-rose-500/20 transition cursor-pointer"
           >
             Reintentar
           </button>
@@ -586,21 +596,21 @@ export default function ExamsPage() {
 
       {/* Listado de exámenes */}
       {loading ? (
-        <div className="bg-white rounded-3xl border border-slate-200/80 p-12 flex flex-col items-center justify-center gap-3 text-slate-500">
-          <Loader2 className="w-7 h-7 animate-spin text-indigo-600" />
+        <div className="bg-white dark:bg-[#111827]/95 rounded-3xl border border-slate-200/80 dark:border-white/[0.07] p-12 flex flex-col items-center justify-center gap-3 text-slate-500 dark:text-slate-400">
+          <Loader2 className="w-7 h-7 animate-spin text-indigo-600 dark:text-indigo-400" />
           <p className="text-sm font-medium">Cargando tus exámenes...</p>
         </div>
       ) : filteredExams.length === 0 ? (
-        <div className="bg-white rounded-3xl border border-dashed border-slate-300 p-12 text-center space-y-3">
-          <div className="w-12 h-12 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center mx-auto">
+        <div className="bg-white dark:bg-[#111827]/95 rounded-3xl border border-dashed border-slate-300 dark:border-white/[0.07] p-12 text-center space-y-3">
+          <div className="w-12 h-12 rounded-2xl bg-indigo-50 dark:bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 flex items-center justify-center mx-auto">
             <CalendarCheck className="w-6 h-6" />
           </div>
-          <h3 className="text-base font-bold text-slate-900">
+          <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">
             {exams.length === 0
               ? 'Todavía no tenés exámenes agendados'
               : 'No hay exámenes para el filtro seleccionado'}
           </h3>
-          <p className="text-xs text-slate-500 max-w-md mx-auto">
+          <p className="text-xs text-slate-500 dark:text-slate-400 max-w-md mx-auto">
             {exams.length === 0
               ? 'Agendá tus próximas fechas de parciales o finales para llevar el seguimiento de días restantes y calificaciones.'
               : 'Probá seleccionando otra pestaña de estado o mostrando todas las materias.'}
@@ -637,17 +647,17 @@ export default function ExamsPage() {
             return (
               <div
                 key={exam.id}
-                className="bg-white rounded-3xl border border-slate-200/80 p-5 shadow-xs hover:shadow-md hover:border-slate-300 transition flex flex-col justify-between gap-4"
+                className="bg-white dark:bg-[#111827]/95 rounded-3xl border border-slate-200/80 dark:border-white/[0.07] p-5 shadow-xs hover:shadow-md hover:border-slate-300 dark:hover:border-white/15 transition flex flex-col justify-between gap-4"
               >
                 <div className="space-y-3">
                   {/* Cabecera con materia y badge de días restantes */}
                   <div className="flex items-center justify-between gap-2 flex-wrap">
-                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-50 border border-slate-200/80">
+                    <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-50 dark:bg-[#0B111E] border border-slate-200/80 dark:border-white/[0.07]">
                       <span
                         className="w-2.5 h-2.5 rounded-full shrink-0"
                         style={{ backgroundColor: subjColor }}
                       />
-                      <span className="text-xs font-semibold text-slate-700 truncate max-w-[200px]">
+                      <span className="text-xs font-semibold text-slate-700 dark:text-slate-300 truncate max-w-[200px]">
                         {subj?.name || 'Materia'}
                       </span>
                     </div>
@@ -658,22 +668,24 @@ export default function ExamsPage() {
                   {/* Título y fecha */}
                   <div className="flex items-start justify-between gap-3">
                     <div className="min-w-0 flex-1">
-                      <h2 className="text-base font-bold text-slate-900">
+                      <h2 className="text-base font-bold text-slate-900 dark:text-slate-100">
                         {exam.title}
                       </h2>
-                      <p className="text-xs text-slate-500 mt-0.5 capitalize">
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 capitalize">
                         Fecha: {formattedDate}
                       </p>
 
                       {hasTargetHours && (
                         <div className="mt-2.5 space-y-1">
                           <div className="flex items-center justify-between text-[11px] font-semibold">
-                            <span className="text-slate-600">
+                            <span className="text-slate-600 dark:text-slate-400">
                               {studiedExamPrepHours}h / {exam.targetHours}h objetivo
                             </span>
-                            <span className="text-indigo-600">{progressPercent}%</span>
+                            <span className="text-indigo-600 dark:text-indigo-400">
+                              {progressPercent}%
+                            </span>
                           </div>
-                          <div className="w-full h-1.5 rounded-full bg-slate-100 overflow-hidden">
+                          <div className="w-full h-1.5 rounded-full bg-slate-100 dark:bg-slate-800/80 overflow-hidden">
                             <div
                               className="h-full rounded-full transition-all duration-500"
                               style={{
@@ -694,9 +706,9 @@ export default function ExamsPage() {
                       className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-2xl text-xs font-bold border transition cursor-pointer shrink-0 ${
                         typeof exam.score === 'number'
                           ? exam.score >= 4
-                            ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'
-                            : 'bg-rose-50 text-rose-700 border-rose-200 hover:bg-rose-100'
-                          : 'bg-indigo-50/70 text-indigo-700 border-indigo-200 hover:bg-indigo-100'
+                            ? 'bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-500/30 hover:bg-emerald-100 dark:hover:bg-emerald-500/25'
+                            : 'bg-rose-50 dark:bg-rose-500/15 text-rose-700 dark:text-rose-300 border-rose-200 dark:border-rose-500/30 hover:bg-rose-100 dark:hover:bg-rose-500/25'
+                          : 'bg-indigo-50/70 dark:bg-indigo-500/15 text-indigo-700 dark:text-indigo-300 border-indigo-200 dark:border-indigo-500/30 hover:bg-indigo-100 dark:hover:bg-indigo-500/25'
                       }`}
                     >
                       <Award className="w-4 h-4" />
@@ -710,15 +722,15 @@ export default function ExamsPage() {
                 </div>
 
                 {/* Pie de tarjeta con acciones */}
-                <div className="pt-3 border-t border-slate-100 flex items-center justify-between gap-2 flex-wrap">
+                <div className="pt-3 border-t border-slate-100 dark:border-white/[0.07] flex items-center justify-between gap-2 flex-wrap">
                   <button
                     type="button"
                     disabled={togglingExamId === exam.id}
                     onClick={() => void handleToggleCompleted(exam)}
                     className={`inline-flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-xl border transition cursor-pointer ${
                       exam.isCompleted
-                        ? 'bg-emerald-50 text-emerald-700 border-emerald-200 hover:bg-emerald-100'
-                        : 'bg-slate-50 text-slate-700 border-slate-200 hover:bg-slate-100'
+                        ? 'bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-200 dark:border-emerald-500/30 hover:bg-emerald-100 dark:hover:bg-emerald-500/25'
+                        : 'bg-slate-50 dark:bg-[#0B111E] text-slate-700 dark:text-slate-300 border-slate-200 dark:border-white/[0.07] hover:bg-slate-100 dark:hover:bg-slate-800'
                     }`}
                   >
                     {togglingExamId === exam.id ? (
@@ -737,7 +749,7 @@ export default function ExamsPage() {
                     <button
                       type="button"
                       onClick={() => openEditModal(exam)}
-                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 hover:bg-indigo-50 text-slate-700 hover:text-indigo-600 text-xs font-semibold transition cursor-pointer"
+                      className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-slate-100 dark:bg-[#0B111E] dark:border dark:border-white/[0.07] hover:bg-indigo-50 dark:hover:bg-indigo-500/15 text-slate-700 dark:text-slate-300 hover:text-indigo-600 dark:hover:text-indigo-400 text-xs font-semibold transition cursor-pointer"
                     >
                       <Pencil className="w-3.5 h-3.5" />
                       <span>Editar</span>
@@ -749,7 +761,7 @@ export default function ExamsPage() {
                         setExamToDelete(exam);
                       }}
                       aria-label={`Eliminar ${exam.title}`}
-                      className="p-2 rounded-xl text-slate-400 hover:text-red-600 hover:bg-red-50 transition cursor-pointer"
+                      className="p-2 rounded-xl text-slate-400 hover:text-red-600 dark:hover:text-rose-400 hover:bg-red-50 dark:hover:bg-rose-500/15 transition cursor-pointer"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -767,29 +779,29 @@ export default function ExamsPage() {
           <div
             onClick={closeModal}
             aria-hidden="true"
-            className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs"
+            className="fixed inset-0 bg-slate-900/40 dark:bg-black/60 backdrop-blur-xs"
           />
-          <div className="relative z-10 w-full max-w-md bg-white rounded-3xl shadow-xl border border-slate-200 p-6 space-y-5 max-h-[90vh] overflow-y-auto">
+          <div className="relative z-10 w-full max-w-md bg-white dark:bg-[#111827]/95 rounded-3xl shadow-xl border border-slate-200 dark:border-white/[0.07] p-6 space-y-5 max-h-[90vh] overflow-y-auto">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+                <div className="w-9 h-9 rounded-xl bg-indigo-50 dark:bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
                   <CalendarCheck className="w-5 h-5" />
                 </div>
-                <h3 className="text-lg font-bold text-slate-900">
+                <h3 className="text-lg font-bold text-slate-900 dark:text-slate-100">
                   {editingExam ? 'Editar Examen' : 'Nuevo Examen'}
                 </h3>
               </div>
               <button
                 type="button"
                 onClick={closeModal}
-                className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-pointer"
+                className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
             </div>
 
             {subjects.length === 0 ? (
-              <div className="p-4 rounded-2xl bg-amber-50 border border-amber-200 text-amber-800 text-xs space-y-2">
+              <div className="p-4 rounded-2xl bg-amber-50 dark:bg-amber-500/15 border border-amber-200 dark:border-amber-500/30 text-amber-800 dark:text-amber-300 text-xs space-y-2">
                 <p className="font-semibold">No tenés materias registradas</p>
                 <p>
                   Para agendar un examen necesitás crear al menos una materia primero en la sección de Materias.
@@ -798,7 +810,7 @@ export default function ExamsPage() {
             ) : (
               <form onSubmit={handleSubmitExam} className="space-y-4">
                 {formError && (
-                  <div className="flex items-center gap-2 p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs">
+                  <div className="flex items-center gap-2 p-3 rounded-xl bg-red-50 dark:bg-rose-500/10 border border-red-200 dark:border-rose-500/25 text-red-700 dark:text-rose-300 text-xs">
                     <AlertCircle className="w-4 h-4 shrink-0" />
                     <span>{formError}</span>
                   </div>
@@ -807,7 +819,7 @@ export default function ExamsPage() {
                 <div>
                   <label
                     htmlFor="exam-subject"
-                    className="block text-xs font-semibold text-slate-700 mb-1"
+                    className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1"
                   >
                     Materia
                   </label>
@@ -816,7 +828,7 @@ export default function ExamsPage() {
                     required
                     value={subjectIdInput}
                     onChange={(e) => setSubjectIdInput(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-[#0B111E] border border-slate-200 dark:border-white/[0.07] text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer"
                   >
                     {subjects.map((s) => (
                       <option key={s.id} value={s.id}>
@@ -829,7 +841,7 @@ export default function ExamsPage() {
                 <div>
                   <label
                     htmlFor="exam-title"
-                    className="block text-xs font-semibold text-slate-700 mb-1"
+                    className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1"
                   >
                     Título / Instancia
                   </label>
@@ -840,7 +852,7 @@ export default function ExamsPage() {
                     value={titleInput}
                     onChange={(e) => setTitleInput(e.target.value)}
                     placeholder="Ej. Primer Parcial / Examen Final"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                    className="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-[#0B111E] border border-slate-200 dark:border-white/[0.07] text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   />
                 </div>
 
@@ -848,7 +860,7 @@ export default function ExamsPage() {
                   <div>
                     <label
                       htmlFor="exam-date"
-                      className="block text-xs font-semibold text-slate-700 mb-1"
+                      className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1"
                     >
                       Fecha del examen
                     </label>
@@ -858,14 +870,14 @@ export default function ExamsPage() {
                       required
                       value={examDateInput}
                       onChange={(e) => setExamDateInput(e.target.value)}
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-[#0B111E] border border-slate-200 dark:border-white/[0.07] text-sm text-slate-900 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     />
                   </div>
 
                   <div>
                     <label
                       htmlFor="exam-target-hours"
-                      className="block text-xs font-semibold text-slate-700 mb-1"
+                      className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1"
                     >
                       Horas objetivo (opcional)
                     </label>
@@ -877,7 +889,7 @@ export default function ExamsPage() {
                       value={targetHoursInput}
                       onChange={(e) => setTargetHoursInput(e.target.value)}
                       placeholder="Ej. 20"
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-[#0B111E] border border-slate-200 dark:border-white/[0.07] text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     />
                   </div>
                 </div>
@@ -886,7 +898,7 @@ export default function ExamsPage() {
                   <div>
                     <label
                       htmlFor="exam-score"
-                      className="block text-xs font-semibold text-slate-700 mb-1"
+                      className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1"
                     >
                       Nota obtenida (score)
                     </label>
@@ -904,19 +916,19 @@ export default function ExamsPage() {
                         }
                       }}
                       placeholder="Ej. 8.5"
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                      className="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-[#0B111E] border border-slate-200 dark:border-white/[0.07] text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                     />
                   </div>
 
                   <div className="pt-4">
-                    <label className="flex items-center gap-2.5 p-2.5 rounded-xl bg-slate-50 border border-slate-200/80 cursor-pointer">
+                    <label className="flex items-center gap-2.5 p-2.5 rounded-xl bg-slate-50 dark:bg-[#0B111E] border border-slate-200/80 dark:border-white/[0.07] cursor-pointer">
                       <input
                         type="checkbox"
                         checked={isCompletedInput}
                         onChange={(e) => setIsCompletedInput(e.target.checked)}
-                        className="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500"
+                        className="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 accent-indigo-600"
                       />
-                      <span className="text-xs font-semibold text-slate-700">
+                      <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                         Examen completado
                       </span>
                     </label>
@@ -928,14 +940,14 @@ export default function ExamsPage() {
                     type="button"
                     onClick={closeModal}
                     disabled={submitting}
-                    className="px-4 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-50 cursor-pointer"
+                    className="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-white/[0.07] bg-white dark:bg-[#0B111E] text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer"
                   >
                     Cancelar
                   </button>
                   <button
                     type="submit"
                     disabled={submitting}
-                    className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-300 text-white text-xs font-semibold transition cursor-pointer"
+                    className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-300 dark:disabled:bg-indigo-800/50 text-white text-xs font-semibold transition cursor-pointer"
                   >
                     {submitting && <Loader2 className="w-4 h-4 animate-spin" />}
                     <span>{editingExam ? 'Guardar cambios' : 'Agendar examen'}</span>
@@ -955,17 +967,19 @@ export default function ExamsPage() {
               if (!savingQuickScore) setScoreModalExam(null);
             }}
             aria-hidden="true"
-            className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs"
+            className="fixed inset-0 bg-slate-900/40 dark:bg-black/60 backdrop-blur-xs"
           />
-          <div className="relative z-10 w-full max-w-sm bg-white rounded-3xl shadow-xl border border-slate-200 p-6 space-y-4">
+          <div className="relative z-10 w-full max-w-sm bg-white dark:bg-[#111827]/95 rounded-3xl shadow-xl border border-slate-200 dark:border-white/[0.07] p-6 space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <div className="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center">
+                <div className="w-9 h-9 rounded-xl bg-indigo-50 dark:bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 flex items-center justify-center">
                   <Award className="w-5 h-5" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-slate-900">Cargar Nota</h3>
-                  <p className="text-xs text-slate-500 truncate max-w-[200px]">
+                  <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">
+                    Cargar Nota
+                  </h3>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 truncate max-w-[200px]">
                     {scoreModalExam.title}
                   </p>
                 </div>
@@ -973,7 +987,7 @@ export default function ExamsPage() {
               <button
                 type="button"
                 onClick={() => setScoreModalExam(null)}
-                className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 cursor-pointer"
+                className="p-1.5 rounded-xl text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800 cursor-pointer"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -981,7 +995,7 @@ export default function ExamsPage() {
 
             <form onSubmit={handleSaveQuickScore} className="space-y-4">
               {quickScoreError && (
-                <div className="flex items-center gap-2 p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs">
+                <div className="flex items-center gap-2 p-3 rounded-xl bg-red-50 dark:bg-rose-500/10 border border-red-200 dark:border-rose-500/25 text-red-700 dark:text-rose-300 text-xs">
                   <AlertCircle className="w-4 h-4 shrink-0" />
                   <span>{quickScoreError}</span>
                 </div>
@@ -990,7 +1004,7 @@ export default function ExamsPage() {
               <div>
                 <label
                   htmlFor="quick-score-input"
-                  className="block text-xs font-semibold text-slate-700 mb-1"
+                  className="block text-xs font-semibold text-slate-700 dark:text-slate-300 mb-1"
                 >
                   Calificación obtenida
                 </label>
@@ -1004,18 +1018,18 @@ export default function ExamsPage() {
                   value={quickScoreValue}
                   onChange={(e) => setQuickScoreValue(e.target.value)}
                   placeholder="Ej. 9"
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-slate-200 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-white dark:bg-[#0B111E] border border-slate-200 dark:border-white/[0.07] text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 />
               </div>
 
-              <label className="flex items-center gap-2.5 p-3 rounded-xl bg-slate-50 border border-slate-200/80 cursor-pointer">
+              <label className="flex items-center gap-2.5 p-3 rounded-xl bg-slate-50 dark:bg-[#0B111E] border border-slate-200/80 dark:border-white/[0.07] cursor-pointer">
                 <input
                   type="checkbox"
                   checked={quickScoreCompleted}
                   onChange={(e) => setQuickScoreCompleted(e.target.checked)}
-                  className="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500"
+                  className="w-4 h-4 rounded text-indigo-600 focus:ring-indigo-500 accent-indigo-600"
                 />
-                <span className="text-xs font-semibold text-slate-700">
+                <span className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                   Marcar examen como completado
                 </span>
               </label>
@@ -1025,14 +1039,14 @@ export default function ExamsPage() {
                   type="button"
                   disabled={savingQuickScore}
                   onClick={() => setScoreModalExam(null)}
-                  className="px-4 py-2 rounded-xl border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-50 cursor-pointer"
+                  className="px-4 py-2 rounded-xl border border-slate-200 dark:border-white/[0.07] bg-white dark:bg-[#0B111E] text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer"
                 >
                   Cancelar
                 </button>
                 <button
                   type="submit"
                   disabled={savingQuickScore}
-                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-300 text-white text-xs font-semibold transition cursor-pointer"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-300 dark:disabled:bg-indigo-800/50 text-white text-xs font-semibold transition cursor-pointer"
                 >
                   {savingQuickScore && <Loader2 className="w-4 h-4 animate-spin" />}
                   <span>Guardar nota</span>
@@ -1051,20 +1065,20 @@ export default function ExamsPage() {
               if (!deleting) setExamToDelete(null);
             }}
             aria-hidden="true"
-            className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs"
+            className="fixed inset-0 bg-slate-900/40 dark:bg-black/60 backdrop-blur-xs"
           />
-          <div className="relative z-10 w-full max-w-md bg-white rounded-3xl shadow-xl border border-slate-200 p-6 space-y-4">
+          <div className="relative z-10 w-full max-w-md bg-white dark:bg-[#111827]/95 rounded-3xl shadow-xl border border-slate-200 dark:border-white/[0.07] p-6 space-y-4">
             <div className="flex items-start gap-3">
-              <div className="w-10 h-10 rounded-2xl bg-red-50 text-red-600 flex items-center justify-center shrink-0">
+              <div className="w-10 h-10 rounded-2xl bg-red-50 dark:bg-rose-500/15 text-red-600 dark:text-rose-400 flex items-center justify-center shrink-0">
                 <Trash2 className="w-5 h-5" />
               </div>
               <div>
-                <h3 className="text-base font-bold text-slate-900">
+                <h3 className="text-base font-bold text-slate-900 dark:text-slate-100">
                   Eliminar examen
                 </h3>
-                <p className="text-xs text-slate-500 mt-1">
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
                   ¿Estás seguro de que querés eliminar{' '}
-                  <span className="font-semibold text-slate-800">
+                  <span className="font-semibold text-slate-800 dark:text-slate-200">
                     "{examToDelete.title}"
                   </span>
                   ? Esta acción no se puede deshacer.
@@ -1073,7 +1087,7 @@ export default function ExamsPage() {
             </div>
 
             {deleteError && (
-              <div className="flex items-center gap-2 p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs">
+              <div className="flex items-center gap-2 p-3 rounded-xl bg-red-50 dark:bg-rose-500/10 border border-red-200 dark:border-rose-500/25 text-red-700 dark:text-rose-300 text-xs">
                 <AlertCircle className="w-4 h-4 shrink-0" />
                 <span>{deleteError}</span>
               </div>
@@ -1084,7 +1098,7 @@ export default function ExamsPage() {
                 type="button"
                 disabled={deleting}
                 onClick={() => setExamToDelete(null)}
-                className="px-4 py-2.5 rounded-xl border border-slate-200 text-xs font-semibold text-slate-600 hover:bg-slate-50 cursor-pointer"
+                className="px-4 py-2.5 rounded-xl border border-slate-200 dark:border-white/[0.07] bg-white dark:bg-[#0B111E] text-xs font-semibold text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 cursor-pointer"
               >
                 Cancelar
               </button>
@@ -1092,7 +1106,7 @@ export default function ExamsPage() {
                 type="button"
                 disabled={deleting}
                 onClick={() => void handleConfirmDelete()}
-                className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 disabled:bg-red-300 text-white text-xs font-semibold transition cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-4 py-2.5 rounded-xl bg-red-600 hover:bg-red-700 disabled:bg-red-300 dark:disabled:bg-rose-800/50 text-white text-xs font-semibold transition cursor-pointer"
               >
                 {deleting && <Loader2 className="w-4 h-4 animate-spin" />}
                 <span>Sí, eliminar</span>

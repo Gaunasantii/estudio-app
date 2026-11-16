@@ -35,20 +35,22 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-md bg-white rounded-2xl shadow-lg border border-slate-100 p-8">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#090D16] flex items-center justify-center p-4">
+      <div className="w-full max-w-md bg-white dark:bg-[#111827]/95 rounded-2xl shadow-lg border border-slate-100 dark:border-white/[0.07] p-8">
         <div className="flex flex-col items-center text-center mb-8">
           <div className="w-12 h-12 rounded-xl bg-indigo-600 text-white flex items-center justify-center mb-3 shadow-sm">
             <GraduationCap className="w-7 h-7" />
           </div>
-          <h1 className="text-2xl font-bold text-slate-900">Crear Cuenta</h1>
-          <p className="text-sm text-slate-500 mt-1">
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100">
+            Crear Cuenta
+          </h1>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
             Empezá a planificar tu estudio y seguimiento académico
           </p>
         </div>
 
         {error && (
-          <div className="mb-6 flex items-center gap-2.5 p-3.5 rounded-xl bg-red-50 border border-red-200 text-red-700 text-sm">
+          <div className="mb-6 flex items-center gap-2.5 p-3.5 rounded-xl bg-red-50 dark:bg-rose-500/10 border border-red-200 dark:border-rose-500/25 text-red-700 dark:text-rose-300 text-sm">
             <AlertCircle className="w-5 h-5 shrink-0" />
             <span>{error}</span>
           </div>
@@ -56,7 +58,10 @@ export default function Register() {
 
         <form onSubmit={handleSubmit} className="space-y-5">
           <div>
-            <label htmlFor="name" className="block text-sm font-medium text-slate-700 mb-1.5">
+            <label
+              htmlFor="name"
+              className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5"
+            >
               Nombre completo
             </label>
             <div className="relative">
@@ -68,13 +73,16 @@ export default function Register() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 placeholder="Tu nombre"
-                className="w-full pl-11 pr-4 py-2.5 rounded-xl border border-slate-200 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
+                className="w-full pl-11 pr-4 py-2.5 rounded-xl bg-white dark:bg-[#0B111E] border border-slate-200 dark:border-white/[0.07] text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
               />
             </div>
           </div>
 
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-slate-700 mb-1.5">
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5"
+            >
               Correo electrónico
             </label>
             <div className="relative">
@@ -86,13 +94,16 @@ export default function Register() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="estudiante@universidad.edu"
-                className="w-full pl-11 pr-4 py-2.5 rounded-xl border border-slate-200 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
+                className="w-full pl-11 pr-4 py-2.5 rounded-xl bg-white dark:bg-[#0B111E] border border-slate-200 dark:border-white/[0.07] text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
               />
             </div>
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-slate-700 mb-1.5">
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1.5"
+            >
               Contraseña
             </label>
             <div className="relative">
@@ -105,7 +116,7 @@ export default function Register() {
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 placeholder="Mínimo 6 caracteres"
-                className="w-full pl-11 pr-4 py-2.5 rounded-xl border border-slate-200 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
+                className="w-full pl-11 pr-4 py-2.5 rounded-xl bg-white dark:bg-[#0B111E] border border-slate-200 dark:border-white/[0.07] text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent transition"
               />
             </div>
           </div>
@@ -113,7 +124,7 @@ export default function Register() {
           <button
             type="submit"
             disabled={submitting}
-            className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 text-white font-medium shadow-sm transition cursor-pointer"
+            className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:bg-indigo-400 dark:disabled:bg-indigo-800/50 text-white font-medium shadow-sm transition cursor-pointer"
           >
             {submitting ? (
               <>
@@ -129,9 +140,12 @@ export default function Register() {
           </button>
         </form>
 
-        <p className="text-center text-sm text-slate-600 mt-6">
+        <p className="text-center text-sm text-slate-600 dark:text-slate-400 mt-6">
           ¿Ya tenés una cuenta?{' '}
-          <Link to="/login" className="font-semibold text-indigo-600 hover:text-indigo-500">
+          <Link
+            to="/login"
+            className="font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300"
+          >
             Iniciá sesión
           </Link>
         </p>

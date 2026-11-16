@@ -20,6 +20,8 @@ import {
   Save,
   CheckCircle2,
   AlertCircle,
+  Sun,
+  Moon,
 } from 'lucide-react';
 import api from './api/axios';
 import { AuthProvider, useAuth } from './context/AuthContext';
@@ -30,6 +32,12 @@ import {
   setSavedAvatarId,
   findAvatarById,
 } from './utils/avatars';
+import {
+  getSavedTheme,
+  setTheme,
+  initTheme,
+  type ThemeMode,
+} from './utils/theme';
 import Login from './pages/Login';
 import Register from './pages/Register';
 import DashboardLayout from './pages/DashboardLayout';
@@ -50,7 +58,7 @@ function PrivateRoute({ children }: { children: ReactNode }) {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-100/70 text-slate-600">
+      <div className="min-h-screen flex items-center justify-center bg-slate-100/70 dark:bg-[#090D16] text-slate-600 dark:text-slate-300">
         Cargando sesión...
       </div>
     );
@@ -64,7 +72,7 @@ function PublicRoute({ children }: { children: ReactNode }) {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-100/70 text-slate-600">
+      <div className="min-h-screen flex items-center justify-center bg-slate-100/70 dark:bg-[#090D16] text-slate-600 dark:text-slate-300">
         Cargando...
       </div>
     );
@@ -166,15 +174,15 @@ function ProfileView() {
     <div className="max-w-2xl mx-auto space-y-6">
       <Link
         to="/"
-        className="inline-flex items-center gap-2 text-sm font-medium text-indigo-600 hover:text-indigo-700"
+        className="inline-flex items-center gap-2 text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300"
       >
         <ArrowLeft className="w-4 h-4" />
         <span>Volver al Dashboard</span>
       </Link>
 
-      <div className="bg-white rounded-3xl border border-slate-200 p-8 shadow-xs space-y-6">
+      <div className="bg-white dark:bg-[#111827]/95 rounded-3xl border border-slate-200 dark:border-white/[0.07] p-8 shadow-xs space-y-6">
         <div className="flex items-center gap-4">
-          <div className="w-14 h-14 rounded-full overflow-hidden bg-indigo-50 text-indigo-600 font-bold text-lg flex items-center justify-center border border-indigo-100 shrink-0">
+          <div className="w-14 h-14 rounded-full overflow-hidden bg-indigo-50 dark:bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 font-bold text-lg flex items-center justify-center border border-indigo-100 dark:border-indigo-500/30 shrink-0">
             {selectedAvatar ? (
               <img
                 src={selectedAvatar.src}
@@ -186,22 +194,26 @@ function ProfileView() {
             )}
           </div>
           <div>
-            <h1 className="text-xl font-bold text-slate-900">Mi Perfil</h1>
-            <p className="text-sm text-slate-500">Información personal y seguridad de tu cuenta académica</p>
+            <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100">Mi Perfil</h1>
+            <p className="text-sm text-slate-500 dark:text-slate-400">
+              Información personal y seguridad de tu cuenta académica
+            </p>
           </div>
         </div>
 
-        <div className="pt-4 border-t border-slate-100 space-y-3">
+        <div className="pt-4 border-t border-slate-100 dark:border-white/[0.07] space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <User className="w-4 h-4 text-indigo-600" />
-              <h2 className="text-sm font-bold text-slate-900">Avatar de perfil</h2>
+              <User className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+              <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100">
+                Avatar de perfil
+              </h2>
             </div>
             {selectedAvatar && (
               <button
                 type="button"
                 onClick={() => handleSelectAvatar(null)}
-                className="text-xs font-semibold text-slate-500 hover:text-indigo-600 transition cursor-pointer"
+                className="text-xs font-semibold text-slate-500 dark:text-slate-400 hover:text-indigo-600 dark:hover:text-indigo-400 transition cursor-pointer"
               >
                 Usar inicial
               </button>
@@ -214,10 +226,10 @@ function ProfileView() {
                 type="button"
                 onClick={() => handleSelectAvatar(null)}
                 title="Inicial del nombre"
-                className={`w-12 h-12 rounded-full bg-indigo-50 text-indigo-600 font-bold text-sm flex items-center justify-center border transition cursor-pointer ${
+                className={`w-12 h-12 rounded-full bg-indigo-50 dark:bg-indigo-500/15 text-indigo-600 dark:text-indigo-300 font-bold text-sm flex items-center justify-center border transition cursor-pointer ${
                   !selectedAvatar
-                    ? 'border-indigo-600 ring-2 ring-indigo-500/30'
-                    : 'border-indigo-100 hover:border-indigo-300'
+                    ? 'border-indigo-600 dark:border-indigo-400 ring-2 ring-indigo-500/30'
+                    : 'border-indigo-100 dark:border-indigo-500/30 hover:border-indigo-300 dark:hover:border-indigo-400'
                 }`}
               >
                 {userInitial}
@@ -232,8 +244,8 @@ function ProfileView() {
                     title={avatar.label}
                     className={`w-12 h-12 rounded-full overflow-hidden border transition cursor-pointer ${
                       isSelected
-                        ? 'border-indigo-600 ring-2 ring-indigo-500/30'
-                        : 'border-slate-200 hover:border-indigo-300'
+                        ? 'border-indigo-600 dark:border-indigo-400 ring-2 ring-indigo-500/30'
+                        : 'border-slate-200 dark:border-white/10 hover:border-indigo-300 dark:hover:border-indigo-400'
                     }`}
                   >
                     <img
@@ -246,18 +258,18 @@ function ProfileView() {
               })}
             </div>
           ) : (
-            <p className="text-xs text-slate-500 bg-slate-50 border border-dashed border-slate-200 rounded-xl px-3.5 py-2.5">
+            <p className="text-xs text-slate-500 dark:text-slate-400 bg-slate-50 dark:bg-[#0B111E] border border-dashed border-slate-200 dark:border-white/[0.07] rounded-xl px-3.5 py-2.5">
               Próximamente podrás elegir un avatar personalizado desde aquí.
             </p>
           )}
         </div>
 
-        <form onSubmit={handleSubmit} className="space-y-5 pt-4 border-t border-slate-100">
+        <form onSubmit={handleSubmit} className="space-y-5 pt-4 border-t border-slate-100 dark:border-white/[0.07]">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
               <label
                 htmlFor="profile-name"
-                className="block text-xs font-semibold text-slate-500 uppercase mb-1.5"
+                className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1.5"
               >
                 Nombre
               </label>
@@ -267,7 +279,7 @@ function ProfileView() {
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 required
-                className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full rounded-xl border border-slate-200 dark:border-white/[0.07] bg-white dark:bg-[#0B111E] px-3.5 py-2.5 text-sm font-medium text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                 placeholder="Tu nombre"
               />
             </div>
@@ -275,7 +287,7 @@ function ProfileView() {
             <div>
               <label
                 htmlFor="profile-email"
-                className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 uppercase mb-1.5"
+                className="flex items-center gap-1.5 text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1.5"
               >
                 <Mail className="w-3.5 h-3.5" />
                 <span>Correo electrónico</span>
@@ -285,15 +297,15 @@ function ProfileView() {
                 type="email"
                 value={user?.email || ''}
                 disabled
-                className="w-full rounded-xl border border-slate-200 bg-slate-50 px-3.5 py-2.5 text-sm font-medium text-slate-500 cursor-not-allowed"
+                className="w-full rounded-xl border border-slate-200 dark:border-white/[0.07] bg-slate-50 dark:bg-[#0B111E]/70 px-3.5 py-2.5 text-sm font-medium text-slate-500 dark:text-slate-400 cursor-not-allowed"
               />
             </div>
           </div>
 
-          <div className="pt-4 border-t border-slate-100 space-y-4">
+          <div className="pt-4 border-t border-slate-100 dark:border-white/[0.07] space-y-4">
             <div className="flex items-center gap-2">
-              <Lock className="w-4 h-4 text-indigo-600" />
-              <h2 className="text-sm font-bold text-slate-900">
+              <Lock className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
+              <h2 className="text-sm font-bold text-slate-900 dark:text-slate-100">
                 Cambiar contraseña <span className="text-xs font-normal text-slate-400">(opcional)</span>
               </h2>
             </div>
@@ -302,7 +314,7 @@ function ProfileView() {
               <div>
                 <label
                   htmlFor="profile-current-password"
-                  className="block text-xs font-semibold text-slate-500 uppercase mb-1.5"
+                  className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1.5"
                 >
                   Contraseña actual
                 </label>
@@ -311,7 +323,7 @@ function ProfileView() {
                   type="password"
                   value={currentPassword}
                   onChange={(e) => setCurrentPassword(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full rounded-xl border border-slate-200 dark:border-white/[0.07] bg-white dark:bg-[#0B111E] px-3.5 py-2.5 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   placeholder="••••••••"
                   autoComplete="current-password"
                 />
@@ -320,7 +332,7 @@ function ProfileView() {
               <div>
                 <label
                   htmlFor="profile-new-password"
-                  className="block text-xs font-semibold text-slate-500 uppercase mb-1.5"
+                  className="block text-xs font-semibold text-slate-500 dark:text-slate-400 uppercase mb-1.5"
                 >
                   Nueva contraseña
                 </label>
@@ -329,7 +341,7 @@ function ProfileView() {
                   type="password"
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
-                  className="w-full rounded-xl border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  className="w-full rounded-xl border border-slate-200 dark:border-white/[0.07] bg-white dark:bg-[#0B111E] px-3.5 py-2.5 text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   placeholder="Mínimo 6 caracteres"
                   autoComplete="new-password"
                 />
@@ -338,21 +350,21 @@ function ProfileView() {
           </div>
 
           {successMessage && (
-            <div className="flex items-center gap-2 text-xs font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-xl px-4 py-3">
+            <div className="flex items-center gap-2 text-xs font-medium text-emerald-700 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-500/10 border border-emerald-200 dark:border-emerald-500/25 rounded-xl px-4 py-3">
               <CheckCircle2 className="w-4 h-4 shrink-0" />
               <span>{successMessage}</span>
             </div>
           )}
 
           {errorMessage && (
-            <div className="flex items-center gap-2 text-xs font-medium text-rose-700 bg-rose-50 border border-rose-200 rounded-xl px-4 py-3">
+            <div className="flex items-center gap-2 text-xs font-medium text-rose-700 dark:text-rose-300 bg-rose-50 dark:bg-rose-500/10 border border-rose-200 dark:border-rose-500/25 rounded-xl px-4 py-3">
               <AlertCircle className="w-4 h-4 shrink-0" />
               <span>{errorMessage}</span>
             </div>
           )}
 
           <div className="flex items-center justify-between gap-4 pt-2">
-            <div className="flex items-center gap-2 text-xs text-emerald-700">
+            <div className="flex items-center gap-2 text-xs text-emerald-700 dark:text-emerald-400">
               <ShieldCheck className="w-4 h-4 shrink-0" />
               <span>Sesión activa y sincronizada con tu cuenta de EstudioApp.</span>
             </div>
@@ -381,6 +393,18 @@ function SettingsView() {
     getInitialPomodoroMinutes()
   );
 
+  const [themeMode, setThemeMode] = useState<ThemeMode>(() => getSavedTheme());
+
+  useEffect(() => {
+    const syncTheme = () => setThemeMode(getSavedTheme());
+    window.addEventListener('theme-change', syncTheme);
+    window.addEventListener('storage', syncTheme);
+    return () => {
+      window.removeEventListener('theme-change', syncTheme);
+      window.removeEventListener('storage', syncTheme);
+    };
+  }, []);
+
   const handleToggleWeekend = (checked: boolean) => {
     setIncludeWeekend(checked);
     localStorage.setItem('includeWeekendInSchedule', String(checked));
@@ -397,36 +421,41 @@ function SettingsView() {
     );
   };
 
+  const handleThemeChange = (nextTheme: ThemeMode) => {
+    setThemeMode(nextTheme);
+    setTheme(nextTheme);
+  };
+
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       <Link
         to="/"
-        className="inline-flex items-center gap-2 text-sm font-medium text-indigo-600 hover:text-indigo-700"
+        className="inline-flex items-center gap-2 text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300"
       >
         <ArrowLeft className="w-4 h-4" />
         <span>Volver al Dashboard</span>
       </Link>
 
-      <div className="bg-white rounded-3xl border border-slate-200 p-8 shadow-xs space-y-6">
+      <div className="bg-white dark:bg-[#111827]/95 rounded-3xl border border-slate-200 dark:border-white/[0.07] p-8 shadow-xs space-y-6">
         <div>
-          <h1 className="text-xl font-bold text-slate-900">Ajustes</h1>
-          <p className="text-sm text-slate-500 mt-0.5">
+          <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100">Ajustes</h1>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
             Configurá tus preferencias de estudio y notificaciones
           </p>
         </div>
 
-        <div className="space-y-4 pt-4 border-t border-slate-100">
+        <div className="space-y-4 pt-4 border-t border-slate-100 dark:border-white/[0.07]">
           <label
             htmlFor="include-weekend-checkbox"
-            className="flex items-center justify-between p-4 rounded-2xl bg-slate-50 hover:bg-slate-100/80 transition cursor-pointer"
+            className="flex items-center justify-between p-4 rounded-2xl bg-slate-50 dark:bg-[#0B111E] border border-transparent dark:border-white/[0.07] hover:bg-slate-100/80 dark:hover:bg-slate-800/60 transition cursor-pointer"
           >
             <div className="flex items-center gap-3">
-              <CalendarCheck className="w-5 h-5 text-indigo-600 shrink-0" />
+              <CalendarCheck className="w-5 h-5 text-indigo-600 dark:text-indigo-400 shrink-0" />
               <div>
-                <p className="text-sm font-semibold text-slate-900">
+                <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
                   Incluir Sábado y Domingo en el horario semanal
                 </p>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-slate-500 dark:text-slate-400">
                   {includeWeekend
                     ? 'Mostrando de Lunes a Domingo en el Dashboard'
                     : 'Mostrando de Lunes a Viernes en el Dashboard'}
@@ -438,21 +467,21 @@ function SettingsView() {
               type="checkbox"
               checked={includeWeekend}
               onChange={(e) => handleToggleWeekend(e.target.checked)}
-              className="w-5 h-5 rounded-md border-slate-300 text-indigo-600 focus:ring-indigo-500 cursor-pointer accent-indigo-600"
+              className="w-5 h-5 rounded-md border-slate-300 dark:border-slate-600 text-indigo-600 focus:ring-indigo-500 cursor-pointer accent-indigo-600"
             />
           </label>
 
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl bg-slate-50">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl bg-slate-50 dark:bg-[#0B111E] border border-transparent dark:border-white/[0.07]">
             <div className="flex items-center gap-3">
-              <Clock className="w-5 h-5 text-indigo-600 shrink-0" />
+              <Clock className="w-5 h-5 text-indigo-600 dark:text-indigo-400 shrink-0" />
               <div>
                 <label
                   htmlFor="pomodoro-minutes-select"
-                  className="text-sm font-semibold text-slate-900 block"
+                  className="text-sm font-semibold text-slate-900 dark:text-slate-100 block"
                 >
                   Duración de Pomodoro
                 </label>
-                <p className="text-xs text-slate-500">
+                <p className="text-xs text-slate-500 dark:text-slate-400">
                   Bloque de enfoque predeterminado ({pomodoroMinutes} min)
                 </p>
               </div>
@@ -463,7 +492,7 @@ function SettingsView() {
                 id="pomodoro-minutes-select"
                 value={pomodoroMinutes}
                 onChange={(e) => handlePomodoroMinutesChange(Number(e.target.value))}
-                className="text-xs font-semibold px-3 py-2 rounded-xl bg-white border border-slate-200 text-slate-800 focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer"
+                className="text-xs font-semibold px-3 py-2 rounded-xl bg-white dark:bg-[#111827] border border-slate-200 dark:border-white/10 text-slate-800 dark:text-slate-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 cursor-pointer"
               >
                 {POMODORO_DURATION_OPTIONS.map((mins) => (
                   <option key={mins} value={mins}>
@@ -474,30 +503,70 @@ function SettingsView() {
             </div>
           </div>
 
-          <div className="flex items-center justify-between p-4 rounded-2xl bg-slate-50">
+          <div className="flex items-center justify-between p-4 rounded-2xl bg-slate-50 dark:bg-[#0B111E] border border-transparent dark:border-white/[0.07]">
             <div className="flex items-center gap-3">
-              <Bell className="w-5 h-5 text-indigo-600" />
+              <Bell className="w-5 h-5 text-indigo-600 dark:text-indigo-400" />
               <div>
-                <p className="text-sm font-semibold text-slate-900">Recordatorios de exámenes</p>
-                <p className="text-xs text-slate-500">Alertas previas a fechas de parciales</p>
+                <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+                  Recordatorios de exámenes
+                </p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  Alertas previas a fechas de parciales
+                </p>
               </div>
             </div>
-            <span className="text-xs font-semibold px-3 py-1 rounded-lg bg-emerald-50 text-emerald-700 border border-emerald-200">
+            <span className="text-xs font-semibold px-3 py-1 rounded-lg bg-emerald-50 dark:bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border border-emerald-200 dark:border-emerald-500/30">
               Activado
             </span>
           </div>
 
-          <div className="flex items-center justify-between p-4 rounded-2xl bg-slate-50">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-4 rounded-2xl bg-slate-50 dark:bg-[#0B111E] border border-transparent dark:border-white/[0.07]">
             <div className="flex items-center gap-3">
-              <Palette className="w-5 h-5 text-indigo-600" />
+              <Palette className="w-5 h-5 text-indigo-600 dark:text-indigo-400 shrink-0" />
               <div>
-                <p className="text-sm font-semibold text-slate-900">Diseño de interfaz</p>
-                <p className="text-xs text-slate-500">Vista Bento Grid con Sidebar Azul Cobalto</p>
+                <p className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+                  Diseño de interfaz
+                </p>
+                <p className="text-xs text-slate-500 dark:text-slate-400">
+                  {themeMode === 'dark'
+                    ? 'Modo Noche (Midnight Obsidian & Deep Cobalt)'
+                    : 'Vista Bento Grid con Sidebar Azul Cobalto'}
+                </p>
               </div>
             </div>
-            <span className="text-xs font-semibold px-3 py-1 rounded-lg bg-white border border-slate-200 text-slate-700">
-              Claro
-            </span>
+
+            <div
+              role="group"
+              aria-label="Seleccionar tema de interfaz"
+              className="inline-flex items-center rounded-xl bg-white dark:bg-[#111827] border border-slate-200 dark:border-white/[0.07] p-1 self-start sm:self-auto"
+            >
+              <button
+                type="button"
+                onClick={() => handleThemeChange('light')}
+                aria-pressed={themeMode === 'light'}
+                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer ${
+                  themeMode === 'light'
+                    ? 'bg-indigo-600 text-white shadow-2xs'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'
+                }`}
+              >
+                <Sun className="w-3.5 h-3.5" />
+                <span>Claro</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => handleThemeChange('dark')}
+                aria-pressed={themeMode === 'dark'}
+                className={`inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition cursor-pointer ${
+                  themeMode === 'dark'
+                    ? 'bg-indigo-600 text-white shadow-2xs'
+                    : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-100'
+                }`}
+              >
+                <Moon className="w-3.5 h-3.5" />
+                <span>Noche</span>
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -506,6 +575,10 @@ function SettingsView() {
 }
 
 export function App() {
+  useEffect(() => {
+    initTheme();
+  }, []);
+
   return (
     <AuthProvider>
       <BrowserRouter>

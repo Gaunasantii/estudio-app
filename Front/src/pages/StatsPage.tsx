@@ -85,11 +85,11 @@ interface HeatmapDayCell {
 }
 
 const HEATMAP_LEVEL_CLASSES: Record<HeatmapIntensity, string> = {
-  0: 'bg-slate-200/75 border-slate-300/60 hover:ring-slate-400',
-  1: 'bg-emerald-200 border-emerald-300/80 hover:ring-emerald-400',
-  2: 'bg-emerald-400 border-emerald-500/80 hover:ring-emerald-500',
-  3: 'bg-emerald-500 border-emerald-600/80 hover:ring-emerald-600',
-  4: 'bg-emerald-700 border-emerald-800/80 hover:ring-emerald-800',
+  0: 'bg-slate-200/75 border-slate-300/60 hover:ring-slate-400 dark:bg-slate-800/70 dark:border-white/[0.07] dark:hover:ring-slate-500',
+  1: 'bg-emerald-200 border-emerald-300/80 hover:ring-emerald-400 dark:bg-emerald-900/75 dark:border-emerald-700/60 dark:hover:ring-emerald-500',
+  2: 'bg-emerald-400 border-emerald-500/80 hover:ring-emerald-500 dark:bg-emerald-600/85 dark:border-emerald-500/70 dark:hover:ring-emerald-400',
+  3: 'bg-emerald-500 border-emerald-600/80 hover:ring-emerald-600 dark:bg-emerald-500 dark:border-emerald-400/80 dark:hover:ring-emerald-300',
+  4: 'bg-emerald-700 border-emerald-800/80 hover:ring-emerald-800 dark:bg-emerald-400 dark:border-emerald-300 dark:hover:ring-indigo-400 dark:shadow-[0_0_8px_rgba(52,211,153,0.35)]',
 };
 
 const HEATMAP_MONTH_LABELS = [
@@ -537,28 +537,28 @@ export default function StatsPage() {
       {/* Encabezado de la página */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 border border-indigo-100 text-indigo-700 text-xs font-semibold mb-2">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-50 dark:bg-indigo-500/15 border border-indigo-100 dark:border-indigo-500/30 text-indigo-700 dark:text-indigo-300 text-xs font-semibold mb-2">
             <Sparkles className="w-3.5 h-3.5" />
             <span>Métricas y Rendimiento</span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-bold text-slate-900 dark:text-slate-100 tracking-tight">
             Estadísticas de Estudio
           </h1>
-          <p className="text-sm text-slate-500 mt-1">
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-1">
             Analizá tu evolución en las últimas 12 semanas, el desglose por materia y tu constancia anual.
           </p>
         </div>
 
         <div className="flex items-center gap-3 self-start sm:self-auto">
-          <div className="bg-white rounded-2xl border border-slate-200/80 px-4 py-2.5 shadow-2xs flex items-center gap-3">
-            <div className="w-9 h-9 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
+          <div className="bg-white dark:bg-[#111827]/95 rounded-2xl border border-slate-200/80 dark:border-white/[0.07] px-4 py-2.5 shadow-2xs flex items-center gap-3">
+            <div className="w-9 h-9 rounded-xl bg-indigo-50 dark:bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
               <Clock className="w-4 h-4" />
             </div>
             <div>
               <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400">
                 Sesiones Registradas
               </p>
-              <p className="text-sm font-bold text-slate-900">
+              <p className="text-sm font-bold text-slate-900 dark:text-slate-100">
                 {sessions.length} {sessions.length === 1 ? 'sesión' : 'sesiones'}
               </p>
             </div>
@@ -568,7 +568,7 @@ export default function StatsPage() {
 
       {/* Mensaje de error si falla la carga */}
       {error && (
-        <div className="flex items-center justify-between gap-3 p-4 rounded-2xl bg-red-50 border border-red-200 text-red-700 text-sm">
+        <div className="flex items-center justify-between gap-3 p-4 rounded-2xl bg-red-50 dark:bg-rose-500/10 border border-red-200 dark:border-rose-500/25 text-red-700 dark:text-rose-300 text-sm">
           <div className="flex items-center gap-2.5">
             <AlertCircle className="w-5 h-5 shrink-0" />
             <span>{error}</span>
@@ -576,7 +576,7 @@ export default function StatsPage() {
           <button
             type="button"
             onClick={() => void fetchStatsData()}
-            className="px-3 py-1.5 rounded-xl bg-white border border-red-200 text-xs font-semibold text-red-700 hover:bg-red-100 transition cursor-pointer"
+            className="px-3 py-1.5 rounded-xl bg-white dark:bg-[#0B111E] border border-red-200 dark:border-rose-500/30 text-xs font-semibold text-red-700 dark:text-rose-300 hover:bg-red-100 dark:hover:bg-rose-500/20 transition cursor-pointer"
           >
             Reintentar
           </button>
@@ -584,8 +584,8 @@ export default function StatsPage() {
       )}
 
       {loading ? (
-        <div className="bg-white rounded-3xl border border-slate-200/80 p-14 flex flex-col items-center justify-center gap-3 text-slate-500 shadow-xs">
-          <Loader2 className="w-7 h-7 animate-spin text-indigo-600" />
+        <div className="bg-white dark:bg-[#111827]/95 rounded-3xl border border-slate-200/80 dark:border-white/[0.07] p-14 flex flex-col items-center justify-center gap-3 text-slate-500 dark:text-slate-400 shadow-xs">
+          <Loader2 className="w-7 h-7 animate-spin text-indigo-600 dark:text-indigo-400" />
           <p className="text-sm font-medium">Calculando métricas de estudio...</p>
         </div>
       ) : (
@@ -595,25 +595,25 @@ export default function StatsPage() {
           {/* =================================================================== */}
           <section
             aria-label="Rendimiento últimas 12 semanas"
-            className="bg-white rounded-3xl border border-slate-200/80 p-5 sm:p-6 shadow-xs space-y-5"
+            className="bg-white dark:bg-[#111827]/95 rounded-3xl border border-slate-200/80 dark:border-white/[0.07] p-5 sm:p-6 shadow-xs space-y-5"
           >
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
+                <div className="w-10 h-10 rounded-2xl bg-indigo-50 dark:bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
                   <TrendingUp className="w-5 h-5" />
                 </div>
                 <div>
-                  <h2 className="text-base sm:text-lg font-bold text-slate-900">
+                  <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-slate-100">
                     Rendimiento (Últimas 12 Semanas)
                   </h2>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
                     Tiempo total estudiado por semana sumando todas las materias (eje Y en horas y segundos)
                   </p>
                 </div>
               </div>
 
-              <div className="inline-flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-slate-100 text-slate-700 text-xs font-semibold self-start sm:self-auto">
-                <Clock className="w-4 h-4 text-indigo-600" />
+              <div className="inline-flex items-center gap-2 px-3.5 py-2 rounded-2xl bg-slate-100 dark:bg-[#0B111E] dark:border dark:border-white/[0.07] text-slate-700 dark:text-slate-300 text-xs font-semibold self-start sm:self-auto">
+                <Clock className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
                 <span>
                   Acumulado 12 sem.: {formatHoursAndSeconds(last12WeeksData.total12WeeksSeconds)}
                 </span>
@@ -621,17 +621,17 @@ export default function StatsPage() {
             </div>
 
             {/* Contenedor del gráfico de 12 barras con eje Y en horas y segundos */}
-            <div className="rounded-2xl bg-slate-50/80 border border-slate-100 p-4 sm:p-5">
+            <div className="rounded-2xl bg-slate-50/80 dark:bg-[#0B111E] border border-slate-100 dark:border-white/[0.07] p-4 sm:p-5">
               <div className="grid grid-cols-[76px_1fr] sm:grid-cols-[92px_1fr] gap-3">
                 {/* Eje Y formateado en horas y segundos */}
                 <div
                   aria-label="Eje Y en horas y segundos"
-                  className="h-56 flex flex-col justify-between text-right pr-2 border-r border-slate-200/80 select-none"
+                  className="h-56 flex flex-col justify-between text-right pr-2 border-r border-slate-200/80 dark:border-white/[0.07] select-none"
                 >
                   {last12WeeksData.yAxisTicks.map((tickValue, idx) => (
                     <span
                       key={idx}
-                      className="text-[11px] font-mono font-semibold text-slate-500 leading-none"
+                      className="text-[11px] font-mono font-semibold text-slate-500 dark:text-slate-400 leading-none"
                     >
                       {formatHoursAndSeconds(tickValue)}
                     </span>
@@ -639,7 +639,7 @@ export default function StatsPage() {
                 </div>
 
                 {/* Área de las 12 barras */}
-                <div className="relative h-56 flex items-end justify-between gap-1.5 sm:gap-3 border-b border-slate-200/80 pb-2 px-1">
+                <div className="relative h-56 flex items-end justify-between gap-1.5 sm:gap-3 border-b border-slate-200/80 dark:border-white/[0.07] pb-2 px-1">
                   {/* Líneas guía horizontales */}
                   <div
                     aria-hidden="true"
@@ -648,7 +648,7 @@ export default function StatsPage() {
                     {last12WeeksData.yAxisTicks.map((_, idx) => (
                       <div
                         key={idx}
-                        className="w-full border-t border-dashed border-slate-200/70"
+                        className="w-full border-t border-dashed border-slate-200/70 dark:border-white/[0.06]"
                       />
                     ))}
                   </div>
@@ -662,20 +662,20 @@ export default function StatsPage() {
                       <span
                         className={`text-[10px] font-mono font-semibold mb-1 whitespace-nowrap transition ${
                           week.totalSeconds > 0
-                            ? 'text-slate-700'
-                            : 'text-slate-400 opacity-0 group-hover:opacity-100'
+                            ? 'text-slate-700 dark:text-slate-300'
+                            : 'text-slate-400 dark:text-slate-500 opacity-0 group-hover:opacity-100'
                         }`}
                       >
                         {formatHoursAndSeconds(week.totalSeconds)}
                       </span>
 
-                      <div className="w-full max-w-11 h-full bg-slate-200/60 rounded-t-xl flex items-end overflow-hidden p-0.5">
+                      <div className="w-full max-w-11 h-full bg-slate-200/60 dark:bg-slate-800/70 rounded-t-xl flex items-end overflow-hidden p-0.5">
                         <div
                           className={`w-full rounded-t-lg transition-all duration-500 ${
                             week.totalSeconds > 0
                               ? week.isCurrentWeek
-                                ? 'bg-indigo-600 group-hover:bg-indigo-700'
-                                : 'bg-indigo-500/85 group-hover:bg-indigo-600'
+                                ? 'bg-indigo-600 group-hover:bg-indigo-700 dark:bg-emerald-500 dark:group-hover:bg-emerald-400 dark:shadow-[0_0_12px_rgba(16,185,129,0.3)]'
+                                : 'bg-indigo-500/85 group-hover:bg-indigo-600 dark:bg-indigo-500 dark:group-hover:bg-indigo-400 dark:shadow-[0_0_10px_rgba(99,102,241,0.25)]'
                               : 'bg-transparent'
                           }`}
                           style={{
@@ -706,14 +706,14 @@ export default function StatsPage() {
                       <p
                         className={`text-[10px] sm:text-[11px] truncate ${
                           week.isCurrentWeek
-                            ? 'font-bold text-indigo-600'
-                            : 'font-medium text-slate-600'
+                            ? 'font-bold text-indigo-600 dark:text-indigo-400'
+                            : 'font-medium text-slate-600 dark:text-slate-400'
                         }`}
                       >
                         {week.shortLabel}
                       </p>
                       {week.isCurrentWeek && (
-                        <span className="inline-block text-[9px] font-bold text-indigo-600 bg-indigo-50 px-1.5 py-0.2 rounded-full">
+                        <span className="inline-block text-[9px] font-bold text-indigo-600 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-500/15 px-1.5 py-0.2 rounded-full">
                           Actual
                         </span>
                       )}
@@ -729,20 +729,20 @@ export default function StatsPage() {
           {/* =================================================================== */}
           <section
             aria-label="Rendimiento y Horas por Materia"
-            className="bg-white rounded-3xl border border-slate-200/80 p-5 sm:p-6 shadow-xs space-y-5"
+            className="bg-white dark:bg-[#111827]/95 rounded-3xl border border-slate-200/80 dark:border-white/[0.07] p-5 sm:p-6 shadow-xs space-y-5"
           >
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-indigo-50 text-indigo-600 flex items-center justify-center shrink-0">
+                <div className="w-10 h-10 rounded-2xl bg-indigo-50 dark:bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 flex items-center justify-center shrink-0">
                   <BarChart3 className="w-5 h-5" />
                 </div>
                 <div>
-                  <h2 className="text-base sm:text-lg font-bold text-slate-900">
+                  <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-slate-100">
                     Rendimiento y Horas por Materia
                   </h2>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
                     {subjectStatsByPeriod.periodSubtitle} • Total:{' '}
-                    <span className="font-semibold text-slate-700">
+                    <span className="font-semibold text-slate-700 dark:text-slate-200">
                       {formatReadableDuration(subjectStatsByPeriod.totalPeriodSeconds)}
                     </span>
                   </p>
@@ -753,7 +753,7 @@ export default function StatsPage() {
               <div
                 role="tablist"
                 aria-label="Filtrar rendimiento por período"
-                className="inline-flex rounded-2xl bg-slate-100 p-1 self-start md:self-auto"
+                className="inline-flex rounded-2xl bg-slate-100 dark:bg-[#0B111E] dark:border dark:border-white/[0.07] p-1 self-start md:self-auto"
               >
                 {PERIOD_TABS.map((tab) => {
                   const isActive = selectedPeriod === tab.id;
@@ -766,8 +766,8 @@ export default function StatsPage() {
                       onClick={() => setSelectedPeriod(tab.id)}
                       className={`px-3.5 py-1.5 rounded-xl text-xs font-semibold transition cursor-pointer ${
                         isActive
-                          ? 'bg-white text-indigo-600 shadow-2xs'
-                          : 'text-slate-600 hover:text-slate-900'
+                          ? 'bg-white dark:bg-[#111827] text-indigo-600 dark:text-indigo-400 shadow-2xs'
+                          : 'text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-slate-200'
                       }`}
                     >
                       {tab.label}
@@ -778,27 +778,27 @@ export default function StatsPage() {
             </div>
 
             {subjectStatsByPeriod.items.length === 0 ? (
-              <div className="rounded-2xl border border-dashed border-slate-200 p-10 flex flex-col items-center justify-center text-center gap-2">
-                <BookOpen className="w-7 h-7 text-slate-300" />
-                <p className="text-sm font-semibold text-slate-700">
+              <div className="rounded-2xl border border-dashed border-slate-200 dark:border-white/[0.07] dark:bg-[#0B111E]/50 p-10 flex flex-col items-center justify-center text-center gap-2">
+                <BookOpen className="w-7 h-7 text-slate-300 dark:text-slate-600" />
+                <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">
                   No hay materias registradas todavía
                 </p>
-                <p className="text-xs text-slate-500 max-w-md">
+                <p className="text-xs text-slate-500 dark:text-slate-400 max-w-md">
                   Creá tus asignaturas en la sección Materias y registrá sesiones de estudio para visualizar el desglose por período.
                 </p>
               </div>
             ) : (
-              <div className="rounded-2xl bg-slate-50/80 border border-slate-100 p-4 sm:p-5 space-y-3">
-                <div className="h-56 flex items-end justify-around gap-3 border-b border-slate-200/80 pb-2 px-2">
+              <div className="rounded-2xl bg-slate-50/80 dark:bg-[#0B111E] border border-slate-100 dark:border-white/[0.07] p-4 sm:p-5 space-y-3">
+                <div className="h-56 flex items-end justify-around gap-3 border-b border-slate-200/80 dark:border-white/[0.07] pb-2 px-2">
                   {subjectStatsByPeriod.items.map((item) => (
                     <div
                       key={item.id}
                       className="flex-1 max-w-24 h-full flex flex-col items-center justify-end group min-w-0"
                     >
-                      <span className="text-[11px] font-bold text-slate-700 mb-1.5 whitespace-nowrap">
+                      <span className="text-[11px] font-bold text-slate-700 dark:text-slate-300 mb-1.5 whitespace-nowrap">
                         {formatReadableDuration(item.totalSeconds)}
                       </span>
-                      <div className="w-full max-w-12 h-full bg-slate-200/60 rounded-t-xl flex items-end overflow-hidden p-0.5">
+                      <div className="w-full max-w-12 h-full bg-slate-200/60 dark:bg-slate-800/70 rounded-t-xl flex items-end overflow-hidden p-0.5">
                         <div
                           className="w-full rounded-t-lg transition-all duration-500"
                           style={{
@@ -830,7 +830,7 @@ export default function StatsPage() {
                           style={{ backgroundColor: item.color }}
                         />
                         <span
-                          className="text-xs font-semibold text-slate-800 truncate"
+                          className="text-xs font-semibold text-slate-800 dark:text-slate-200 truncate"
                           title={item.name}
                         >
                           {item.name}
@@ -852,39 +852,41 @@ export default function StatsPage() {
           {/* =================================================================== */}
           <section
             aria-label="Actividad Anual"
-            className="bg-white rounded-3xl border border-slate-200/80 p-5 sm:p-6 shadow-xs space-y-5"
+            className="bg-white dark:bg-[#111827]/95 rounded-3xl border border-slate-200/80 dark:border-white/[0.07] p-5 sm:p-6 shadow-xs space-y-5"
           >
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-600 flex items-center justify-center shrink-0">
+                <div className="w-10 h-10 rounded-2xl bg-emerald-50 dark:bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
                   <Calendar className="w-5 h-5" />
                 </div>
                 <div>
-                  <h2 className="text-base sm:text-lg font-bold text-slate-900">
+                  <h2 className="text-base sm:text-lg font-bold text-slate-900 dark:text-slate-100">
                     Actividad Anual
                   </h2>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
                     Mapa de calor de constancia diaria de estudio durante el año{' '}
-                    <span className="font-semibold text-slate-700">{selectedYear}</span>
+                    <span className="font-semibold text-slate-700 dark:text-slate-200">
+                      {selectedYear}
+                    </span>
                   </p>
                 </div>
               </div>
 
               {/* Resumen anual + Selector de año arriba a la derecha */}
               <div className="flex flex-wrap items-center gap-3 self-start md:self-auto">
-                <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-2xl bg-emerald-50/80 border border-emerald-200/80 text-emerald-800 text-xs font-semibold">
-                  <Activity className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                <div className="inline-flex items-center gap-2.5 px-3.5 py-1.5 rounded-2xl bg-emerald-50/80 dark:bg-emerald-500/10 border border-emerald-200/80 dark:border-emerald-500/25 text-emerald-800 dark:text-emerald-300 text-xs font-semibold">
+                  <Activity className="w-3.5 h-3.5 text-emerald-600 dark:text-emerald-400 shrink-0" />
                   <span>
                     {annualHeatmapData.activeDaysCount}{' '}
                     {annualHeatmapData.activeDaysCount === 1 ? 'día activo' : 'días activos'}
                   </span>
-                  <span className="text-emerald-300">•</span>
+                  <span className="text-emerald-300 dark:text-emerald-600">•</span>
                   <span>
                     Acumulado: {formatExactDuration(annualHeatmapData.totalYearSeconds)}
                   </span>
                 </div>
 
-                <div className="inline-flex items-center gap-1.5 bg-slate-100 rounded-2xl p-1">
+                <div className="inline-flex items-center gap-1.5 bg-slate-100 dark:bg-[#0B111E] dark:border dark:border-white/[0.07] rounded-2xl p-1">
                   <label htmlFor="heatmap-year-select" className="sr-only">
                     Seleccionar año
                   </label>
@@ -896,7 +898,7 @@ export default function StatsPage() {
                       setSelectedYear(Number(e.target.value));
                       setHoveredHeatmapDay(null);
                     }}
-                    className="px-3 py-1.5 rounded-xl bg-white text-slate-800 text-xs font-bold shadow-2xs border border-slate-200/80 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 cursor-pointer"
+                    className="px-3 py-1.5 rounded-xl bg-white dark:bg-[#111827] text-slate-800 dark:text-slate-100 text-xs font-bold shadow-2xs border border-slate-200/80 dark:border-white/10 focus:outline-none focus:ring-2 focus:ring-emerald-500/30 cursor-pointer"
                   >
                     {availableYears.map((yr) => (
                       <option key={yr} value={yr}>
@@ -911,7 +913,7 @@ export default function StatsPage() {
             {/* Calendario Heatmap Anual estilo GitHub */}
             <div
               data-testid="github-heatmap"
-              className="rounded-2xl bg-slate-50/80 border border-slate-100 p-4 sm:p-5 space-y-4"
+              className="rounded-2xl bg-slate-50/80 dark:bg-[#0B111E] border border-slate-100 dark:border-white/[0.07] p-4 sm:p-5 space-y-4"
             >
               <div className="overflow-x-auto pb-2">
                 <div className="inline-flex flex-col min-w-max gap-1.5">
@@ -925,7 +927,7 @@ export default function StatsPage() {
                           className="w-3.5 h-4 relative select-none"
                         >
                           {week.monthLabel && (
-                            <span className="absolute left-0 top-0 text-[10px] font-semibold text-slate-500 whitespace-nowrap">
+                            <span className="absolute left-0 top-0 text-[10px] font-semibold text-slate-500 dark:text-slate-400 whitespace-nowrap">
                               {week.monthLabel}
                             </span>
                           )}
@@ -994,14 +996,14 @@ export default function StatsPage() {
                                   HEATMAP_LEVEL_CLASSES[day.intensity]
                                 } ${
                                   day.isToday
-                                    ? 'ring-2 ring-indigo-600 ring-offset-1 z-10'
+                                    ? 'ring-2 ring-indigo-600 ring-offset-1 dark:ring-indigo-400 dark:ring-offset-[#0B111E] z-10'
                                     : ''
                                 }`}
                               >
                                 {/* Tooltip flotante al hacer hover sobre la celda */}
                                 <div
                                   role="tooltip"
-                                  className="pointer-events-none invisible opacity-0 group-hover/cell:visible group-hover/cell:opacity-100 group-focus/cell:visible group-focus/cell:opacity-100 transition-opacity duration-150 absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-30 px-2.5 py-1.5 rounded-xl bg-slate-900 text-white text-[11px] font-medium whitespace-nowrap shadow-lg"
+                                  className="pointer-events-none invisible opacity-0 group-hover/cell:visible group-hover/cell:opacity-100 group-focus/cell:visible group-focus/cell:opacity-100 transition-opacity duration-150 absolute bottom-full left-1/2 -translate-x-1/2 mb-2 z-30 px-2.5 py-1.5 rounded-xl bg-slate-900 dark:bg-slate-800 dark:border dark:border-white/10 text-white text-[11px] font-medium whitespace-nowrap shadow-lg"
                                 >
                                   <span className="font-bold text-emerald-300">
                                     {day.formattedDate}
@@ -1023,15 +1025,15 @@ export default function StatsPage() {
               </div>
 
               {/* Pie del Heatmap: detalle interactivo del día en hover + leyenda Menos -> Más */}
-              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pt-2 border-t border-slate-200/70 text-xs text-slate-500">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 pt-2 border-t border-slate-200/70 dark:border-white/[0.07] text-xs text-slate-500 dark:text-slate-400">
                 <div className="min-h-5 flex items-center gap-2">
                   {hoveredHeatmapDay ? (
-                    <div className="inline-flex items-center gap-2 text-xs text-slate-700 font-medium">
-                      <span className="font-bold text-slate-900">
+                    <div className="inline-flex items-center gap-2 text-xs text-slate-700 dark:text-slate-300 font-medium">
+                      <span className="font-bold text-slate-900 dark:text-slate-100">
                         {hoveredHeatmapDay.formattedDate}
                       </span>
-                      <span className="text-slate-300">•</span>
-                      <span className="font-mono font-semibold text-emerald-700">
+                      <span className="text-slate-300 dark:text-slate-600">•</span>
+                      <span className="font-mono font-semibold text-emerald-700 dark:text-emerald-400">
                         {formatExactDuration(hoveredHeatmapDay.totalSeconds)}
                       </span>
                       <span className="text-slate-400">
@@ -1051,7 +1053,9 @@ export default function StatsPage() {
                   aria-label="Leyenda de intensidad de actividad"
                   className="inline-flex items-center gap-1.5 self-end sm:self-auto select-none"
                 >
-                  <span className="text-[11px] font-medium text-slate-500 mr-0.5">Menos</span>
+                  <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400 mr-0.5">
+                    Menos
+                  </span>
                   {([0, 1, 2, 3, 4] as HeatmapIntensity[]).map((level) => (
                     <span
                       key={level}
@@ -1063,7 +1067,9 @@ export default function StatsPage() {
                       }
                     />
                   ))}
-                  <span className="text-[11px] font-medium text-slate-500 ml-0.5">Más</span>
+                  <span className="text-[11px] font-medium text-slate-500 dark:text-slate-400 ml-0.5">
+                    Más
+                  </span>
                 </div>
               </div>
             </div>

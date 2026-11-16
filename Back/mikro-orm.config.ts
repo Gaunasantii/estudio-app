@@ -13,4 +13,11 @@ export default defineConfig({
   entities: ['./dist/entities/**/*.js'],
   entitiesTs: ['./src/entities/**/*.ts'],
   debug: true,
+  ...(process.env.DB_SSL === 'true' && {
+    driverOptions: {
+      connection: {
+        ssl: { rejectUnauthorized: false },
+      },
+    },
+  }),
 });

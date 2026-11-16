@@ -11,10 +11,13 @@ import {
   CalendarCheck,
   Flame,
   BarChart3,
+  Moon,
+  Sun,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import api from '../api/axios';
 import { getSavedAvatarId, findAvatarById } from '../utils/avatars';
+import { getSavedTheme, initTheme, toggleTheme, type ThemeMode } from '../utils/theme';
 import type {
   Subject,
   StudySession,
@@ -85,14 +88,20 @@ export default function DashboardLayout() {
   const [selectedAvatarId, setSelectedAvatarId] = useState<string | null>(() =>
     getSavedAvatarId()
   );
+  const [theme, setTheme] = useState<ThemeMode>(() => initTheme());
 
   useEffect(() => {
     const syncAvatar = () => setSelectedAvatarId(getSavedAvatarId());
+    const syncTheme = () => setTheme(getSavedTheme());
     window.addEventListener('avatar-change', syncAvatar);
+    window.addEventListener('theme-change', syncTheme);
     window.addEventListener('storage', syncAvatar);
+    window.addEventListener('storage', syncTheme);
     return () => {
       window.removeEventListener('avatar-change', syncAvatar);
+      window.removeEventListener('theme-change', syncTheme);
       window.removeEventListener('storage', syncAvatar);
+      window.removeEventListener('storage', syncTheme);
     };
   }, []);
 
@@ -161,10 +170,10 @@ export default function DashboardLayout() {
   };
 
   const renderSidebarContent = (collapsed: boolean, isMobile = false) => (
-    <div className="flex flex-col h-full bg-[#4A6CF7] bg-indigo-600 text-white select-none">
+    <div className="flex flex-col h-full bg-[#4A6CF7] bg-indigo-600 dark:bg-gradient-to-b dark:from-[#1B254B] dark:via-[#151D3B] dark:to-[#0F152B] dark:border-r dark:border-indigo-400/15 text-white select-none transition-colors duration-200">
       {/* Logo y control de colapso */}
       <div
-        className={`h-16 px-4 flex items-center border-b border-white/15 ${
+        className={`h-16 px-4 flex items-center border-b border-white/15 dark:border-white/[0.07] ${
           collapsed ? 'justify-center' : 'justify-between'
         }`}
       >
@@ -175,11 +184,11 @@ export default function DashboardLayout() {
           aria-label={collapsed ? 'Expandir menú' : 'Colapsar menú'}
           className="flex items-center gap-3 overflow-hidden rounded-xl hover:opacity-90 transition cursor-pointer"
         >
-          <div className="w-9 h-9 rounded-xl bg-white/15 text-white flex items-center justify-center shrink-0 shadow-xs">
+          <div className="w-9 h-9 rounded-xl bg-white/15 dark:bg-indigo-500/20 dark:border dark:border-indigo-400/25 text-white dark:text-indigo-200 flex items-center justify-center shrink-0 shadow-xs">
             <GraduationCap className="w-5 h-5" />
           </div>
           {!collapsed && (
-            <span className="text-lg font-bold tracking-tight text-white truncate">
+            <span className="text-lg font-bold tracking-tight text-white dark:text-slate-100 truncate">
               EstudioApp
             </span>
           )}
@@ -213,8 +222,8 @@ export default function DashboardLayout() {
                 collapsed ? 'justify-center px-2.5 py-3' : 'px-3.5 py-2.5'
               } ${
                 isActive
-                  ? 'bg-white text-indigo-600 font-semibold shadow-sm'
-                  : 'text-white/85 hover:bg-white/15 hover:text-white'
+                  ? 'bg-white text-indigo-600 font-semibold shadow-sm dark:bg-indigo-500/20 dark:text-indigo-200 dark:border dark:border-indigo-400/30'
+                  : 'text-white/85 hover:bg-white/15 hover:text-white dark:text-slate-300 dark:hover:bg-white/[0.06] dark:hover:text-white'
               }`
             }
           >
@@ -225,7 +234,7 @@ export default function DashboardLayout() {
       </nav>
 
       {/* Mi Perfil y Cerrar Sesión fijados abajo de todo */}
-      <div className="p-3 border-t border-white/15 mt-auto space-y-1.5">
+      <div className="p-3 border-t border-white/15 dark:border-white/[0.07] mt-auto space-y-1.5">
         {user && (
           <NavLink
             to="/perfil"
@@ -239,12 +248,12 @@ export default function DashboardLayout() {
                 collapsed ? 'justify-center px-2.5 py-2.5' : 'px-3 py-2'
               } ${
                 isActive
-                  ? 'bg-white text-indigo-600 font-semibold shadow-sm'
-                  : 'text-white/85 hover:bg-white/15 hover:text-white'
+                  ? 'bg-white text-indigo-600 font-semibold shadow-sm dark:bg-indigo-500/20 dark:text-indigo-200 dark:border dark:border-indigo-400/30'
+                  : 'text-white/85 hover:bg-white/15 hover:text-white dark:text-slate-300 dark:hover:bg-white/[0.06] dark:hover:text-white'
               }`
             }
           >
-            <div className="w-8 h-8 rounded-full overflow-hidden bg-indigo-50 text-indigo-600 font-bold text-xs flex items-center justify-center shrink-0 border border-white/30">
+            <div className="w-8 h-8 rounded-full overflow-hidden bg-indigo-50 text-indigo-600 dark:bg-indigo-500/20 dark:text-indigo-200 font-bold text-xs flex items-center justify-center shrink-0 border border-white/30 dark:border-indigo-400/30">
               {selectedAvatar ? (
                 <img
                   src={selectedAvatar.src}
@@ -263,7 +272,7 @@ export default function DashboardLayout() {
           type="button"
           onClick={handleLogout}
           title={collapsed ? 'Cerrar Sesión' : undefined}
-          className={`w-full flex items-center gap-3 rounded-xl text-sm font-medium text-white/90 hover:bg-white/15 hover:text-white transition cursor-pointer ${
+          className={`w-full flex items-center gap-3 rounded-xl text-sm font-medium text-white/90 hover:bg-white/15 hover:text-white dark:text-slate-300 dark:hover:bg-white/[0.06] dark:hover:text-white transition cursor-pointer ${
             collapsed ? 'justify-center px-2.5 py-3' : 'px-3.5 py-2.5'
           }`}
         >
@@ -275,7 +284,7 @@ export default function DashboardLayout() {
   );
 
   return (
-    <div className="fixed inset-0 overflow-hidden bg-slate-100/70 flex">
+    <div className="fixed inset-0 overflow-hidden bg-slate-100/70 dark:bg-[#090D16] text-slate-900 dark:text-slate-100 transition-colors duration-200 flex">
       {/* Barra lateral izquierda en Desktop (colapsable / expandible) */}
       <aside
         aria-label="Navegación principal"
@@ -292,7 +301,7 @@ export default function DashboardLayout() {
           <div
             onClick={() => setIsMobileDrawerOpen(false)}
             aria-hidden="true"
-            className="fixed inset-0 bg-slate-900/40 backdrop-blur-xs transition-opacity"
+            className="fixed inset-0 bg-slate-900/40 dark:bg-black/60 backdrop-blur-xs transition-opacity"
           />
           <aside
             aria-label="Menú móvil"
@@ -305,29 +314,44 @@ export default function DashboardLayout() {
 
       {/* Contenedor derecho: Header superior + Contenido principal */}
       <div className="flex-1 flex flex-col min-w-0 min-h-0">
-        {/* Header superior limpio (sin ícono de materias, con indicador minimalista de Racha) */}
-        <header className="sticky top-0 z-20 h-14 shrink-0 bg-white/90 backdrop-blur-md border-b border-slate-200/80 px-4 sm:px-8 flex items-center justify-between">
+        {/* Header superior limpio (con toggle de tema, Estadísticas e indicador minimalista de Racha) */}
+        <header className="sticky top-0 z-20 h-14 shrink-0 bg-white/90 dark:bg-[#0D1322]/85 backdrop-blur-md border-b border-slate-200/80 dark:border-white/[0.07] px-4 sm:px-8 flex items-center justify-between transition-colors duration-200">
           <div className="flex items-center gap-3">
             {/* Botón hamburguesa para abrir el drawer en móvil */}
             <button
               type="button"
               onClick={() => setIsMobileDrawerOpen(true)}
               aria-label="Abrir menú de navegación"
-              className="md:hidden p-2 rounded-xl border border-slate-200 bg-white hover:bg-slate-100 text-slate-700 transition cursor-pointer"
+              className="md:hidden p-2 rounded-xl border border-slate-200 dark:border-white/[0.08] bg-white dark:bg-[#111827] hover:bg-slate-100 dark:hover:bg-[#1B254B]/60 text-slate-700 dark:text-slate-200 transition cursor-pointer"
             >
               <Menu className="w-5 h-5" />
             </button>
           </div>
 
-          <div className="flex items-center gap-5">
+          <div className="flex items-center gap-3 sm:gap-4">
+            {/* Botón compacto de Modo Noche / Día a la izquierda de Estadísticas */}
+            <button
+              type="button"
+              onClick={() => setTheme(toggleTheme())}
+              title={theme === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo noche'}
+              aria-label={theme === 'dark' ? 'Cambiar a modo claro' : 'Cambiar a modo noche'}
+              className="inline-flex items-center justify-center w-9 h-9 rounded-xl border border-slate-200 dark:border-white/[0.08] bg-white dark:bg-[#111827]/95 text-slate-600 dark:text-indigo-200 hover:bg-indigo-50 dark:hover:bg-indigo-500/20 hover:text-indigo-600 dark:hover:text-indigo-100 hover:border-indigo-200 dark:hover:border-indigo-400/30 shadow-2xs transition cursor-pointer"
+            >
+              {theme === 'dark' ? (
+                <Sun className="w-4 h-4 text-amber-300" />
+              ) : (
+                <Moon className="w-4 h-4" />
+              )}
+            </button>
+
             {/* Botón de Estadísticas a la izquierda del contador de racha */}
             <NavLink
               to="/estadisticas"
               className={({ isActive }) =>
                 `inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs sm:text-sm font-semibold border transition cursor-pointer ${
                   isActive
-                    ? 'bg-indigo-600 text-white border-indigo-600 shadow-xs'
-                    : 'bg-white text-slate-700 border-slate-200 hover:bg-indigo-50 hover:text-indigo-600 hover:border-indigo-200'
+                    ? 'bg-indigo-600 text-white border-indigo-600 shadow-xs dark:bg-indigo-500/20 dark:text-indigo-200 dark:border-indigo-400/30'
+                    : 'bg-white dark:bg-[#111827]/95 text-slate-700 dark:text-slate-200 border-slate-200 dark:border-white/[0.08] hover:bg-indigo-50 dark:hover:bg-indigo-500/15 hover:text-indigo-600 dark:hover:text-indigo-200 hover:border-indigo-200 dark:hover:border-indigo-400/30'
                 }`
               }
             >
@@ -343,14 +367,16 @@ export default function DashboardLayout() {
                   : 'Racha aún no activada (0 días)'
               }
               className={`inline-flex items-center gap-1.5 font-bold text-base select-none ${
-                currentStreak > 0 ? 'text-red-500' : 'text-slate-400'
+                currentStreak > 0
+                  ? 'text-red-500 dark:text-rose-400'
+                  : 'text-slate-400 dark:text-slate-500'
               }`}
             >
               <Flame
                 className={`w-5 h-5 ${
                   currentStreak > 0
-                    ? 'text-red-500 fill-red-500'
-                    : 'text-slate-400'
+                    ? 'text-red-500 fill-red-500 dark:text-rose-400 dark:fill-rose-400'
+                    : 'text-slate-400 dark:text-slate-500'
                 }`}
               />
               <span>{currentStreak}</span>
