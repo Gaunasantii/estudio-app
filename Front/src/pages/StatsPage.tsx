@@ -533,7 +533,7 @@ export default function StatsPage() {
   }, [sessions, selectedYear]);
 
   return (
-    <div className="space-y-6 pb-8">
+    <div className="w-full max-w-full overflow-x-hidden space-y-6 pb-8">
       {/* Encabezado de la página */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
@@ -595,7 +595,7 @@ export default function StatsPage() {
           {/* =================================================================== */}
           <section
             aria-label="Rendimiento últimas 12 semanas"
-            className="bg-white dark:bg-[#111827]/95 rounded-3xl border border-slate-200/80 dark:border-white/[0.07] p-5 sm:p-6 shadow-xs space-y-5"
+            className="w-full max-w-full overflow-x-hidden bg-white dark:bg-[#111827]/95 rounded-3xl border border-slate-200/80 dark:border-white/[0.07] p-5 sm:p-6 shadow-xs space-y-5"
           >
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <div className="flex items-center gap-3">
@@ -621,104 +621,110 @@ export default function StatsPage() {
             </div>
 
             {/* Contenedor del gráfico de 12 barras con eje Y en horas y segundos */}
-            <div className="rounded-2xl bg-slate-50/80 dark:bg-[#0B111E] border border-slate-100 dark:border-white/[0.07] p-4 sm:p-5">
-              <div className="grid grid-cols-[76px_1fr] sm:grid-cols-[92px_1fr] gap-3">
-                {/* Eje Y formateado en horas y segundos */}
-                <div
-                  aria-label="Eje Y en horas y segundos"
-                  className="h-56 flex flex-col justify-between text-right pr-2 border-r border-slate-200/80 dark:border-white/[0.07] select-none"
-                >
-                  {last12WeeksData.yAxisTicks.map((tickValue, idx) => (
-                    <span
-                      key={idx}
-                      className="text-[11px] font-mono font-semibold text-slate-500 dark:text-slate-400 leading-none"
-                    >
-                      {formatHoursAndSeconds(tickValue)}
-                    </span>
-                  ))}
-                </div>
-
-                {/* Área de las 12 barras */}
-                <div className="relative h-56 flex items-end justify-between gap-1.5 sm:gap-3 border-b border-slate-200/80 dark:border-white/[0.07] pb-2 px-1">
-                  {/* Líneas guía horizontales */}
+            <div className="w-full max-w-full overflow-x-hidden rounded-2xl bg-slate-50/80 dark:bg-[#0B111E] border border-slate-100 dark:border-white/[0.07] p-4 sm:p-5">
+              <div className="flex items-start gap-2 sm:gap-3 w-full">
+                {/* Columna fija izquierda: Eje Y + etiqueta Semana */}
+                <div className="w-16 sm:w-[92px] shrink-0 select-none">
+                  {/* Eje Y formateado en horas y segundos */}
                   <div
-                    aria-hidden="true"
-                    className="pointer-events-none absolute inset-0 flex flex-col justify-between pb-2"
+                    aria-label="Eje Y en horas y segundos"
+                    className="h-36 sm:h-44 flex flex-col justify-between text-right pr-2 border-r border-slate-200/80 dark:border-white/[0.07]"
                   >
-                    {last12WeeksData.yAxisTicks.map((_, idx) => (
-                      <div
+                    {last12WeeksData.yAxisTicks.map((tickValue, idx) => (
+                      <span
                         key={idx}
-                        className="w-full border-t border-dashed border-slate-200/70 dark:border-white/[0.06]"
-                      />
+                        className="text-[10px] sm:text-[11px] font-mono font-semibold text-slate-500 dark:text-slate-400 leading-none"
+                      >
+                        {formatHoursAndSeconds(tickValue)}
+                      </span>
                     ))}
                   </div>
+                  <div className="pt-2.5 text-[10px] font-semibold uppercase tracking-wider text-slate-400 text-right pr-2">
+                    Semana
+                  </div>
+                </div>
 
-                  {last12WeeksData.weeks.map((week) => (
-                    <div
-                      key={week.index}
-                      className="relative z-10 flex-1 h-full flex flex-col items-center justify-end group min-w-0"
-                    >
-                      {/* Etiqueta superior con valor en horas y segundos */}
-                      <span
-                        className={`text-[10px] font-mono font-semibold mb-1 whitespace-nowrap transition ${
-                          week.totalSeconds > 0
-                            ? 'text-slate-700 dark:text-slate-300'
-                            : 'text-slate-400 dark:text-slate-500 opacity-0 group-hover:opacity-100'
-                        }`}
+                {/* Contenedor interno con scroll horizontal para las 12 barras y sus etiquetas del eje X */}
+                <div className="flex-1 min-w-0 overflow-x-auto pb-1">
+                  <div className="min-w-[540px] sm:min-w-full">
+                    {/* Área de las 12 barras */}
+                    <div className="relative h-36 sm:h-44 flex items-end justify-between gap-2 sm:gap-3 border-b border-slate-200/80 dark:border-white/[0.07] pb-2 px-1">
+                      {/* Líneas guía horizontales */}
+                      <div
+                        aria-hidden="true"
+                        className="pointer-events-none absolute inset-0 flex flex-col justify-between pb-2"
                       >
-                        {formatHoursAndSeconds(week.totalSeconds)}
-                      </span>
-
-                      <div className="w-full max-w-11 h-full bg-slate-200/60 dark:bg-slate-800/70 rounded-t-xl flex items-end overflow-hidden p-0.5">
-                        <div
-                          className={`w-full rounded-t-lg transition-all duration-500 ${
-                            week.totalSeconds > 0
-                              ? week.isCurrentWeek
-                                ? 'bg-indigo-600 group-hover:bg-indigo-700 dark:bg-emerald-500 dark:group-hover:bg-emerald-400 dark:shadow-[0_0_12px_rgba(16,185,129,0.3)]'
-                                : 'bg-indigo-500/85 group-hover:bg-indigo-600 dark:bg-indigo-500 dark:group-hover:bg-indigo-400 dark:shadow-[0_0_10px_rgba(99,102,241,0.25)]'
-                              : 'bg-transparent'
-                          }`}
-                          style={{
-                            height: `${week.heightPercent}%`,
-                          }}
-                          title={`Semana ${week.rangeLabel}: ${formatHoursAndSeconds(
-                            week.totalSeconds
-                          )} (${formatReadableDuration(week.totalSeconds)})`}
-                        />
+                        {last12WeeksData.yAxisTicks.map((_, idx) => (
+                          <div
+                            key={idx}
+                            className="w-full border-t border-dashed border-slate-200/70 dark:border-white/[0.06]"
+                          />
+                        ))}
                       </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
 
-              {/* Etiquetas del eje X (12 semanas) */}
-              <div className="grid grid-cols-[76px_1fr] sm:grid-cols-[92px_1fr] gap-3 pt-2.5">
-                <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 text-right pr-2">
-                  Semana
-                </div>
-                <div className="flex items-center justify-between gap-1.5 sm:gap-3 px-1">
-                  {last12WeeksData.weeks.map((week) => (
-                    <div
-                      key={week.index}
-                      className="flex-1 min-w-0 text-center"
-                      title={`Semana del ${week.rangeLabel}`}
-                    >
-                      <p
-                        className={`text-[10px] sm:text-[11px] truncate ${
-                          week.isCurrentWeek
-                            ? 'font-bold text-indigo-600 dark:text-indigo-400'
-                            : 'font-medium text-slate-600 dark:text-slate-400'
-                        }`}
-                      >
-                        {week.shortLabel}
-                      </p>
-                      {week.isCurrentWeek && (
-                        <span className="inline-block text-[9px] font-bold text-indigo-600 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-500/15 px-1.5 py-0.2 rounded-full">
-                          Actual
-                        </span>
-                      )}
+                      {last12WeeksData.weeks.map((week) => (
+                        <div
+                          key={week.index}
+                          className="relative z-10 flex-1 h-full flex flex-col items-center justify-end group min-w-[38px]"
+                        >
+                          {/* Etiqueta superior con valor en horas y segundos */}
+                          <span
+                            className={`text-[10px] font-mono font-semibold mb-1 whitespace-nowrap transition ${
+                              week.totalSeconds > 0
+                                ? 'text-slate-700 dark:text-slate-300'
+                                : 'text-slate-400 dark:text-slate-500 opacity-0 group-hover:opacity-100'
+                            }`}
+                          >
+                            {formatHoursAndSeconds(week.totalSeconds)}
+                          </span>
+
+                          <div className="w-full max-w-11 h-full bg-slate-200/60 dark:bg-slate-800/70 rounded-t-xl flex items-end overflow-hidden p-0.5">
+                            <div
+                              className={`w-full rounded-t-lg transition-all duration-500 ${
+                                week.totalSeconds > 0
+                                  ? week.isCurrentWeek
+                                    ? 'bg-indigo-600 group-hover:bg-indigo-700 dark:bg-emerald-500 dark:group-hover:bg-emerald-400 dark:shadow-[0_0_12px_rgba(16,185,129,0.3)]'
+                                    : 'bg-indigo-500/85 group-hover:bg-indigo-600 dark:bg-indigo-500 dark:group-hover:bg-indigo-400 dark:shadow-[0_0_10px_rgba(99,102,241,0.25)]'
+                                  : 'bg-transparent'
+                              }`}
+                              style={{
+                                height: `${week.heightPercent}%`,
+                              }}
+                              title={`Semana ${week.rangeLabel}: ${formatHoursAndSeconds(
+                                week.totalSeconds
+                              )} (${formatReadableDuration(week.totalSeconds)})`}
+                            />
+                          </div>
+                        </div>
+                      ))}
                     </div>
-                  ))}
+
+                    {/* Etiquetas del eje X (12 semanas) */}
+                    <div className="flex items-start justify-between gap-2 sm:gap-3 pt-2.5 px-1">
+                      {last12WeeksData.weeks.map((week) => (
+                        <div
+                          key={week.index}
+                          className="flex-1 min-w-[38px] text-center"
+                          title={`Semana del ${week.rangeLabel}`}
+                        >
+                          <p
+                            className={`text-[10px] sm:text-[11px] truncate ${
+                              week.isCurrentWeek
+                                ? 'font-bold text-indigo-600 dark:text-indigo-400'
+                                : 'font-medium text-slate-600 dark:text-slate-400'
+                            }`}
+                          >
+                            {week.shortLabel}
+                          </p>
+                          {week.isCurrentWeek && (
+                            <span className="inline-block text-[9px] font-bold text-indigo-600 dark:text-indigo-300 bg-indigo-50 dark:bg-indigo-500/15 px-1.5 py-0.2 rounded-full">
+                              Actual
+                            </span>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
