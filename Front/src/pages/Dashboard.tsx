@@ -219,6 +219,13 @@ export default function Dashboard() {
   const [savingSession, setSavingSession] = useState<boolean>(false);
   const [timerFeedback, setTimerFeedback] = useState<string | null>(null);
   const autoSaveTriggeredRef = useRef<boolean>(false);
+  const startTimeRef = useRef<number | null>(null);
+  const endTimeRef = useRef<number | null>(null);
+  const secondsRef = useRef<number>(seconds);
+
+  useEffect(() => {
+    secondsRef.current = seconds;
+  }, [seconds]);
 
   // Estado del modal de Historial de Sesiones (GET / DELETE /api/sessions)
   const [isHistoryModalOpen, setIsHistoryModalOpen] = useState(false);
@@ -234,7 +241,10 @@ export default function Dashboard() {
       setPomodoroMinutes(nextMinutes);
       setSeconds((prev) => {
         if (!isRunning && studyMethod === 'POMODORO') {
-          return nextMinutes * 60;
+          const nextSecs = nextMinutes * 60;
+          secondsRef.current = nextSecs;
+          endTimeRef.current = null;
+          return nextSecs;
         }
         return prev;
       });
@@ -364,7 +374,11 @@ export default function Dashboard() {
         });
 
         setIsRunning(false);
-        setSeconds(studyMethod === 'POMODORO' ? pomodoroDurationSeconds : 0);
+        startTimeRef.current = null;
+        endTimeRef.current = null;
+        const resetSecs = studyMethod === 'POMODORO' ? pomodoroDurationSeconds : 0;
+        secondsRef.current = resetSecs;
+        setSeconds(resetSecs);
         setSessionNotes('');
         setTimerFeedback('¡Sesión guardada!');
         await Promise.all([
@@ -408,43 +422,113 @@ export default function Dashboard() {
     }
   };
 
-  // Tick del temporizador
+  // Actualización del temporizador basada en timestamps reales (Date.now())
+  const updateTimerFromTimestamp = useCallback(() => {
+    const now = Date.now();
+    if (studyMethod === 'POMODORO') {
+      if (endTimeRef.current === null) return;
+      const remaining = Math.max(0, Math.ceil((endTimeRef.current - now) / 1000));
+      secondsRef.current = remaining;
+      setSeconds(remaining);
+
+      if (remaining <= 0) {
+        setIsRunning(false);
+        endTimeRef.current = null;
+        if (!autoSaveTriggeredRef.current) {
+          autoSaveTriggeredRef.current = true;
+          playPomodoroCompleteChime();
+          sendPomodoroNotification(pomodoroMinutes);
+          void saveStudySession(pomodoroDurationSeconds);
+        }
+      }
+    } else {
+      if (startTimeRef.current === null) return;
+      const elapsed = Math.floor((now - startTimeRef.current) / 1000);
+      secondsRef.current = elapsed;
+      setSeconds(elapsed);
+    }
+  }, [studyMethod, pomodoroMinutes, pomodoroDurationSeconds, saveStudySession]);
+
+  // Tick del temporizador + sincronización al regresar a la pestaña (visibilitychange / focus)
   useEffect(() => {
     if (!isRunning) return;
 
+    if (studyMethod === 'POMODORO') {
+      if (endTimeRef.current === null) {
+        endTimeRef.current = Date.now() + secondsRef.current * 1000;
+      }
+    } else {
+      if (startTimeRef.current === null) {
+        startTimeRef.current = Date.now() - secondsRef.current * 1000;
+      }
+    }
+
+    updateTimerFromTimestamp();
+
     const interval = window.setInterval(() => {
-      setSeconds((prev) => {
-        if (studyMethod === 'POMODORO') {
-          if (prev <= 1) {
-            setIsRunning(false);
-            if (!autoSaveTriggeredRef.current) {
-              autoSaveTriggeredRef.current = true;
-              playPomodoroCompleteChime();
-              sendPomodoroNotification(pomodoroMinutes);
-              void saveStudySession(pomodoroDurationSeconds);
-            }
-            return 0;
-          }
-          return prev - 1;
-        }
-        return prev + 1;
-      });
+      updateTimerFromTimestamp();
     }, 1000);
 
-    return () => window.clearInterval(interval);
-  }, [isRunning, studyMethod, pomodoroMinutes, pomodoroDurationSeconds, saveStudySession]);
+    const handleVisibilityOrFocus = () => {
+      if (document.visibilityState === 'visible') {
+        updateTimerFromTimestamp();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityOrFocus);
+    window.addEventListener('focus', updateTimerFromTimestamp);
+
+    return () => {
+      window.clearInterval(interval);
+      document.removeEventListener('visibilitychange', handleVisibilityOrFocus);
+      window.removeEventListener('focus', updateTimerFromTimestamp);
+    };
+  }, [isRunning, studyMethod, updateTimerFromTimestamp]);
+
+  const handleToggleTimer = () => {
+    setTimerFeedback(null);
+    if (!isRunning) {
+      if (
+        studyMethod === 'POMODORO' &&
+        typeof window !== 'undefined' &&
+        'Notification' in window &&
+        Notification.permission === 'default'
+      ) {
+        void Notification.requestPermission().catch(() => {});
+      }
+      if (studyMethod === 'POMODORO') {
+        endTimeRef.current = Date.now() + secondsRef.current * 1000;
+      } else {
+        startTimeRef.current = Date.now() - secondsRef.current * 1000;
+      }
+      setIsRunning(true);
+    } else {
+      updateTimerFromTimestamp();
+      startTimeRef.current = null;
+      endTimeRef.current = null;
+      setIsRunning(false);
+    }
+  };
 
   const handleMethodChange = (method: StudyMethod) => {
     setIsRunning(false);
+    startTimeRef.current = null;
+    endTimeRef.current = null;
     setTimerFeedback(null);
     setStudyMethod(method);
-    setSeconds(method === 'POMODORO' ? pomodoroDurationSeconds : 0);
+    const initialSecs = method === 'POMODORO' ? pomodoroDurationSeconds : 0;
+    secondsRef.current = initialSecs;
+    setSeconds(initialSecs);
   };
 
   const handleResetTimer = () => {
     setIsRunning(false);
+    startTimeRef.current = null;
+    endTimeRef.current = null;
     setTimerFeedback(null);
-    setSeconds(studyMethod === 'POMODORO' ? pomodoroDurationSeconds : 0);
+    const initialSecs = studyMethod === 'POMODORO' ? pomodoroDurationSeconds : 0;
+    secondsRef.current = initialSecs;
+    setSeconds(initialSecs);
   };
 
   const formatTimerClock = (totalSeconds: number) => {
@@ -834,19 +918,7 @@ export default function Dashboard() {
             <button
               type="button"
               disabled={subjects.length === 0 || savingSession}
-              onClick={() => {
-                setTimerFeedback(null);
-                if (
-                  !isRunning &&
-                  studyMethod === 'POMODORO' &&
-                  typeof window !== 'undefined' &&
-                  'Notification' in window &&
-                  Notification.permission === 'default'
-                ) {
-                  void Notification.requestPermission().catch(() => {});
-                }
-                setIsRunning((prev) => !prev);
-              }}
+              onClick={handleToggleTimer}
               className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-white text-indigo-700 font-semibold text-xs hover:bg-indigo-50 disabled:opacity-50 transition shadow-2xs cursor-pointer"
             >
               {isRunning ? (
