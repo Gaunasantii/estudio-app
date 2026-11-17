@@ -15,7 +15,7 @@ export let orm: MikroORM;
 
 const main = async () => {
   orm = await MikroORM.init(mikroOrmConfig);
-  await orm.getSchemaGenerator().updateSchema();
+  await orm.getSchemaGenerator().updateSchema({ schema: 'public', safe: true });
 
   app.use(cors());
   app.use(express.json());
