@@ -284,11 +284,11 @@ export default function DashboardLayout() {
   );
 
   return (
-    <div className="fixed inset-0 overflow-hidden bg-slate-100/70 dark:bg-[#090D16] text-slate-900 dark:text-slate-100 transition-colors duration-200 flex">
+    <div className="min-h-screen overflow-y-auto lg:h-screen lg:overflow-hidden bg-slate-100/70 dark:bg-[#090D16] text-slate-900 dark:text-slate-100 transition-colors duration-200 flex">
       {/* Barra lateral izquierda en Desktop (colapsable / expandible) */}
       <aside
         aria-label="Navegación principal"
-        className={`hidden md:flex flex-col shrink-0 transition-all duration-300 ease-in-out shadow-lg z-30 h-full ${
+        className={`hidden md:flex flex-col shrink-0 transition-all duration-300 ease-in-out shadow-lg z-30 md:sticky md:top-0 md:h-screen lg:h-full ${
           isSidebarCollapsed ? 'w-20' : 'w-64'
         }`}
       >
@@ -386,9 +386,9 @@ export default function DashboardLayout() {
 
         {/* Contenido principal */}
         <main
-          className={`flex-1 min-h-0 w-full max-w-7xl mx-auto px-4 sm:px-6 ${
+          className={`flex-1 lg:min-h-0 w-full max-w-7xl mx-auto px-4 sm:px-6 ${
             isDashboardRoot
-              ? 'py-3 lg:py-4 overflow-hidden'
+              ? 'py-4 lg:py-4 overflow-y-auto lg:overflow-hidden'
               : 'py-6 sm:py-8 overflow-y-auto'
           }`}
         >

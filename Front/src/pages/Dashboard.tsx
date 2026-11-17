@@ -624,11 +624,11 @@ export default function Dashboard() {
   }, [schedules]);
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-12 lg:grid-rows-[1.05fr_1.15fr_1.25fr] h-full min-h-0 gap-4">
+    <div className="grid grid-cols-1 lg:grid-cols-12 lg:grid-rows-[1.05fr_1.15fr_1.25fr] h-auto lg:h-full lg:min-h-0 gap-4">
       {/* FILA 1, COLUMNA 1 (lg:col-span-4): RESUMEN DE ACTIVIDAD */}
       <section
         aria-label="Resumen de Actividad"
-        className="lg:col-span-4 lg:col-start-1 lg:row-start-1 bg-white dark:bg-[#111827]/95 rounded-3xl border border-slate-200/80 dark:border-white/[0.07] p-4 xl:p-5 shadow-xs dark:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)] flex flex-col justify-between min-h-0 overflow-hidden transition-colors duration-200"
+        className="lg:col-span-4 lg:col-start-1 lg:row-start-1 bg-white dark:bg-[#111827]/95 rounded-3xl border border-slate-200/80 dark:border-white/[0.07] p-4 xl:p-5 shadow-xs dark:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)] flex flex-col justify-between gap-3 h-auto lg:h-full lg:min-h-0 lg:overflow-hidden transition-colors duration-200"
       >
         <div className="flex items-start justify-between gap-2 min-h-0">
           <div className="min-w-0">
@@ -645,8 +645,8 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Grilla de métricas en 2 columnas: Tiempo Estudiado y Próximo Examen */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-2.5 mt-2 border-t border-slate-100 dark:border-white/[0.06] min-h-0">
+        {/* Grilla de métricas: en móvil apiladas con gap-3, en sm+ 2 columnas */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 lg:gap-2.5 pt-3 lg:pt-2.5 border-t border-slate-100 dark:border-white/[0.06] lg:min-h-0">
           {/* Tiempo Estudiado */}
           <div className="rounded-2xl bg-slate-50/80 dark:bg-[#0B111E] border border-slate-100 dark:border-white/[0.06] p-3 flex items-center justify-between gap-2 min-h-0">
             <div className="min-w-0">
@@ -703,7 +703,7 @@ export default function Dashboard() {
       {/* FILA 1, COLUMNA 2 (lg:col-span-4): MÉTODO DE ESTUDIO */}
       <section
         aria-label="Método de Estudio"
-        className="lg:col-span-4 lg:col-start-5 lg:row-start-1 bg-gradient-to-br from-indigo-600 via-indigo-700 to-slate-900 dark:from-[#1B254B] dark:via-[#151D3B] dark:to-[#0B111E] dark:border dark:border-indigo-400/20 dark:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.08)] text-white rounded-3xl p-4 xl:p-5 shadow-md flex flex-col justify-between min-h-0 overflow-hidden transition-colors duration-200"
+        className="lg:col-span-4 lg:col-start-5 lg:row-start-1 bg-gradient-to-br from-indigo-600 via-indigo-700 to-slate-900 dark:from-[#1B254B] dark:via-[#151D3B] dark:to-[#0B111E] dark:border dark:border-indigo-400/20 dark:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.08)] text-white rounded-3xl p-4 xl:p-5 shadow-md flex flex-col justify-between gap-3 lg:gap-1.5 h-auto lg:h-full lg:min-h-0 lg:overflow-hidden transition-colors duration-200"
       >
         <div className="flex items-center justify-between gap-2">
           <span className="text-[11px] font-semibold uppercase tracking-wider text-indigo-200 truncate">
@@ -733,8 +733,8 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Reloj compacto + Selector de materia, tipo de actividad y nota breve */}
-        <div className="flex items-center justify-between gap-2.5 my-1 min-h-0">
+        {/* Reloj compacto + Selector de materia y tipo de actividad */}
+        <div className="flex items-center justify-between gap-2.5 my-1 lg:min-h-0">
           <div className="shrink-0">
             <div className="text-2xl xl:text-3xl font-mono font-bold tracking-tight leading-none">
               {formatTimerClock(seconds)}
@@ -796,7 +796,7 @@ export default function Dashboard() {
               </div>
             </div>
 
-            <div>
+            <div className="hidden sm:block">
               <label htmlFor="timer-session-notes" className="sr-only">
                 Nota breve de la sesión (opcional)
               </label>
@@ -813,71 +813,88 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Controles del temporizador */}
-        <div className="flex items-center gap-2">
-          <button
-            type="button"
-            disabled={subjects.length === 0 || savingSession}
-            onClick={() => {
-              setTimerFeedback(null);
-              if (
-                !isRunning &&
-                studyMethod === 'POMODORO' &&
-                typeof window !== 'undefined' &&
-                'Notification' in window &&
-                Notification.permission === 'default'
-              ) {
-                void Notification.requestPermission().catch(() => {});
-              }
-              setIsRunning((prev) => !prev);
-            }}
-            className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-white text-indigo-700 font-semibold text-xs hover:bg-indigo-50 disabled:opacity-50 transition shadow-2xs cursor-pointer"
-          >
-            {isRunning ? (
-              <>
-                <Pause className="w-3.5 h-3.5" />
-                <span>Pausar</span>
-              </>
-            ) : (
-              <>
-                <Play className="w-3.5 h-3.5" />
-                <span>Iniciar</span>
-              </>
-            )}
-          </button>
+        {/* Fila inferior: en < sm input w-full arriba y botones debajo (flex-col sm:flex-row gap-2) */}
+        <div className="flex flex-col sm:flex-row gap-2">
+          <div className="w-full sm:hidden">
+            <label htmlFor="timer-session-notes-mobile" className="sr-only">
+              Nota breve de la sesión (opcional)
+            </label>
+            <input
+              id="timer-session-notes-mobile"
+              type="text"
+              maxLength={120}
+              value={sessionNotes}
+              onChange={(e) => setSessionNotes(e.target.value)}
+              placeholder="Nota breve (opcional)..."
+              className="w-full rounded-xl bg-white/10 border border-white/20 px-2.5 py-1.5 text-[11px] text-white placeholder-indigo-200/70 focus:outline-none focus:ring-2 focus:ring-white/40 truncate"
+            />
+          </div>
 
-          {elapsedSeconds > 0 && (
+          <div className="flex items-center gap-2 w-full">
             <button
               type="button"
-              disabled={savingSession || !activeSubjectId}
-              onClick={() => void saveStudySession(elapsedSeconds)}
-              className="flex items-center justify-center gap-1 py-2 px-3 rounded-xl bg-emerald-500 hover:bg-emerald-600 disabled:opacity-50 text-white font-semibold text-xs transition cursor-pointer shadow-2xs"
+              disabled={subjects.length === 0 || savingSession}
+              onClick={() => {
+                setTimerFeedback(null);
+                if (
+                  !isRunning &&
+                  studyMethod === 'POMODORO' &&
+                  typeof window !== 'undefined' &&
+                  'Notification' in window &&
+                  Notification.permission === 'default'
+                ) {
+                  void Notification.requestPermission().catch(() => {});
+                }
+                setIsRunning((prev) => !prev);
+              }}
+              className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-white text-indigo-700 font-semibold text-xs hover:bg-indigo-50 disabled:opacity-50 transition shadow-2xs cursor-pointer"
             >
-              {savingSession ? (
-                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+              {isRunning ? (
+                <>
+                  <Pause className="w-3.5 h-3.5" />
+                  <span>Pausar</span>
+                </>
               ) : (
-                <Save className="w-3.5 h-3.5" />
+                <>
+                  <Play className="w-3.5 h-3.5" />
+                  <span>Iniciar</span>
+                </>
               )}
-              <span>Guardar</span>
             </button>
-          )}
 
-          <button
-            type="button"
-            onClick={handleResetTimer}
-            title="Reiniciar"
-            aria-label="Reiniciar temporizador"
-            className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white transition cursor-pointer shrink-0"
-          >
-            <RotateCcw className="w-3.5 h-3.5" />
-          </button>
+            {elapsedSeconds > 0 && (
+              <button
+                type="button"
+                disabled={savingSession || !activeSubjectId}
+                onClick={() => void saveStudySession(elapsedSeconds)}
+                className="flex items-center justify-center gap-1 py-2 px-3 rounded-xl bg-emerald-500 hover:bg-emerald-600 disabled:opacity-50 text-white font-semibold text-xs transition cursor-pointer shadow-2xs"
+              >
+                {savingSession ? (
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                ) : (
+                  <Save className="w-3.5 h-3.5" />
+                )}
+                <span>Guardar</span>
+              </button>
+            )}
+
+            <button
+              type="button"
+              onClick={handleResetTimer}
+              title="Reiniciar"
+              aria-label="Reiniciar temporizador"
+              className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white transition cursor-pointer shrink-0"
+            >
+              <RotateCcw className="w-3.5 h-3.5" />
+            </button>
+          </div>
         </div>
       </section>
 
       {/* FILA 2, COLUMNAS 1 Y 2 UNIDAS (lg:col-span-8): RENDIMIENTO (ÚLTIMAS 12 SEMANAS) */}
       <section
         aria-label="Gráfico de rendimiento de las últimas 12 semanas"
-        className="lg:col-span-8 lg:col-start-1 lg:row-start-2 bg-white dark:bg-[#111827]/95 rounded-3xl border border-slate-200/80 dark:border-white/[0.07] p-4 xl:p-5 shadow-xs dark:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)] flex flex-col justify-between min-h-0 overflow-hidden transition-colors duration-200"
+        className="lg:col-span-8 lg:col-start-1 lg:row-start-2 bg-white dark:bg-[#111827]/95 rounded-3xl border border-slate-200/80 dark:border-white/[0.07] p-4 xl:p-5 shadow-xs dark:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)] flex flex-col justify-between h-auto lg:h-full lg:min-h-0 lg:overflow-hidden transition-colors duration-200"
       >
         {(() => {
           const formatAxisTime = (secs: number): string => {
@@ -1002,13 +1019,13 @@ export default function Dashboard() {
               </div>
 
               {loadingData ? (
-                <div className="flex-1 min-h-0 flex items-center justify-center text-slate-400 dark:text-slate-400 text-xs gap-2">
+                <div className="flex-1 min-h-[250px] lg:min-h-0 flex items-center justify-center text-slate-400 dark:text-slate-400 text-xs gap-2">
                   <Loader2 className="w-4 h-4 animate-spin text-indigo-600 dark:text-indigo-400" />
                   <span>Cargando estadísticas...</span>
                 </div>
               ) : (
-                <div className="flex-1 min-h-0 flex flex-col justify-end rounded-2xl bg-slate-50/70 dark:bg-[#0B111E] border border-slate-100 dark:border-white/[0.06] px-3 pt-3 pb-2">
-                  <div className="flex-1 min-h-0 flex gap-2">
+                <div className="flex-1 min-h-[250px] lg:min-h-0 flex flex-col justify-end rounded-2xl bg-slate-50/70 dark:bg-[#0B111E] border border-slate-100 dark:border-white/[0.06] px-3 pt-3 pb-2 overflow-x-auto lg:overflow-x-visible">
+                  <div className="flex-1 min-h-[190px] lg:min-h-0 min-w-[480px] sm:min-w-0 flex gap-2">
                     {/* Eje Y izquierdo con marcas de escala */}
                     <div
                       aria-label="Eje Y de tiempo de estudio"
@@ -1088,7 +1105,7 @@ export default function Dashboard() {
                   </div>
 
                   {/* Eje X: Fechas de inicio de cada una de las 12 semanas */}
-                  <div className="flex items-center gap-2 pt-1.5 shrink-0">
+                  <div className="flex items-center gap-2 pt-1.5 shrink-0 min-w-[480px] sm:min-w-0">
                     <div className="min-w-[54px] pr-2 shrink-0 text-[9px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-400 text-right select-none">
                       Sem.
                     </div>
@@ -1124,7 +1141,7 @@ export default function Dashboard() {
       {/* FILAS 1 Y 2 UNIDAS, COLUMNA 3 (lg:col-span-4 lg:row-span-2): PRÓXIMOS EXÁMENES */}
       <section
         aria-label="Próximos Exámenes"
-        className="lg:col-span-4 lg:row-span-2 lg:col-start-9 lg:row-start-1 bg-white dark:bg-[#111827]/95 rounded-3xl border border-slate-200/80 dark:border-white/[0.07] p-4 xl:p-5 shadow-xs dark:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)] flex flex-col min-h-0 overflow-hidden transition-colors duration-200"
+        className="lg:col-span-4 lg:row-span-2 lg:col-start-9 lg:row-start-1 bg-white dark:bg-[#111827]/95 rounded-3xl border border-slate-200/80 dark:border-white/[0.07] p-4 xl:p-5 shadow-xs dark:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)] flex flex-col h-auto lg:h-full lg:min-h-0 lg:overflow-hidden transition-colors duration-200"
       >
         <div className="flex items-center justify-between gap-2 mb-3 shrink-0">
           <div className="flex items-center gap-2.5 min-w-0">
@@ -1151,12 +1168,12 @@ export default function Dashboard() {
         </div>
 
         {loadingData ? (
-          <div className="flex-1 min-h-0 flex items-center justify-center text-slate-400 dark:text-slate-400 text-xs gap-2">
+          <div className="flex-1 min-h-[140px] lg:min-h-0 flex items-center justify-center text-slate-400 dark:text-slate-400 text-xs gap-2">
             <Loader2 className="w-4 h-4 animate-spin text-indigo-600 dark:text-indigo-400" />
             <span>Cargando exámenes...</span>
           </div>
         ) : upcomingExams30Days.length === 0 ? (
-          <div className="flex-1 min-h-0 px-4 rounded-2xl border border-dashed border-slate-200 dark:border-white/[0.08] dark:bg-[#0B111E]/60 flex flex-col items-center justify-center text-center space-y-1">
+          <div className="flex-1 min-h-[140px] lg:min-h-0 py-6 lg:py-0 px-4 rounded-2xl border border-dashed border-slate-200 dark:border-white/[0.08] dark:bg-[#0B111E]/60 flex flex-col items-center justify-center text-center space-y-1">
             <CalendarCheck className="w-7 h-7 text-slate-300 dark:text-slate-600" />
             <p className="text-xs font-semibold text-slate-700 dark:text-slate-200">
               Sin exámenes en los próximos 30 días
@@ -1166,7 +1183,7 @@ export default function Dashboard() {
             </p>
           </div>
         ) : (
-          <div className="flex-1 min-h-0 overflow-y-auto pr-1 space-y-2">
+          <div className="flex-1 lg:min-h-0 max-h-[320px] lg:max-h-none overflow-y-auto pr-1 space-y-2">
             {upcomingExams30Days.map((exam) => {
               const subj = resolveSubject(exam.subject);
               const daysLeft = getExamDaysLeft(exam.examDate);
@@ -1225,7 +1242,7 @@ export default function Dashboard() {
       {/* FILA 3 COMPLETA (lg:col-span-12): HORARIO SEMANAL HORIZONTAL */}
       <section
         aria-label="Horario Semanal"
-        className="lg:col-span-12 lg:col-start-1 lg:row-start-3 bg-white dark:bg-[#111827]/95 rounded-3xl border border-slate-200/80 dark:border-white/[0.07] p-4 xl:p-5 shadow-xs dark:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)] flex flex-col min-h-0 transition-colors duration-200"
+        className="lg:col-span-12 lg:col-start-1 lg:row-start-3 bg-white dark:bg-[#111827]/95 rounded-3xl border border-slate-200/80 dark:border-white/[0.07] p-4 xl:p-5 shadow-xs dark:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)] flex flex-col h-auto lg:h-full lg:min-h-0 transition-colors duration-200"
       >
         {/* Cabecera del Horario Semanal */}
         <div className="flex items-center justify-between gap-2 mb-2 shrink-0">
@@ -1254,43 +1271,44 @@ export default function Dashboard() {
         </div>
 
         {loadingData ? (
-          <div className="flex-1 min-h-0 flex items-center justify-center text-slate-400 dark:text-slate-400 text-xs gap-2">
+          <div className="flex-1 min-h-[320px] lg:min-h-0 flex items-center justify-center text-slate-400 dark:text-slate-400 text-xs gap-2">
             <Loader2 className="w-4 h-4 animate-spin text-indigo-600 dark:text-indigo-400" />
             <span>Cargando horario semanal...</span>
           </div>
         ) : (
-          <div className="flex-1 min-h-0 flex flex-col">
-            {/* Encabezado horizontal de horas (07:00 a 22:00 de izquierda a derecha) */}
-            <div className="grid grid-cols-[56px_1fr] sm:grid-cols-[72px_1fr] gap-2 pb-1 border-b border-slate-200/80 dark:border-white/[0.08] shrink-0">
-              <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-400 pl-1">
-                Día
+          <div className="flex-1 min-h-[320px] lg:min-h-0 flex flex-col overflow-x-auto lg:overflow-x-visible">
+            <div className="flex-1 min-h-[300px] lg:min-h-0 min-w-[640px] lg:min-w-0 flex flex-col">
+              {/* Encabezado horizontal de horas (07:00 a 22:00 de izquierda a derecha) */}
+              <div className="grid grid-cols-[56px_1fr] sm:grid-cols-[72px_1fr] gap-2 pb-1 border-b border-slate-200/80 dark:border-white/[0.08] shrink-0">
+                <div className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-400 pl-1">
+                  Día
+                </div>
+                <div
+                  className="grid"
+                  style={{
+                    gridTemplateColumns: `repeat(${TIMELINE_TOTAL_SPAN_HOURS}, minmax(0, 1fr))`,
+                  }}
+                >
+                  {TIMELINE_HOURS.map((hour) => (
+                    <div
+                      key={hour}
+                      className="text-[10px] font-mono font-medium text-slate-400 dark:text-slate-400 text-left pl-0.5 truncate select-none"
+                    >
+                      {String(hour).padStart(2, '0')}:00
+                    </div>
+                  ))}
+                </div>
               </div>
+
+              {/* Filas por cada día de la semana */}
               <div
-                className="grid"
+                className="flex-1 min-h-[260px] lg:min-h-0 grid divide-y divide-slate-100 dark:divide-white/[0.06]"
                 style={{
-                  gridTemplateColumns: `repeat(${TIMELINE_TOTAL_SPAN_HOURS}, minmax(0, 1fr))`,
+                  gridTemplateRows: `repeat(${visibleWeekDays.length}, minmax(0, 1fr))`,
                 }}
               >
-                {TIMELINE_HOURS.map((hour) => (
-                  <div
-                    key={hour}
-                    className="text-[10px] font-mono font-medium text-slate-400 dark:text-slate-400 text-left pl-0.5 truncate select-none"
-                  >
-                    {String(hour).padStart(2, '0')}:00
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            {/* Filas por cada día de la semana */}
-            <div
-              className="flex-1 min-h-0 grid divide-y divide-slate-100 dark:divide-white/[0.06]"
-              style={{
-                gridTemplateRows: `repeat(${visibleWeekDays.length}, minmax(0, 1fr))`,
-              }}
-            >
-              {visibleWeekDays.map((dayRow) => {
-                const daySchedules = schedulesByDay[dayRow.dayOfWeek] || [];
+                {visibleWeekDays.map((dayRow) => {
+                  const daySchedules = schedulesByDay[dayRow.dayOfWeek] || [];
 
                 const positionedSchedules = (() => {
                   const items = daySchedules
@@ -1366,7 +1384,7 @@ export default function Dashboard() {
                 return (
                   <div
                     key={dayRow.dayOfWeek}
-                    className="grid grid-cols-[56px_1fr] sm:grid-cols-[72px_1fr] gap-2 items-center min-h-0"
+                    className="grid grid-cols-[56px_1fr] sm:grid-cols-[72px_1fr] gap-2 items-center min-h-[44px] lg:min-h-0"
                   >
                     {/* Etiqueta del día a la izquierda */}
                     <div className="flex items-center gap-1.5 pl-1 min-w-0">
@@ -1535,6 +1553,7 @@ export default function Dashboard() {
                   </div>
                 );
               })}
+              </div>
             </div>
           </div>
         )}
