@@ -351,6 +351,18 @@ export default function Dashboard() {
       ? Math.max(0, pomodoroDurationSeconds - seconds)
       : seconds;
 
+  const timerRingRadius = 40;
+  const timerRingCircumference = 2 * Math.PI * timerRingRadius;
+  const timerRingProgress =
+    studyMethod === 'POMODORO'
+      ? pomodoroDurationSeconds > 0
+        ? Math.min(1, Math.max(0, seconds / pomodoroDurationSeconds))
+        : 1
+      : seconds === 0
+        ? 0
+        : ((seconds % 60) || 60) / 60;
+  const timerRingDashoffset = timerRingCircumference * (1 - timerRingProgress);
+
   const saveStudySession = useCallback(
     async (durationToSave: number) => {
       if (!activeSubjectId || durationToSave <= 0) return;
@@ -712,7 +724,7 @@ export default function Dashboard() {
       {/* FILA 1, COLUMNA 1 (lg:col-span-4): RESUMEN DE ACTIVIDAD */}
       <section
         aria-label="Resumen de Actividad"
-        className="lg:col-span-4 lg:col-start-1 lg:row-start-1 bg-white dark:bg-[#111827]/95 rounded-3xl border border-slate-200/80 dark:border-white/[0.07] p-4 xl:p-5 shadow-xs dark:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)] flex flex-col justify-between gap-3 h-auto lg:h-full lg:min-h-0 lg:overflow-hidden transition-colors duration-200"
+        className="lg:col-span-4 lg:col-start-1 lg:row-start-1 bg-white dark:bg-[#111827]/95 rounded-3xl border border-slate-200/80 dark:border-white/[0.07] p-4 xl:p-5 shadow-xs dark:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)] flex flex-col justify-between gap-3 h-auto lg:h-full lg:min-h-0 lg:overflow-hidden transition-all duration-300"
       >
         <div className="flex items-start justify-between gap-2 min-h-0">
           <div className="min-w-0">
@@ -732,23 +744,23 @@ export default function Dashboard() {
         {/* Grilla de métricas: en móvil apiladas con gap-3, en sm+ 2 columnas */}
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 lg:gap-2.5 pt-3 lg:pt-2.5 border-t border-slate-100 dark:border-white/[0.06] lg:min-h-0">
           {/* Tiempo Estudiado */}
-          <div className="rounded-2xl bg-slate-50/80 dark:bg-[#0B111E] border border-slate-100 dark:border-white/[0.06] p-3 flex items-center justify-between gap-2 min-h-0">
+          <div className="rounded-2xl bg-slate-50/80 dark:bg-[#0B111E] border border-slate-100 dark:border-white/[0.06] p-3 flex items-center justify-between gap-2 min-h-0 transition-all duration-300">
             <div className="min-w-0">
               <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-400 truncate">
                 Tiempo Estudiado
               </p>
-              <p className="text-base xl:text-lg font-bold text-slate-900 dark:text-slate-100 leading-tight mt-0.5 truncate">
+              <p className="text-base xl:text-lg font-bold tabular-nums text-slate-900 dark:text-slate-100 leading-tight mt-0.5 truncate">
                 {formatTotalHours(totalStudiedSeconds)}
               </p>
               <div className="flex items-center gap-2 mt-0.5">
-                <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium truncate">
+                <p className="text-[11px] text-slate-500 dark:text-slate-400 font-medium tabular-nums truncate">
                   {stats?.totalSessions || 0}{' '}
                   {stats?.totalSessions === 1 ? 'sesión' : 'sesiones'}
                 </p>
                 <button
                   type="button"
                   onClick={() => setIsHistoryModalOpen(true)}
-                  className="inline-flex items-center gap-1 text-[11px] font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 underline-offset-2 hover:underline transition cursor-pointer shrink-0"
+                  className="inline-flex items-center gap-1 text-[11px] font-semibold text-indigo-600 dark:text-indigo-400 hover:text-indigo-800 dark:hover:text-indigo-300 underline-offset-2 hover:underline transition-all duration-300 cursor-pointer shrink-0"
                 >
                   <History className="w-3 h-3" />
                   <span>Ver historial</span>
@@ -761,12 +773,12 @@ export default function Dashboard() {
           </div>
 
           {/* Próximo Examen */}
-          <div className="rounded-2xl bg-slate-50/80 dark:bg-[#0B111E] border border-slate-100 dark:border-white/[0.06] p-3 flex items-center justify-between gap-2 min-h-0">
+          <div className="rounded-2xl bg-slate-50/80 dark:bg-[#0B111E] border border-slate-100 dark:border-white/[0.06] p-3 flex items-center justify-between gap-2 min-h-0 transition-all duration-300">
             <div className="min-w-0">
               <p className="text-[10px] font-semibold uppercase tracking-wider text-slate-400 dark:text-slate-400 truncate">
                 Próximo Examen
               </p>
-              <p className="text-base xl:text-lg font-bold text-slate-900 dark:text-slate-100 leading-tight mt-0.5 truncate">
+              <p className="text-base xl:text-lg font-bold tabular-nums text-slate-900 dark:text-slate-100 leading-tight mt-0.5 truncate">
                 {nextExam
                   ? nextExamDays === 0
                     ? '¡Es hoy!'
@@ -787,9 +799,15 @@ export default function Dashboard() {
       {/* FILA 1, COLUMNA 2 (lg:col-span-4): MÉTODO DE ESTUDIO */}
       <section
         aria-label="Método de Estudio"
-        className="lg:col-span-4 lg:col-start-5 lg:row-start-1 bg-gradient-to-br from-indigo-600 via-indigo-700 to-slate-900 dark:from-[#1B254B] dark:via-[#151D3B] dark:to-[#0B111E] dark:border dark:border-indigo-400/20 dark:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.08)] text-white rounded-3xl p-4 xl:p-5 shadow-md flex flex-col justify-between gap-3 lg:gap-1.5 h-auto lg:h-full lg:min-h-0 lg:overflow-hidden transition-colors duration-200"
+        className="relative overflow-hidden lg:col-span-4 lg:col-start-5 lg:row-start-1 bg-gradient-to-br from-indigo-600 via-indigo-700 to-slate-900 dark:from-[#1B254B] dark:via-[#151D3B] dark:to-[#0B111E] dark:border dark:border-indigo-400/20 dark:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.08)] text-white rounded-3xl p-4 xl:p-5 shadow-md flex flex-col justify-between gap-3 lg:gap-1.5 h-auto lg:h-full lg:min-h-0 transition-all duration-300"
       >
-        <div className="flex items-center justify-between gap-2">
+        {/* Brillo ambiental sutil (radial-gradient suave en tonos índigo/violeta) */}
+        <div
+          aria-hidden="true"
+          className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_22%_35%,rgba(167,139,250,0.32),rgba(99,102,241,0.14)_48%,transparent_75%)]"
+        />
+
+        <div className="relative z-10 flex items-center justify-between gap-2">
           <span className="text-[11px] font-semibold uppercase tracking-wider text-indigo-200 truncate">
             Método de Estudio
           </span>
@@ -797,38 +815,91 @@ export default function Dashboard() {
             <button
               type="button"
               onClick={() => handleMethodChange('POMODORO')}
-              className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold transition cursor-pointer ${studyMethod === 'POMODORO'
-                ? 'bg-white text-indigo-900 shadow-2xs'
-                : 'text-indigo-100 hover:text-white'
-                }`}
+              className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all duration-300 cursor-pointer ${
+                studyMethod === 'POMODORO'
+                  ? 'bg-white text-indigo-900 shadow-2xs'
+                  : 'text-indigo-100 hover:text-white'
+              }`}
             >
               Pomodoro
             </button>
             <button
               type="button"
               onClick={() => handleMethodChange('CHRONOMETER')}
-              className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold transition cursor-pointer ${studyMethod === 'CHRONOMETER'
-                ? 'bg-white text-indigo-900 shadow-2xs'
-                : 'text-indigo-100 hover:text-white'
-                }`}
+              className={`px-2.5 py-1 rounded-lg text-[11px] font-semibold transition-all duration-300 cursor-pointer ${
+                studyMethod === 'CHRONOMETER'
+                  ? 'bg-white text-indigo-900 shadow-2xs'
+                  : 'text-indigo-100 hover:text-white'
+              }`}
             >
               Cronómetro
             </button>
           </div>
         </div>
 
-        {/* Reloj compacto + Selector de materia y tipo de actividad */}
-        <div className="flex items-center justify-between gap-2.5 my-1 lg:min-h-0">
-          <div className="shrink-0">
-            <div className="text-2xl xl:text-3xl font-mono font-bold tracking-tight leading-none">
-              {formatTimerClock(seconds)}
+        {/* Reloj con anillo de progreso circular SVG animado + Selector de materia y actividad */}
+        <div className="relative z-10 flex items-center justify-between gap-3 my-1 lg:min-h-0">
+          <div className="relative w-24 h-24 sm:w-20 sm:h-20 xl:w-22 xl:h-22 flex items-center justify-center shrink-0">
+            {/* Pulso suave mientras corre el tiempo */}
+            {isRunning && (
+              <span
+                aria-hidden="true"
+                className="pointer-events-none absolute inset-0.5 rounded-full bg-indigo-300/25 dark:bg-violet-400/25 animate-pulse"
+              />
+            )}
+
+            <svg
+              className="w-full h-full -rotate-90"
+              viewBox="0 0 96 96"
+              aria-hidden="true"
+            >
+              <defs>
+                <linearGradient id="fokus-timer-ring" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#C7D2FE" />
+                  <stop offset="50%" stopColor="#A78BFA" />
+                  <stop offset="100%" stopColor="#818CF8" />
+                </linearGradient>
+              </defs>
+              <circle
+                cx="48"
+                cy="48"
+                r={timerRingRadius}
+                stroke="currentColor"
+                strokeWidth="5.5"
+                fill="transparent"
+                className="text-white/15"
+              />
+              <circle
+                cx="48"
+                cy="48"
+                r={timerRingRadius}
+                stroke="url(#fokus-timer-ring)"
+                strokeWidth="5.5"
+                strokeLinecap="round"
+                fill="transparent"
+                strokeDasharray={timerRingCircumference}
+                strokeDashoffset={timerRingDashoffset}
+                className={`transition-all duration-500 ${
+                  isRunning ? 'drop-shadow-[0_0_6px_rgba(167,139,250,0.65)]' : ''
+                }`}
+              />
+            </svg>
+
+            <div className="absolute inset-0 flex flex-col items-center justify-center text-center px-1">
+              <div
+                className={`text-base sm:text-sm xl:text-base font-mono font-bold tracking-tight tabular-nums leading-none ${
+                  isRunning ? 'animate-pulse' : ''
+                }`}
+              >
+                {formatTimerClock(seconds)}
+              </div>
+              <p className="text-[9px] text-indigo-200 mt-1 truncate max-w-[66px]">
+                {timerFeedback ||
+                  (studyMethod === 'POMODORO'
+                    ? `${pomodoroMinutes} min`
+                    : 'Tiempo libre')}
+              </p>
             </div>
-            <p className="text-[10px] text-indigo-200 mt-1">
-              {timerFeedback ||
-                (studyMethod === 'POMODORO'
-                  ? `Bloque ${pomodoroMinutes} min`
-                  : 'Tiempo libre')}
-            </p>
           </div>
 
           <div className="flex-1 min-w-0 flex flex-col gap-1.5">
@@ -841,7 +912,7 @@ export default function Dashboard() {
                   <button
                     type="button"
                     onClick={() => outletCtx?.openSubjectsDrawer()}
-                    className="w-full py-1 px-2 rounded-xl bg-white/10 hover:bg-white/20 border border-dashed border-white/30 text-[11px] text-indigo-100 font-medium transition cursor-pointer truncate"
+                    className="w-full py-1 px-2 rounded-xl bg-white/10 hover:bg-white/20 border border-dashed border-white/30 text-[11px] text-indigo-100 font-medium transition-all duration-300 cursor-pointer truncate"
                   >
                     + Materia
                   </button>
@@ -850,7 +921,7 @@ export default function Dashboard() {
                     id="timer-subject"
                     value={activeSubjectId}
                     onChange={(e) => setSelectedSubjectId(e.target.value)}
-                    className="w-full rounded-xl bg-white/10 border border-white/20 px-2 py-1 text-[11px] text-white focus:outline-none focus:ring-2 focus:ring-white/40 truncate"
+                    className="w-full rounded-xl bg-white/10 border border-white/20 px-2 py-1 text-[11px] text-white focus:outline-none focus:ring-2 focus:ring-white/40 transition-all duration-300 truncate"
                   >
                     {subjects.map((subj) => (
                       <option key={subj.id} value={subj.id} className="text-slate-900">
@@ -869,7 +940,7 @@ export default function Dashboard() {
                   id="timer-activity-type"
                   value={activityType}
                   onChange={(e) => setActivityType(e.target.value as ActivityType)}
-                  className="w-full rounded-xl bg-white/10 border border-white/20 px-2 py-1 text-[11px] text-indigo-100 focus:outline-none focus:ring-2 focus:ring-white/40 truncate"
+                  className="w-full rounded-xl bg-white/10 border border-white/20 px-2 py-1 text-[11px] text-indigo-100 focus:outline-none focus:ring-2 focus:ring-white/40 transition-all duration-300 truncate"
                 >
                   {ACTIVITY_TYPE_OPTIONS.map((opt) => (
                     <option key={opt.value} value={opt.value} className="text-slate-900">
@@ -891,14 +962,14 @@ export default function Dashboard() {
                 value={sessionNotes}
                 onChange={(e) => setSessionNotes(e.target.value)}
                 placeholder="Nota breve (opcional)..."
-                className="w-full rounded-xl bg-white/10 border border-white/20 px-2.5 py-1 text-[11px] text-white placeholder-indigo-200/70 focus:outline-none focus:ring-2 focus:ring-white/40 truncate"
+                className="w-full rounded-xl bg-white/10 border border-white/20 px-2.5 py-1 text-[11px] text-white placeholder-indigo-200/70 focus:outline-none focus:ring-2 focus:ring-white/40 transition-all duration-300 truncate"
               />
             </div>
           </div>
         </div>
 
         {/* Fila inferior: en < sm input w-full arriba y botones debajo (flex-col sm:flex-row gap-2) */}
-        <div className="flex flex-col sm:flex-row gap-2">
+        <div className="relative z-10 flex flex-col sm:flex-row gap-2">
           <div className="w-full sm:hidden">
             <label htmlFor="timer-session-notes-mobile" className="sr-only">
               Nota breve de la sesión (opcional)
@@ -910,7 +981,7 @@ export default function Dashboard() {
               value={sessionNotes}
               onChange={(e) => setSessionNotes(e.target.value)}
               placeholder="Nota breve (opcional)..."
-              className="w-full rounded-xl bg-white/10 border border-white/20 px-2.5 py-1.5 text-[11px] text-white placeholder-indigo-200/70 focus:outline-none focus:ring-2 focus:ring-white/40 truncate"
+              className="w-full rounded-xl bg-white/10 border border-white/20 px-2.5 py-1.5 text-[11px] text-white placeholder-indigo-200/70 focus:outline-none focus:ring-2 focus:ring-white/40 transition-all duration-300 truncate"
             />
           </div>
 
@@ -919,7 +990,7 @@ export default function Dashboard() {
               type="button"
               disabled={subjects.length === 0 || savingSession}
               onClick={handleToggleTimer}
-              className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-white text-indigo-700 font-semibold text-xs hover:bg-indigo-50 disabled:opacity-50 transition shadow-2xs cursor-pointer"
+              className="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-white text-indigo-700 font-semibold text-xs hover:bg-indigo-50 disabled:opacity-50 transition-all duration-300 shadow-2xs cursor-pointer"
             >
               {isRunning ? (
                 <>
@@ -939,7 +1010,7 @@ export default function Dashboard() {
                 type="button"
                 disabled={savingSession || !activeSubjectId}
                 onClick={() => void saveStudySession(elapsedSeconds)}
-                className="flex items-center justify-center gap-1 py-2 px-3 rounded-xl bg-emerald-500 hover:bg-emerald-600 disabled:opacity-50 text-white font-semibold text-xs transition cursor-pointer shadow-2xs"
+                className="flex items-center justify-center gap-1 py-2 px-3 rounded-xl bg-emerald-500 hover:bg-emerald-600 disabled:opacity-50 text-white font-semibold text-xs transition-all duration-300 cursor-pointer shadow-2xs"
               >
                 {savingSession ? (
                   <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -955,7 +1026,7 @@ export default function Dashboard() {
               onClick={handleResetTimer}
               title="Reiniciar"
               aria-label="Reiniciar temporizador"
-              className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white transition cursor-pointer shrink-0"
+              className="p-2 rounded-xl bg-white/10 hover:bg-white/20 text-white transition-all duration-300 cursor-pointer shrink-0"
             >
               <RotateCcw className="w-3.5 h-3.5" />
             </button>
@@ -966,7 +1037,7 @@ export default function Dashboard() {
       {/* FILA 2, COLUMNAS 1 Y 2 UNIDAS (lg:col-span-8): RENDIMIENTO (ÚLTIMAS 12 SEMANAS) */}
       <section
         aria-label="Gráfico de rendimiento de las últimas 12 semanas"
-        className="lg:col-span-8 lg:col-start-1 lg:row-start-2 bg-white dark:bg-[#111827]/95 rounded-3xl border border-slate-200/80 dark:border-white/[0.07] p-4 xl:p-5 shadow-xs dark:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)] flex flex-col justify-between h-auto lg:h-full lg:min-h-0 lg:overflow-hidden transition-colors duration-200"
+        className="lg:col-span-8 lg:col-start-1 lg:row-start-2 bg-white dark:bg-[#111827]/95 rounded-3xl border border-slate-200/80 dark:border-white/[0.07] p-4 xl:p-5 shadow-xs dark:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)] flex flex-col justify-between h-auto lg:h-full lg:min-h-0 lg:overflow-hidden transition-all duration-300"
       >
         {(() => {
           const formatAxisTime = (secs: number): string => {
@@ -1084,7 +1155,7 @@ export default function Dashboard() {
                   </div>
                 </div>
 
-                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-slate-100 dark:bg-[#0B111E] dark:border dark:border-white/[0.07] text-slate-700 dark:text-slate-200 text-xs font-semibold shrink-0">
+                <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-slate-100 dark:bg-[#0B111E] dark:border dark:border-white/[0.07] text-slate-700 dark:text-slate-200 text-xs font-semibold tabular-nums shrink-0">
                   <Clock className="w-3.5 h-3.5 text-indigo-600 dark:text-indigo-400" />
                   <span>12 sem: {formatAxisTime(totalLast12WeeksSeconds)}</span>
                 </span>
@@ -1213,7 +1284,7 @@ export default function Dashboard() {
       {/* FILAS 1 Y 2 UNIDAS, COLUMNA 3 (lg:col-span-4 lg:row-span-2): PRÓXIMOS EXÁMENES */}
       <section
         aria-label="Próximos Exámenes"
-        className="lg:col-span-4 lg:row-span-2 lg:col-start-9 lg:row-start-1 bg-white dark:bg-[#111827]/95 rounded-3xl border border-slate-200/80 dark:border-white/[0.07] p-4 xl:p-5 shadow-xs dark:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)] flex flex-col h-auto lg:h-full lg:min-h-0 lg:overflow-hidden transition-colors duration-200"
+        className="lg:col-span-4 lg:row-span-2 lg:col-start-9 lg:row-start-1 bg-white dark:bg-[#111827]/95 rounded-3xl border border-slate-200/80 dark:border-white/[0.07] p-4 xl:p-5 shadow-xs dark:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)] flex flex-col h-auto lg:h-full lg:min-h-0 lg:overflow-hidden transition-all duration-300"
       >
         <div className="flex items-center justify-between gap-2 mb-3 shrink-0">
           <div className="flex items-center gap-2.5 min-w-0">
@@ -1232,7 +1303,7 @@ export default function Dashboard() {
 
           <Link
             to="/examenes"
-            className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-indigo-50 dark:bg-indigo-500/15 hover:bg-indigo-100 dark:hover:bg-indigo-500/25 text-indigo-700 dark:text-indigo-300 dark:border dark:border-indigo-400/20 text-xs font-semibold transition shrink-0"
+            className="inline-flex items-center gap-1 px-2.5 py-1.5 rounded-xl bg-indigo-50 dark:bg-indigo-500/15 hover:bg-indigo-100 dark:hover:bg-indigo-500/25 text-indigo-700 dark:text-indigo-300 dark:border dark:border-indigo-400/20 text-xs font-semibold transition-all duration-300 shrink-0"
           >
             <span>Ver todos</span>
             <ArrowRight className="w-3.5 h-3.5" />
@@ -1267,7 +1338,7 @@ export default function Dashboard() {
               return (
                 <div
                   key={exam.id}
-                  className="flex items-center justify-between gap-2.5 p-3 rounded-2xl border border-slate-100 dark:border-white/[0.06] bg-slate-50/60 dark:bg-[#0B111E] hover:bg-white dark:hover:bg-[#151D33] hover:border-slate-200 dark:hover:border-indigo-400/20 transition"
+                  className="flex items-center justify-between gap-2.5 p-3 rounded-2xl border border-slate-100 dark:border-white/[0.06] bg-slate-50/60 dark:bg-[#0B111E] hover:bg-white dark:hover:bg-[#151D33] hover:border-slate-200 dark:hover:border-indigo-400/20 transition-all duration-300"
                 >
                   <div className="min-w-0">
                     <div className="flex items-center gap-1.5">
@@ -1314,7 +1385,7 @@ export default function Dashboard() {
       {/* FILA 3 COMPLETA (lg:col-span-12): HORARIO SEMANAL HORIZONTAL */}
       <section
         aria-label="Horario Semanal"
-        className="lg:col-span-12 lg:col-start-1 lg:row-start-3 bg-white dark:bg-[#111827]/95 rounded-3xl border border-slate-200/80 dark:border-white/[0.07] p-4 xl:p-5 shadow-xs dark:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)] flex flex-col h-auto lg:h-full lg:min-h-0 transition-colors duration-200"
+        className="lg:col-span-12 lg:col-start-1 lg:row-start-3 bg-white dark:bg-[#111827]/95 rounded-3xl border border-slate-200/80 dark:border-white/[0.07] p-4 xl:p-5 shadow-xs dark:shadow-[inset_0_1px_0_0_rgba(255,255,255,0.05)] flex flex-col h-auto lg:h-full lg:min-h-0 transition-all duration-300"
       >
         {/* Cabecera del Horario Semanal */}
         <div className="flex items-center justify-between gap-2 mb-2 shrink-0">
@@ -1326,7 +1397,7 @@ export default function Dashboard() {
               <h2 className="text-sm xl:text-base font-bold text-slate-900 dark:text-slate-100 truncate">
                 Horario Semanal
               </h2>
-              <span className="hidden sm:inline-flex items-center px-2 py-0.5 rounded-lg bg-slate-100 dark:bg-[#0B111E] dark:border dark:border-white/[0.07] text-slate-600 dark:text-slate-400 text-[10px] font-semibold">
+              <span className="hidden sm:inline-flex items-center px-2 py-0.5 rounded-lg bg-slate-100 dark:bg-[#0B111E] dark:border dark:border-white/[0.07] text-slate-600 dark:text-slate-400 text-[10px] font-semibold tabular-nums">
                 {includeWeekend ? 'Lunes a Domingo' : 'Lunes a Viernes'} • 07:00 a 22:00
               </span>
             </div>
@@ -1335,7 +1406,7 @@ export default function Dashboard() {
           <button
             type="button"
             onClick={handleOpenCreateSchedule}
-            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold transition cursor-pointer shrink-0 shadow-2xs"
+            className="inline-flex items-center gap-1 px-3 py-1.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold transition-all duration-300 cursor-pointer shrink-0 shadow-2xs"
           >
             <Plus className="w-3.5 h-3.5" />
             <span>Agregar</span>
@@ -1364,7 +1435,7 @@ export default function Dashboard() {
                   {TIMELINE_HOURS.map((hour) => (
                     <div
                       key={hour}
-                      className="text-[10px] font-mono font-medium text-slate-400 dark:text-slate-400 text-left pl-0.5 truncate select-none"
+                      className="text-[10px] font-mono tabular-nums font-medium text-slate-400 dark:text-slate-400 text-left pl-0.5 truncate select-none"
                     >
                       {String(hour).padStart(2, '0')}:00
                     </div>

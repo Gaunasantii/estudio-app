@@ -595,7 +595,7 @@ export default function StatsPage() {
           {/* =================================================================== */}
           <section
             aria-label="Rendimiento últimas 12 semanas"
-            className="w-full max-w-full overflow-x-hidden bg-white dark:bg-[#111827]/95 rounded-3xl border border-slate-200/80 dark:border-white/[0.07] p-5 sm:p-6 shadow-xs space-y-5"
+            className="w-full max-w-full overflow-x-hidden bg-white dark:bg-[#111827]/95 rounded-3xl border border-slate-200/80 dark:border-white/[0.07] p-5 sm:p-6 shadow-xs space-y-5 transition-all duration-300"
           >
             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <div className="flex items-center gap-3">
@@ -735,7 +735,7 @@ export default function StatsPage() {
           {/* =================================================================== */}
           <section
             aria-label="Rendimiento y Horas por Materia"
-            className="bg-white dark:bg-[#111827]/95 rounded-3xl border border-slate-200/80 dark:border-white/[0.07] p-5 sm:p-6 shadow-xs space-y-5"
+            className="bg-white dark:bg-[#111827]/95 rounded-3xl border border-slate-200/80 dark:border-white/[0.07] p-5 sm:p-6 shadow-xs space-y-5 transition-all duration-300"
           >
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
               <div className="flex items-center gap-3">
@@ -858,7 +858,7 @@ export default function StatsPage() {
           {/* =================================================================== */}
           <section
             aria-label="Actividad Anual"
-            className="bg-white dark:bg-[#111827]/95 rounded-3xl border border-slate-200/80 dark:border-white/[0.07] p-5 sm:p-6 shadow-xs space-y-5"
+            className="bg-white dark:bg-[#111827]/95 rounded-3xl border border-slate-200/80 dark:border-white/[0.07] p-5 sm:p-6 shadow-xs space-y-5 transition-all duration-300"
           >
             <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
               <div className="flex items-center gap-3">

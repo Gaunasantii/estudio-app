@@ -459,7 +459,7 @@ export default function ExamsPage() {
         <button
           type="button"
           onClick={openCreateModal}
-          className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold shadow-sm transition cursor-pointer self-start sm:self-auto"
+          className="inline-flex items-center justify-center gap-2 px-5 py-3 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-semibold shadow-sm transition-all duration-300 cursor-pointer self-start sm:self-auto"
         >
           <Plus className="w-4 h-4" />
           <span>Agendar Examen</span>
@@ -468,12 +468,12 @@ export default function ExamsPage() {
 
       {/* Tarjetas de resumen */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div className="bg-white dark:bg-[#111827]/95 rounded-2xl border border-slate-200/80 dark:border-white/[0.07] p-5 shadow-xs flex items-center justify-between">
+        <div className="bg-white dark:bg-[#111827]/95 rounded-2xl border border-slate-200/80 dark:border-white/[0.07] p-5 shadow-xs flex items-center justify-between transition-all duration-300">
           <div>
             <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
               Pendientes
             </p>
-            <p className="text-2xl font-bold text-indigo-600 dark:text-indigo-400 mt-1">
+            <p className="text-2xl font-bold tabular-nums text-indigo-600 dark:text-indigo-400 mt-1">
               {pendingCount}
             </p>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
@@ -485,12 +485,12 @@ export default function ExamsPage() {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-[#111827]/95 rounded-2xl border border-slate-200/80 dark:border-white/[0.07] p-5 shadow-xs flex items-center justify-between">
+        <div className="bg-white dark:bg-[#111827]/95 rounded-2xl border border-slate-200/80 dark:border-white/[0.07] p-5 shadow-xs flex items-center justify-between transition-all duration-300">
           <div>
             <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
               Aprobados / Completados
             </p>
-            <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400 mt-1">
+            <p className="text-2xl font-bold tabular-nums text-emerald-600 dark:text-emerald-400 mt-1">
               {completedCount}
             </p>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
@@ -502,12 +502,12 @@ export default function ExamsPage() {
           </div>
         </div>
 
-        <div className="bg-white dark:bg-[#111827]/95 rounded-2xl border border-slate-200/80 dark:border-white/[0.07] p-5 shadow-xs flex items-center justify-between">
+        <div className="bg-white dark:bg-[#111827]/95 rounded-2xl border border-slate-200/80 dark:border-white/[0.07] p-5 shadow-xs flex items-center justify-between transition-all duration-300">
           <div>
             <p className="text-xs font-semibold uppercase tracking-wider text-slate-400">
               Promedio General
             </p>
-            <p className="text-2xl font-bold text-slate-900 dark:text-slate-100 mt-1">
+            <p className="text-2xl font-bold tabular-nums text-slate-900 dark:text-slate-100 mt-1">
               {averageScore !== null ? averageScore : '—'}
             </p>
             <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
@@ -647,7 +647,7 @@ export default function ExamsPage() {
             return (
               <div
                 key={exam.id}
-                className="bg-white dark:bg-[#111827]/95 rounded-3xl border border-slate-200/80 dark:border-white/[0.07] p-5 shadow-xs hover:shadow-md hover:border-slate-300 dark:hover:border-white/15 transition flex flex-col justify-between gap-4"
+                className="bg-white dark:bg-[#111827]/95 rounded-3xl border border-slate-200/80 dark:border-white/[0.07] p-5 shadow-xs hover:shadow-md hover:border-slate-300 dark:hover:border-white/15 transition-all duration-300 flex flex-col justify-between gap-4"
               >
                 <div className="space-y-3">
                   {/* Cabecera con materia y badge de días restantes */}

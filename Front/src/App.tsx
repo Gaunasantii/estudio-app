@@ -40,6 +40,7 @@ import {
 } from './utils/theme';
 import Login from './pages/Login';
 import Register from './pages/Register';
+import LandingPage from './pages/LandingPage';
 import DashboardLayout from './pages/DashboardLayout';
 import Dashboard from './pages/Dashboard';
 import SubjectsPage from './pages/SubjectsPage';
@@ -78,7 +79,7 @@ function PublicRoute({ children }: { children: ReactNode }) {
     );
   }
 
-  return isAuthenticated ? <Navigate to="/" replace /> : <>{children}</>;
+  return isAuthenticated ? <Navigate to="/dashboard" replace /> : <>{children}</>;
 }
 
 function ProfileView() {
@@ -173,14 +174,14 @@ function ProfileView() {
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       <Link
-        to="/"
-        className="inline-flex items-center gap-2 text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300"
+        to="/dashboard"
+        className="inline-flex items-center gap-2 text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-all duration-300"
       >
         <ArrowLeft className="w-4 h-4" />
         <span>Volver al Dashboard</span>
       </Link>
 
-      <div className="bg-white dark:bg-[#111827]/95 rounded-3xl border border-slate-200 dark:border-white/[0.07] p-8 shadow-xs space-y-6">
+      <div className="bg-white dark:bg-[#111827]/95 rounded-3xl border border-slate-200 dark:border-white/[0.07] p-8 shadow-xs space-y-6 transition-all duration-300">
         <div className="flex items-center gap-4">
           <div className="w-14 h-14 rounded-full overflow-hidden bg-indigo-50 dark:bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 font-bold text-lg flex items-center justify-center border border-indigo-100 dark:border-indigo-500/30 shrink-0">
             {selectedAvatar ? (
@@ -366,13 +367,13 @@ function ProfileView() {
           <div className="flex items-center justify-between gap-4 pt-2">
             <div className="flex items-center gap-2 text-xs text-emerald-700 dark:text-emerald-400">
               <ShieldCheck className="w-4 h-4 shrink-0" />
-              <span>Sesión activa y sincronizada con tu cuenta de EstudioApp.</span>
+              <span>Sesión activa y sincronizada con tu cuenta de Fokus.</span>
             </div>
 
             <button
               type="submit"
               disabled={submitting}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 text-white text-sm font-semibold transition cursor-pointer shadow-xs"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 disabled:opacity-60 text-white text-sm font-semibold transition-all duration-300 cursor-pointer shadow-xs"
             >
               <Save className="w-4 h-4" />
               <span>{submitting ? 'Guardando...' : 'Guardar cambios'}</span>
@@ -429,14 +430,14 @@ function SettingsView() {
   return (
     <div className="max-w-2xl mx-auto space-y-6">
       <Link
-        to="/"
-        className="inline-flex items-center gap-2 text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300"
+        to="/dashboard"
+        className="inline-flex items-center gap-2 text-sm font-medium text-indigo-600 dark:text-indigo-400 hover:text-indigo-700 dark:hover:text-indigo-300 transition-all duration-300"
       >
         <ArrowLeft className="w-4 h-4" />
         <span>Volver al Dashboard</span>
       </Link>
 
-      <div className="bg-white dark:bg-[#111827]/95 rounded-3xl border border-slate-200 dark:border-white/[0.07] p-8 shadow-xs space-y-6">
+      <div className="bg-white dark:bg-[#111827]/95 rounded-3xl border border-slate-200 dark:border-white/[0.07] p-8 shadow-xs space-y-6 transition-all duration-300">
         <div>
           <h1 className="text-xl font-bold text-slate-900 dark:text-slate-100">Ajustes</h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
@@ -583,7 +584,15 @@ export function App() {
     <AuthProvider>
       <BrowserRouter>
         <Routes>
-          {/* Rutas públicas */}
+          {/* Portada pública en / (redirige a /dashboard si hay sesión activa) */}
+          <Route
+            path="/"
+            element={
+              <PublicRoute>
+                <LandingPage />
+              </PublicRoute>
+            }
+          />
           <Route
             path="/login"
             element={
@@ -603,19 +612,18 @@ export function App() {
 
           {/* Rutas privadas con DashboardLayout */}
           <Route
-            path="/"
             element={
               <PrivateRoute>
                 <DashboardLayout />
               </PrivateRoute>
             }
           >
-            <Route index element={<Dashboard />} />
-            <Route path="materias" element={<SubjectsPage />} />
-            <Route path="examenes" element={<ExamsPage />} />
-            <Route path="estadisticas" element={<StatsPage />} />
-            <Route path="perfil" element={<ProfileView />} />
-            <Route path="ajustes" element={<SettingsView />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/materias" element={<SubjectsPage />} />
+            <Route path="/examenes" element={<ExamsPage />} />
+            <Route path="/estadisticas" element={<StatsPage />} />
+            <Route path="/perfil" element={<ProfileView />} />
+            <Route path="/ajustes" element={<SettingsView />} />
           </Route>
 
           {/* Redirección por defecto */}
